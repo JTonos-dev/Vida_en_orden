@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run test:finance
+      - run: npm run test:mcp
+      - run: npx tsc --noEmit
+      - run: npm run lint
+      - run: npm run build
+      - name: Scan for common credential patterns
+        shell: bash
+        run: |
+          if git grep -n -I -E '(^|["'"' =])(sk-[A-Za-z0-9]{20,}|gh[pousr]_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|Bearer[[:space:]]+[A-Za-z0-9._~-]{20,})' -- . ':!package-lock.json'; then
+            echo 'Potential credential pattern found.'
+            exit 1
+          fi

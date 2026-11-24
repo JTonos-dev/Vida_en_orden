@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1794940292112,
+      "tag": "0000_chunky_hellion",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1795010805740,
+      "tag": "0001_supreme_imperial_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1795034672422,
+      "tag": "0002_strange_tattoo",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1795056496879,
+      "tag": "0003_steady_inhumans",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795100000000,
+      "tag": "0004_transfer_fees",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795104000000,
+      "tag": "0005_transfer_fee_rates",
+      "breakpoints": true
+    }
+  ]
+}

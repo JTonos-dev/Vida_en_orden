@@ -1,0 +1,41 @@
+{
+  "notice": "FICTITIOUS DEMO DATA — DO NOT USE AS PRODUCTION DATA",
+  "owner": {
+    "userId": "demo-owner-0001",
+    "email": "demo.owner@example.test",
+    "displayName": "Demo Owner"
+  },
+  "tasks": [
+    {
+      "id": "demo-task-0001",
+      "title": "Revisar filtro de agua",
+      "priority": "P+",
+      "scheduledDate": "2030-01-15",
+      "done": false
+    },
+    {
+      "id": "demo-task-0002",
+      "title": "Comprar repuesto ficticio",
+      "priority": "P",
+      "parentId": "demo-task-0001",
+      "done": false
+    }
+  ],
+  "areas": [
+    { "id": "demo-area-0001", "name": "Hogar de demostración" }
+  ],
+  "projects": [
+    { "id": "demo-project-0001", "name": "Mantenimiento demo", "status": "active" }
+  ],
+  "finance": {
+    "accounts": [
+      { "id": "demo-account-0001", "name": "Cuenta Demo", "currency": "DOP", "balanceMinor": 1250000 }
+    ],
+    "transactions": [
+      { "id": "demo-transaction-0001", "type": "expense", "amountMinor": 18500, "description": "Material de prueba" }
+    ],
+    "goals": [
+      { "id": "demo-goal-0001", "title": "Meta de demostración", "targetMinor": 1000000 }
+    ]
+  }
+}

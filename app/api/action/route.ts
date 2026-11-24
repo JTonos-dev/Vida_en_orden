@@ -1,0 +1,4 @@
+import { action, stateFor, userId, userName } from "@/lib/home-server";
+import { v2Action, v2StateFor } from "@/lib/v2-server";
+export const runtime = "edge";
+export async function POST(request: Request) { try { const user=userId(request); const body=await request.json() as Record<string,unknown>; if(body.action === "backup.restore") { await action(user,userName(request),{action:"importBackup",data:body.data}); await v2Action(user,{action:"backup.restoreV2",data:body.data}); } else if(String(body.action||"").includes(".")) await v2Action(user,body); else await action(user,userName(request),body); const [home,v2]=await Promise.all([stateFor(),v2StateFor(user)]); return Response.json({...home,...v2}); } catch (e) { if(e instanceof Response) return e; return Response.json({error:e instanceof Error?e.message:"Error"},{status:400}); } }
