@@ -47,3 +47,19 @@ No están implementados como herramientas MCP: `create`, `update`, `delete`, `vo
 ## Desarrollo aislado de fase 3
 
 `lib/mcp/plans/engine.ts` implementa preparación, revisión, cancelación, aprobación, ejecución atómica y consulta de recibos. Aún no hay herramientas nuevas expuestas ni adaptadores de negocio publicados. La verificación WebAuthn usa claves administrativas fijadas, sin inscripción desde el modelo. Producción conserva 31 lecturas.
+
+## Catálogo no financiero en desarrollo (fase 4)
+
+19 acciones internas, probadas en una D1 simulada con SQLite real; aún no expuestas en el catálogo de producción:
+
+| Dominio | Acciones |
+|---|---|
+| Tareas y subtareas | task.create (parentId), task.update (padre, fechas, dependencias, prioridad), task.duplicate, task.archive (y desarchivar), task.complete (y reabrir), task.delete, task.reorder, task.context |
+| Bitácora | journal.create, journal.update, journal.delete |
+| Organización | area.create/update, project.create/update (estado active/paused/completed) |
+| Calendario | event.create/update/cancel (recurrencia incluida) |
+| Planificación | fechas/horas de task.update/context, workspace.update |
+
+Reversión: `prepareReversal` calcula una nueva propuesta desde un recibo de fase 4 sin cambios posteriores. No acepta tablas/patches del llamador, no restaura backups, conserva auditoría y exige aprobación nueva. Las finanzas se anulan/compensan con sus servicios específicos.
+
+Sin soporte en la aplicación actual: eliminar/archivar áreas; eliminar proyectos; agenda como entidad CRUD independiente. No se inventan acciones equivalentes ni se declaran implementadas. Archivar tareas y pausar/completar proyectos son operaciones disponibles.

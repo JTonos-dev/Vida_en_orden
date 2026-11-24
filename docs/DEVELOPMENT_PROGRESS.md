@@ -10,8 +10,8 @@ Mandato vigente: 24 de noviembre de 2026. El responsable autoriza desarrollar to
 
 | Entrega | Estado | Dependencia | PR/commit | Próximo paso |
 |---|---|---|---|---|
-| 3: motor, persistencia, aprobación y atomicidad | Fundamento implementado y probado; transporte pendiente | #4 | Rama `feature/mcp-phase3-foundation` | PR del fundamento; continuar con catálogo y transporte. |
-| 4: operaciones no financieras | Pendiente | Motor 3 | Por publicar | Catálogo cerrado y pruebas con servicios compartidos. |
+| 3: motor, persistencia, aprobación y atomicidad | Fundamento implementado y probado; transporte pendiente | #4 | Rama `feature/mcp-phase3-foundation` | PR #5, commit 01a410c; transporte pendiente. |
+| 4: operaciones no financieras | Adaptadores implementados y siete pruebas aprobadas | Motor 3 | Rama `feature/mcp-phase4-domain-catalog`, depende de #5 | 19 operaciones, referencias y reversión; 101 pruebas y verificaciones completas aprobadas. |
 | 5: operaciones financieras | Pendiente | 3 y 4 | Por publicar | Paridad, concurrencia, reservas y reversión con fixtures. |
 | 6: adjuntos, informes y endurecimiento | Pendiente | 3–5 | Por publicar | Componentes seguros sin inventar transporte de archivos. |
 | 7: cierre y aceptación | Pendiente | Entregas anteriores | Por publicar | Instalación nueva, compatibilidad, migraciones y guía manual. |
@@ -33,3 +33,9 @@ Pendientes externos: revisión/merge de PR, interacción humana real con el cana
 ## Cómo reanudar
 
 Leer este documento, `AGENTS.md`, estado, roadmap y paridad; ejecutar `git status`, `git fetch origin`, revisar PR abiertos y la rama indicada. Mantener los cambios pendientes y las dependencias; no resetear ni fusionar en main. Ejecutar las pruebas de la entrega antes de publicar. No activar escrituras reales por completar pruebas locales.
+
+### Entrega 4A
+
+Catálogo cerrado de 19 acciones; operaciones existentes sin duplicar lógica. Correcciones: servicios V2 devuelven IDs de creación inequívocos; validación compartida de dependencias de tareas rechaza referencias inválidas, duplicados y ciclos. Reversión no financiera derivada de un recibo, con nueva huella/aprobación y rechazo si hubo cualquier cambio de negocio posterior. No revierte movimientos financieros ni borra auditoría. No hay migración nueva ni despliegue; rollback de código conserva la migración aditiva 0008. El transporte MCP se entrega aparte y permanece cerrado.
+
+Verificación 4A: npm ci; 14 finanzas + 83 MCP + 4 auditoría = 101 pruebas; TypeScript, lint (solo cuatro advertencias previas), build, auditoría pública de 213 archivos y verify:independent 0000–0008 aprobados. CI de #5 satisfactorio. Las pruebas humanas permanecen bloqueadas por despliegue/canal, no por reglas de dominio.

@@ -60,3 +60,7 @@ La instalación independiente de validación también ejecutó las 31 herramient
 - Las escrituras reales MCP permanecen deshabilitadas; los componentes aislados no habilitan ejecución por sí mismos.
 - El esquema SQL no usa claves foráneas para todas las relaciones; el código valida referencias y `validate_references` informa inconsistencias sin repararlas.
 - La consulta actual de rulesets muestra PR obligatorio, bloqueo de borrado/force-push y check `verify` requerido. Permite cero aprobaciones y no exige que el check esté actualizado con la base. La cuenta ejecutora tiene lectura sobre el oficial, sin administración ni push. Ver `docs/COLLABORATION.md`.
+
+## Entrega no financiera en rama dependiente
+
+19 adaptadores cerrados reutilizan los servicios. Incluyen tareas/subtareas, bitácora, organización y eventos; reversión específica derivada de recibos con nueva aprobación. No hay herramientas públicas nuevas ni escrituras reales habilitadas. Ver paridad y seguimiento.
