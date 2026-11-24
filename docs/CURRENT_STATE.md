@@ -38,6 +38,7 @@ La fuente de origen pasó antes de la transferencia:
 - `npx tsc --noEmit`.
 - `npm run lint` sin errores de salida; existen advertencias no bloqueantes preexistentes de componentes.
 - `npm run build`.
+- `npm run verify:independent` aplica las ocho migraciones en una D1 local temporal y comprueba una consulta de humo sin usar la instalación original.
 
 La validación local cubre catálogo, identidad, lecturas, paginación e integridad referencial. Una validación de producción pertenece a cada instalación y no se registra aquí con datos, saldos, correos, URLs o hashes de respaldos.
 
@@ -48,3 +49,4 @@ La validación local cubre catálogo, identidad, lecturas, paginación e integri
 - Las herramientas nuevas deben validarse individualmente después de conectar el plugin de una nueva instalación; el catálogo por sí solo no prueba una integración end-to-end.
 - La fase de escrituras MCP no está implementada. Los contratos futuros en `lib/mcp/future-contracts.ts` no habilitan herramientas.
 - El esquema SQL no usa claves foráneas para todas las relaciones; el código valida referencias y `validate_references` informa inconsistencias sin repararlas.
+- La protección efectiva de `main` no está demostrada por este snapshot: la lectura de branch protection requiere un permiso de GitHub que la integración disponible no expone. Los pasos manuales y el estado que debe verificarse están en `docs/COLLABORATION.md`.

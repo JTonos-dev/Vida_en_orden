@@ -28,6 +28,8 @@ Si detectas un secreto o dato personal, detén el trabajo, elimina el material d
 
 `main` representa la última versión integrada, estable y verificada.
 
+La configuración deseada para `main` es: pull request obligatorio, CI obligatorio y satisfactorio, sin force-push ni eliminación de la rama, y revisión humana antes del merge. El estado efectivo de las reglas debe comprobarse en GitHub; si la cuenta no permite leer o modificar branch protection/rulesets, sigue el procedimiento manual de `docs/COLLABORATION.md` y no declares la protección aplicada.
+
 Para cada cambio posterior a la inicialización:
 
 1. Sincroniza `main` con `git fetch origin` y `git pull --ff-only`.
@@ -52,6 +54,7 @@ npm run test:mcp
 npx tsc --noEmit
 npm run lint
 npm run build
+npm run verify:independent
 ```
 
 Añade pruebas proporcionales para:
@@ -66,6 +69,8 @@ Añade pruebas proporcionales para:
 - detección de secretos y ausencia de efectos secundarios.
 
 No declares aprobada una comprobación que no pudiste ejecutar. El script `scripts/qa-v2.mjs` modifica su entorno de prueba: nunca lo apuntes a producción.
+
+`npm run verify:independent` debe ejecutarse después del build. Crea una base D1 local temporal, aplica `drizzle/0000` a `drizzle/0007` en orden y la elimina al terminar; no acepta ni necesita credenciales productivas.
 
 ## Datos, migraciones y compatibilidad
 

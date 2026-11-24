@@ -1,5 +1,7 @@
 # Historial de cambios
 
+El changelog canónico está en [../CHANGELOG.md](../CHANGELOG.md). Este archivo se conserva para no romper enlaces de la transferencia inicial.
+
 ## Transferencia pública · 2026-11-24
 
 - Se saneó el snapshot del Site de origen y se preparó para instalaciones independientes.
