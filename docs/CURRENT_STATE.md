@@ -13,6 +13,8 @@
 - `/api/action` conserva las escrituras normales de la interfaz; no forma parte del router MCP.
 - No se incluye ninguna base de datos, respaldo, log o fixture de la instalación original.
 
+La revisión de una instalación nueva encontró fixtures incrustados en el bootstrap de tareas y una clasificación automática ligada a la instalación de origen. La copia propuesta elimina ambos del runtime: una primera escritura crea únicamente la tarea solicitada y no genera proyectos heredados. El historial público previo no se reescribe. Ver `INDEPENDENT_INSTALLATION_VALIDATION.md`.
+
 ## MCP verificado en el origen
 
 El estado transferido implementa el servidor MCP en `POST /mcp` con protocolo `2026-07-28`:
@@ -42,6 +44,10 @@ La fuente de origen pasó antes de la transferencia:
 
 La validación local cubre catálogo, identidad, lecturas, paginación e integridad referencial. Una validación de producción pertenece a cada instalación y no se registra aquí con datos, saldos, correos, URLs o hashes de respaldos.
 
+`tests/mcp-installation.test.ts`, incluido en `test:mcp`, ejecuta las 31 herramientas contra SQLite real con las ocho migraciones, tanto vacío como con fixtures sintéticos. Comprueba ausencia de cambios, dos bases separadas con IDs coincidentes, paginación y denegaciones 401/403/503. Esta prueba no sustituye la conexión al plugin ni la ejecución sobre D1 alojada.
+
+La instalación independiente de validación también ejecutó las 31 herramientas mediante su propio plugin contra una D1 nueva: 22 lecturas válidas y nueve `not_found` esperados en detalles de una base vacía. Las 18 tablas permanecieron vacías y la validación referencial informó cero incidencias. Los detalles positivos y la paginación con registros están cubiertos localmente con datos ficticios. La publicación de esa instancia no fusiona esta propuesta ni habilita otra fase.
+
 ## Límites conocidos
 
 - La configuración de audiencia y los secretos de Sites no son portables por Git y deben recrearse manualmente en cada instalación.
@@ -49,4 +55,4 @@ La validación local cubre catálogo, identidad, lecturas, paginación e integri
 - Las herramientas nuevas deben validarse individualmente después de conectar el plugin de una nueva instalación; el catálogo por sí solo no prueba una integración end-to-end.
 - La fase de escrituras MCP no está implementada. Los contratos futuros en `lib/mcp/future-contracts.ts` no habilitan herramientas.
 - El esquema SQL no usa claves foráneas para todas las relaciones; el código valida referencias y `validate_references` informa inconsistencias sin repararlas.
-- La protección efectiva de `main` no está demostrada por este snapshot: la lectura de branch protection requiere un permiso de GitHub que la integración disponible no expone. Los pasos manuales y el estado que debe verificarse están en `docs/COLLABORATION.md`.
+- La consulta pública de rulesets del 24 de noviembre de 2026 mostró una regla activa que exige PR y bloquea borrado y force-push. No incluye un required status check ni una revisión humana obligatoria. La protección clásica no pudo consultarse con la sesión disponible. Ver `docs/COLLABORATION.md`.

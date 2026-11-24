@@ -25,7 +25,7 @@ La configuración objetivo para este repositorio pequeño es:
 - impedir el merge mientras haya checks pendientes o fallidos;
 - permitir al responsable del repositorio resolver un bloqueo excepcional de administración, pero no usarlo para eludir una revisión ordinaria.
 
-En la auditoría del 24 de noviembre de 2026 no se pudo afirmar que estas reglas estén aplicadas: la integración pudo leer el repositorio y confirmó que no hay rulesets visibles, pero GitHub rechazó la lectura de la branch protection clásica por permisos (`403 Resource not accessible by integration`). El propietario debe abrir `Settings → Rules → Rulesets` (o `Settings → Branches → Branch protection rules`) y aplicar la configuración anterior. Después, verificar que un PR nuevo muestre `CI / verify` como required check. No se debe hacer push directo a `main` para probarlo.
+La nueva consulta pública del 24 de noviembre de 2026 encontró el ruleset activo `Protect main`, aplicado a la rama por defecto. Exige PR y bloquea borrado y force-push, pero no declara checks requeridos y permite cero aprobaciones. La protección clásica no pudo leerse con la sesión disponible; no se afirma que carezca de reglas adicionales. El propietario debe abrir `Settings → Rules → Rulesets` (o `Settings → Branches → Branch protection rules`), completar la configuración anterior y verificar que un PR nuevo muestre `CI / verify` como required check. No se debe hacer push directo a `main` para probarlo.
 
 Con dos colaboradores, el primer PR de cada persona debe ser revisado por la otra. Mientras exista un solo colaborador efectivo, la revisión obligatoria de una persona distinta al autor puede bloquear el flujo; por eso debe activarse cuando el segundo colaborador tenga acceso de escritura.
 

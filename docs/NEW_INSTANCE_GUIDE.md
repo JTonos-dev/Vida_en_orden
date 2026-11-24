@@ -42,6 +42,10 @@ npm run verify:independent
 
 `verify:independent` crea una D1 local temporal con Wrangler, aplica `drizzle/0000` hasta `drizzle/0007`, ejecuta una consulta de humo y elimina el directorio temporal. No ejecuta `--remote`, no necesita un token y no importa datos.
 
+`test:mcp` también invoca individualmente las 31 herramientas con el esquema SQL real y datos ficticios, prueba una base vacía y compara dos bases independientes. Las lecturas no deben insertar valores predeterminados. La primera escritura de la interfaz tampoco debe cargar tareas ni proyectos de la instalación original; `scripts/qa-v2.mjs` comprueba esta condición únicamente contra una vista local aislada.
+
+Conserva el marcador del manifiesto en la rama pública. Para publicar, prepara un checkout separado, por ejemplo dentro del directorio ignorado `work/instance/`, y configura allí el manifiesto propio. `verify:independent` audita la copia pública y rechaza por diseño un manifiesto con identidad real: ejecútalo en el checkout público después del build. No publiques la configuración privada mediante el PR.
+
 ## 4. Crear el Site y la D1
 
 La creación de un ChatGPT Site y la vinculación de una base D1 dependen de las capacidades disponibles en la cuenta y requieren intervención dentro de ChatGPT Sites. El repositorio no puede importar automáticamente el Site de otra cuenta.

@@ -13,21 +13,7 @@ const priorities = new Set(["P+++", "P++", "P+", "P", "NP++", "NP+", "NP"]);
 const efforts = new Set(["baja", "media", "alta"]);
 // One private household is shared by everyone explicitly allowed into this Site.
 // The Sites access policy remains the server-side membership boundary.
-const seedRows: Array<[string, string, string, string, boolean]> = [
-  ["base-1","El divorcio de Jorge","P+++","alta",false], ["base-2","Decoración de navidad","P+++","media",false],
-  ["base-3","Cambiar el juego de cama","P++","baja",false], ["base-4","Arreglar la tubería desagüe","P++","alta",false],
-  ["base-5","Limpiar los muebles","P+","baja",false], ["base-6","Sábanas para los niños","P+","baja",false],
-  ["base-7","Cortinas de baños y juego de baño","P","baja",false], ["base-8","Juegos de colchas","P+","baja",false],
-  ["base-9","Tablita de los baños","P","baja",false], ["base-10","Espejos de los baños","P","media",false],
-  ["base-11","Madera para los armarios","P","media",false], ["base-12","Pintura de la habitación y arreglar el clóset","P","alta",false],
-  ["base-13","Arreglar sala de estar","P","alta",false], ["base-14","Arreglar el baño","NP++","alta",false],
-  ["base-15","Aire para Rubí","NP++","alta",false], ["base-16","Televisión para Abel","NP+","baja",false],
-  ["base-17","Lámpara para la habitación","NP","baja",false], ["base-18","Arreglar la nevera grande","NP","alta",false],
-  ["base-19","Techo de la cocina","NP","alta",false], ["base-20","Bombillos para el frente","P","baja",true],
-  ["base-21","Bombillo de la sala","P","baja",true], ["base-22","La rendija del desagüe de Rubí","P","baja",true],
-];
-const seed: Array<Pick<Task, "id" | "title" | "priority" | "effort" | "done" | "order">> = seedRows.map(([id,title,priority,effort,done], order) => ({ id, title, priority, effort, done, order }));
-
+// New installations start without task fixtures.
 const now = () => new Date().toISOString();
 const uid = () => crypto.randomUUID();
 const n = (v: unknown) => v === null || v === undefined || v === "" ? null : Number.isFinite(Number(v)) && Number(v) >= 0 ? Number(v) : null;
@@ -66,7 +52,6 @@ export async function ensureSeed() {
   }
   const stamp = now();
   const statements = [database.prepare("INSERT INTO home_workspaces (user_id,budget_limit,sort_mode,created_at,updated_at) VALUES (?,?,?,?,?)").bind(HOUSEHOLD_SCOPE, null, "manual", stamp, stamp)];
-  for (const t of seed) statements.push(database.prepare("INSERT INTO home_tasks (id,user_id,parent_id,title,description,priority,effort,owner,due_date,created_at,updated_at,completed_at,done,archived,estimate,actual,tags,dependencies,risk,order_index) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(t.id,HOUSEHOLD_SCOPE,null,t.title,"",t.priority,t.effort,"","",null,stamp,null,t.done ? 1 : 0,0,null,null,"[]","[]","",t.order));
   await database.batch(statements);
 }
 
