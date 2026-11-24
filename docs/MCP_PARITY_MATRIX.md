@@ -80,3 +80,7 @@ Sin soporte en la aplicación actual: eliminar/archivar áreas; eliminar proyect
 24 acciones R2; montos enteros de centavos limitados a 10^12 (movimiento legado convierte a unidades del servicio). Las transferencias propias solo afectan el neto por sus comisiones. La anulación/reducción/aporte reutiliza restitución de reservas y auditoría de dominio; no se permite rollback genérico de filas financieras.
 
 **Sin soporte actual:** transaction.split/reconcile, edición independiente de enlaces de un movimiento existente, CRUD de conceptos, archivo de obligaciones/metas, calendario de aportes, reasignación genérica de reservas, currency distinta de DOP e importaciones/restauraciones. No se declaran implementadas. Los vínculos tarea/proyecto/meta existen al crear la operación y sus validaciones siguen activas. No se agrega infraestructura bancaria real.
+
+## Transporte de propuestas opt-in (fase 3B)
+
+Diez herramientas nuevas solo al configurar explícitamente propuestas en la instancia de desarrollo: prepare_change_plan, revise_change_plan, cancel_change_plan, get_pending_proposal, list_my_pending_proposals, request_approval, get_approval_status, commit_approved_change_plan, get_execution_result y prepare_non_financial_reversal. Las de metadatos mutables no se anuncian como readOnly; las 31 anteriores conservan readOnlyHint=true. No hay herramienta approve/enroll/execute_sql ni ruta de ejecución alternativa. commit siempre se deniega en esta entrega. El canal humano es página HTTPS con WebAuthn, separado de MCP.

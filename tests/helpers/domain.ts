@@ -12,4 +12,3 @@ export function domainFixture() {
 }
 export const planAction = (actionId: string,kind: string,input: Record<string,unknown>): PlanAction => ({ actionId,kind,input });
 export const localReference = (name: string) => ({ $ref: name });
-

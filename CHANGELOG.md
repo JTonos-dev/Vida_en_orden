@@ -1,5 +1,12 @@
 # Historial de cambios
 
+## Fase 3B: transporte opcional y canal humano · 2026-11-24
+
+- Diez herramientas de propuestas opt-in; el catálogo predeterminado sigue en 31 lecturas.
+- Página de diff y aprobación owner-only con origen exacto, CSRF, versión mostrada y firma WebAuthn. El registro solo produce candidatos; no fija confianza automáticamente.
+- Migración aditiva 0009 para desafíos de registro. Guía de configuración privada y aceptación humana.
+- Fábrica y transporte mantienen ejecución MCP deshabilitada. Firmas sintéticas no equivalen a una prueba humana real.
+
 ## Fase 5: adaptadores financieros aislados · 2026-11-24
 
 - 24 operaciones R2 con servicios existentes, centavos enteros, reservas, pagos, aportes y anulaciones, sin escritura real habilitada.

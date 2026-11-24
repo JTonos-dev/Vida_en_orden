@@ -64,6 +64,13 @@
       "when": 1795536008000,
       "tag": "0008_mcp_proposal_engine",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1795536009000,
+      "tag": "0009_mcp_credential_candidates",
+      "breakpoints": true
     }
   ]
 }
