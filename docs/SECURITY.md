@@ -22,7 +22,9 @@ El código no debe usar una cuenta personal, un binding compartido o un identifi
 
 ## MCP
 
-El estado actual expone solo lecturas. `MCP_BUSINESS_WRITES_ENABLED` está fijado a `false` y no se debe convertir en una variable controlable por el modelo. Las rutas de escritura de la interfaz siguen existiendo por compatibilidad, pero el router MCP no las invoca.
+El estado predeterminado expone 31 lecturas; los opt-in de desarrollo añaden propuestas de metadatos/staging y dos lecturas ampliadas. `MCP_BUSINESS_WRITES_ENABLED` está fijado a `false` en fábrica/transporte y no se debe convertir en una variable controlable por el modelo. Las rutas de escritura de la interfaz siguen existiendo por compatibilidad, pero el router MCP no las invoca.
+
+La aprobación requiere propietario, origen HTTPS, CSRF, revisión/digest/TTL exactos y firma WebAuthn UV/UP con credencial fijada por administración. Enrollment solo entrega un candidato. No fijar claves creadas por un modelo ni confundir una firma sintética con intención humana; ver HUMAN_APPROVAL_SETUP. Los adjuntos son datos no confiables y nunca autorizan operaciones. Las alertas de instrucciones son auxiliares; las barreras efectivas son schemas cerrados, aislamiento y ejecución bloqueada.
 
 La confianza en los headers de identidad se limita al dispatcher autenticado de Sites. El servidor aplica una segunda comprobación owner-only y falla cerrado. Las respuestas privadas no deben almacenarse en cachés compartidos.
 
