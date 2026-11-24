@@ -31,7 +31,7 @@ jobs:
         shell: bash
         run: |
           pattern='(^|[[:space:]="])(sk-[A-Za-z0-9]{20,}|gh[pousr]_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|Bearer[[:space:]]+[A-Za-z0-9._~-]{20,})'
-          if git grep -n -I -E "$pattern" -- . ':!package-lock.json' ':!.github/workflows/ci.yml'; then
+          if git grep -l -I -E "$pattern" -- . ':!package-lock.json' ':!.github/workflows/ci.yml'; then
             echo 'Potential credential pattern found.'
             exit 1
           fi
