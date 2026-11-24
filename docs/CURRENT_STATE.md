@@ -46,6 +46,8 @@ La validación local cubre catálogo, identidad, lecturas, paginación e integri
 
 `tests/mcp-installation.test.ts`, incluido en `test:mcp`, ejecuta las 31 herramientas contra SQLite real con las ocho migraciones, tanto vacío como con fixtures sintéticos. Comprueba ausencia de cambios, dos bases separadas con IDs coincidentes, paginación y denegaciones 401/403/503. Esta prueba no sustituye la conexión al plugin ni la ejecución sobre D1 alojada.
 
+La instalación independiente de validación también ejecutó las 31 herramientas mediante su propio plugin contra una D1 nueva: 22 lecturas válidas y nueve `not_found` esperados en detalles de una base vacía. Las 18 tablas permanecieron vacías y la validación referencial informó cero incidencias. Los detalles positivos y la paginación con registros están cubiertos localmente con datos ficticios. La publicación de esa instancia no fusiona esta propuesta ni habilita otra fase.
+
 ## Límites conocidos
 
 - La configuración de audiencia y los secretos de Sites no son portables por Git y deben recrearse manualmente en cada instalación.

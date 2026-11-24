@@ -21,6 +21,10 @@ Se retiran esas dos fuentes del código de arranque y se amplía `verify:indepen
 
 ## Límites de la evidencia
 
+La instalación nueva también se verificó con Sites: publicación privada, binding `DB`, 18 tablas de usuario vacías y columnas de las migraciones 0006/0007 presentes. Se invocaron las 31 herramientas desde el plugin propio de la nueva cuenta: 22 devolvieron lecturas válidas y nueve detalles respondieron `not_found`, como corresponde a una base vacía. `get_my_profile` coincidió con el propietario autenticado; `get_capabilities` confirmó fase 2, solo lectura y escrituras deshabilitadas. `validate_references` devolvió cero incidencias. Las 18 tablas siguieron vacías después de las llamadas y el endpoint alojado rechazó con 401 una petición sin sesión.
+
+Los detalles con registros existentes y la paginación con segunda página se verificaron localmente con fixtures sintéticos. No se cargaron fixtures en la D1 alojada. Los rechazos de propietario distinto y política ausente se comprobaron localmente; no se usó una segunda identidad real contra el Site privado. Esta evidencia no completa ni habilita fases funcionales posteriores.
+
 SQLite local no demuestra por sí solo la conexión del plugin de ChatGPT ni la configuración de Sites. Cada propietario debe comprobar por separado Site privado, binding `DB`, ocho migraciones alojadas, secretos propios y ejecución individual desde su plugin. Un catálogo de 31 herramientas no equivale a 31 llamadas satisfactorias desde ChatGPT.
 
 La audiencia y `MCP_OWNER_EMAIL` se obtienen de la cuenta que crea el Site. No se usa un ID de cuenta como `MCP_OWNER_USER_ID`: ese valor debe corresponder a la identidad autenticada específica del Site. Los identificadores, URL, secretos y resultados con datos propios se guardan fuera del repositorio público.
