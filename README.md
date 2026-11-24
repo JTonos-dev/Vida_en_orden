@@ -13,6 +13,8 @@ Este repositorio es la fuente pública y reproducible del código. No contiene l
 
 Consulta [docs/CURRENT_STATE.md](docs/CURRENT_STATE.md) y [docs/ROADMAP.md](docs/ROADMAP.md) antes de modificar el proyecto.
 
+La guía para una instalación de otra persona está en [docs/NEW_INSTANCE_GUIDE.md](docs/NEW_INSTANCE_GUIDE.md). El flujo operativo para mantener separados Sites y GitHub está en [docs/SITES_GITHUB_SYNC.md](docs/SITES_GITHUB_SYNC.md).
+
 ## Inicio rápido
 
 Requisitos: Node.js `>=22.13.0`, Git y una base D1 para el despliegue. Para desarrollo local, Wrangler crea una base aislada y las migraciones de `drizzle/` se aplican únicamente al estado local.
@@ -23,6 +25,7 @@ npm run test:finance
 npm run test:mcp
 npx tsc --noEmit
 npm run build
+npm run verify:independent
 npm run dev
 ```
 
@@ -39,6 +42,8 @@ La copia pública incluye un `.openai/hosting.json` con un marcador seguro. Sust
 7. Publica con la capacidad MCP declarada y valida `server/discover`, `tools/list` y una lectura inocua.
 
 Los detalles y las limitaciones de plataforma están en [docs/INSTALLATION.md](docs/INSTALLATION.md), [docs/MCP_SETUP.md](docs/MCP_SETUP.md), [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) y [docs/PORTABILITY.md](docs/PORTABILITY.md).
+
+`npm run verify:independent` aplica las ocho migraciones a una base D1 local temporal, ejecuta una consulta de humo y comprueba que la copia pública no arrastra identificadores, correos o archivos privados conocidos. Nunca usa una base remota.
 
 ## Desarrollo colaborativo
 

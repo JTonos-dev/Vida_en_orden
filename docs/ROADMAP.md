@@ -2,6 +2,8 @@
 
 Este documento conserva el plan real de siete fases del plan maestro y separa el estado del código de cualquier promesa futura.
 
+El endurecimiento de GitHub, la guía de portabilidad y la prueba de instalación independiente son infraestructura de colaboración. No avanzan ni completan ninguna fase funcional del MCP.
+
 | Fase | Alcance | Estado verificable | Siguiente criterio de aceptación |
 |---|---|---|---|
 | 0 | Auditoría, inventario, backup, recuperación, matriz de paridad y amenazas | Documentada y cubierta por el código de prueba; cada instalación debe repetir la parte operativa. | Repetir auditoría y recuperación en cada instalación antes de cambios sensibles. |

@@ -16,6 +16,7 @@
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "test:finance": "node --experimental-strip-types --test tests/finance-math.test.ts",
     "test:mcp": "node --experimental-strip-types --test tests/mcp-*.test.ts",
+    "verify:independent": "node scripts/verify-independent-installation.mjs",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
