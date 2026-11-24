@@ -32,6 +32,7 @@ Requisitos: Git, Node.js `>=22.13.0` y una instalación limpia de dependencias.
 
 ```sh
 npm ci
+npm run audit:dependencies
 npm run test:finance
 npm run test:mcp
 npm run test:audit
@@ -63,7 +64,7 @@ En el Site nuevo:
 5. aplica las migraciones en orden desde `drizzle/` usando el flujo de despliegue documentado por Sites;
 6. no cargues el JSON de respaldo ni seeds con datos reales.
 
-Si el entorno no permite ejecutar migraciones desde el repositorio, usa el visor o el mecanismo de migraciones de Sites para aplicar cada archivo SQL en orden y registra el resultado. Nunca uses una base remota para la prueba local.
+Antes de publicar ejecuta verify:hosting. En la rama de fases 3–7 está bloqueado por metadatos fuera de las migraciones de esquema; sigue SITES_MIGRATION_COMPATIBILITY.md. El visor de tablas disponible por herramientas es de lectura, no constituye un migrador. Si falta un mecanismo administrativo admitido, documenta el bloqueo y no declares aplicado SQL ni inventes una ruta de escritura. Nunca uses una base remota para la prueba local.
 
 ## 5. Identidad y permisos
 

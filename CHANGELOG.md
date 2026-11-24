@@ -1,5 +1,12 @@
 # Historial de cambios
 
+## Corrección de dependencias y gate de publicación · 2026-11-24
+
+- Se resuelven 33 entradas de auditoría (dos críticas) del lockfile basal: React/RSC, Next, Vinext/Vite, Cloudflare y transitivas compatibles. Auditoría actual: cero vulnerabilidades, sin force ni degradación de Drizzle. Ver DEPENDENCY_SECURITY.md.
+- Migración real a Zod 4 con records explícitos y dispatcher tipado; conformance compara códigos/campos de validación. CI incorpora audit:dependencies.
+- verify:hosting identifica 21 instrucciones de metadatos fuera del flujo de migración de esquema documentado de Sites y bloquea publicación. Se conserva SQL/triggers y se prepara consulta administrativa; no se afirma un rechazo del backend no observado.
+- 138 pruebas locales aprobadas, instalación/build/ORM/D1/Worker y 27 comprobaciones API/UI aprobados. No se modifica ninguna instalación personal ni se habilita ejecución de negocio.
+
 ## Fase 7: integración reproducible y cierre técnico · 2026-11-24
 
 - Verificación del Worker compilado por HTTPS loopback con D1 nueva, las 31 lecturas, WebAuthn sintético, CSRF, anti-framing, inscripción sin confianza y ejecución cerrada; 27 comprobaciones de la interfaz.

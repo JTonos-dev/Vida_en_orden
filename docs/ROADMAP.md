@@ -14,7 +14,7 @@ El endurecimiento de GitHub, la guía de portabilidad y la prueba de instalació
 | 4 | Escrituras no financieras: tareas, áreas, proyectos, planificación y bitácora | 19 adaptadores y reversión implementados en aislamiento; transporte y aceptación pendientes. | Atomicidad, rollback y paridad con servicios existentes. |
 | 5 | Escrituras financieras y relaciones cruzadas | 24 adaptadores R2 y pruebas contables implementados en aislamiento; aceptación/ejecución real pendientes. | Pruebas contables, no doble conteo, concurrencia, reversión y reconciliación. |
 | 6 | Adjuntos interpretados, informes ampliados y endurecimiento operativo | Texto/CSV/JSON, informe interno, límites, evidencia y recuperación implementados; binarios/OCR y validación de host pendientes. | Seguridad ante prompt injection, observabilidad, carga y manejo de datos incompletos. |
-| 7 | Cierre documental, publicación, conexión y pruebas end-to-end | Integración Worker/D1, migraciones/ORM, CI y guías implementadas; instalación desde GitHub/host y aceptación humana en verificación. | Otro agente debe instalar, conectar su propio Site/plugin y repetir las pruebas sin la conversación original. No se declara aceptación final. |
+| 7 | Cierre documental, publicación, conexión y pruebas end-to-end | Integración Worker/D1, migraciones/ORM, CI y guías implementadas; clon de cierre verificado. Corrección de dependencias con 138 pruebas/0 alertas; CI/clon nuevo de esa corrección pendientes. Publicación bloqueada por flujo de metadatos de Sites y aceptación humana pendiente. | Resolver mecanismo oficial de instalación alojada y validar autenticador/ChatGPT sin sustituir a la persona. No se declara aceptación final. |
 
 ## Dependencias
 

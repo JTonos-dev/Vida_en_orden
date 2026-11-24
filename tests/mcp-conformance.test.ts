@@ -68,9 +68,9 @@ test("las respuestas del servidor cumplen las formas wire modernas", async () =>
 
 test("los resultados malformados son rechazados por el contrato de conformidad", () => {
   assert.throws(() => cacheable.parse({ supportedVersions: [MCP_PROTOCOL_VERSION], capabilities: { tools: {} } }), /resultType/);
-  assert.throws(() => cacheable.parse({ resultType: "complete", ttlMs: -1, cacheScope: "private", tools: [] }), /Number must be greater than or equal to 0/);
+  assert.throws(() => cacheable.parse({ resultType: "complete", ttlMs: -1, cacheScope: "private", tools: [] }), error => error instanceof z.ZodError && error.issues.some(issue => issue.code === "too_small" && issue.path.join(".") === "ttlMs" && issue.minimum === 0));
   assert.throws(() => toolCallResult.parse({ content: [{ type: "text", text: "ok" }] }), /resultType/);
-  assert.throws(() => toolCallResult.parse({ resultType: "partial", content: [] }), /Invalid literal value/);
+  assert.throws(() => toolCallResult.parse({ resultType: "partial", content: [] }), error => error instanceof z.ZodError && error.issues.some(issue => issue.code === "invalid_value" && issue.path.join(".") === "resultType"));
 });
 
 test("un error de ejecución de herramienta permanece en result.isError y no se convierte en error de transporte", async () => {

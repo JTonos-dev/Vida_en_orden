@@ -5,7 +5,7 @@ import type { McpOwnerPolicy } from "../auth.ts";
 import { approvalSession, approvalJson, approvalError, approvalBody } from "./approval-http.ts";
 import { credentialEnrollment } from "./enrollment.ts";
 import { PlanError } from "./types.ts";
-const schema=z.discriminatedUnion("action",[z.object({action:z.literal("options")}).strict(),z.object({action:z.literal("candidate"),challenge:z.string().regex(/^[A-Za-z0-9_-]{43}$/),proof:z.record(z.unknown())}).strict()]);
+const schema=z.discriminatedUnion("action",[z.object({action:z.literal("options")}).strict(),z.object({action:z.literal("candidate"),challenge:z.string().regex(/^[A-Za-z0-9_-]{43}$/),proof:z.record(z.string(),z.unknown())}).strict()]);
 export async function handleEnrollmentRequest(request:Request,dependencies:{database:DomainDatabase;ownerPolicy:McpOwnerPolicy;origin:string}){
  try{
   if(!["GET","POST"].includes(request.method))return approvalJson({error:"method_not_allowed"},405);

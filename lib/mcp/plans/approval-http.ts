@@ -8,7 +8,7 @@ import { PlanError } from "./types.ts";
 const cookieName="__Host-veo-approval-csrf";
 const headers={"cache-control":"no-store","x-content-type-options":"nosniff","x-frame-options":"DENY"};
 const csrfSchema=z.string().regex(/^[A-Za-z0-9_-]{43}$/);
-const bodySchema=z.discriminatedUnion("action",[z.object({action:z.literal("challenge"),digest:z.string().regex(/^[a-f0-9]{64}$/),revision:z.number().int().positive()}).strict(),z.object({action:z.literal("approve"),digest:z.string().regex(/^[a-f0-9]{64}$/),revision:z.number().int().positive(),challenge:csrfSchema,proof:z.record(z.unknown())}).strict()]);
+const bodySchema=z.discriminatedUnion("action",[z.object({action:z.literal("challenge"),digest:z.string().regex(/^[a-f0-9]{64}$/),revision:z.number().int().positive()}).strict(),z.object({action:z.literal("approve"),digest:z.string().regex(/^[a-f0-9]{64}$/),revision:z.number().int().positive(),challenge:csrfSchema,proof:z.record(z.string(),z.unknown())}).strict()]);
 export type ApprovalHttpDependencies={ownerPolicy:McpOwnerPolicy;origin:string;credentials:readonly {ownerId:string;id:string}[];createEngine:(actor:McpIdentity)=>ProposalEngine};
 export function approvalSession(request:Request,policy:McpOwnerPolicy,origin:string){
  const actor=authenticateMcpRequest(request,policy);

@@ -2,6 +2,8 @@
 
 Esta entrega es código en PR dependientes; no autoriza actualizar una instalación personal. Ejecutar primero en una instancia privada de desarrollo con datos ficticios. Cada instalación administra sus propios recursos y versiones; GitHub no despliega otros Sites.
 
+No publicar el lockfile basal del cierre: la auditoría detectó dependencias críticas. Incluir la corrección dependiente documentada en DEPENDENCY_SECURITY.md y verificar audit:dependencies además de la suite funcional, antes de cualquier actualización.
+
 ## Seleccionar y comprobar la versión
 
 1. Revisar/integrar #4 → #5 → #6 → #7 → #8 → #9 → PR de cierre. Los PR tienen base main por permisos del oficial y sus diffs son acumulativos; el cuerpo de cada PR identifica el delta y dependencia. No fusionar fuera de orden ni usar force-push. El mantenedor debe exigir CI verde y revisión humana y repetir los checks después de resolver conflictos.
