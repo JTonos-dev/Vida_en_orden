@@ -11,8 +11,8 @@ Mandato vigente: 24 de noviembre de 2026. El responsable autoriza desarrollar to
 | Entrega | Estado | Dependencia | PR/commit | Próximo paso |
 |---|---|---|---|---|
 | 3: motor, persistencia, aprobación y atomicidad | Fundamento implementado y probado; transporte pendiente | #4 | Rama `feature/mcp-phase3-foundation` | PR #5, commit 01a410c; transporte pendiente. |
-| 4: operaciones no financieras | Adaptadores implementados y siete pruebas aprobadas | Motor 3 | Rama `feature/mcp-phase4-domain-catalog`, depende de #5 | 19 operaciones, referencias y reversión; 101 pruebas y verificaciones completas aprobadas. |
-| 5: operaciones financieras | Pendiente | 3 y 4 | Por publicar | Paridad, concurrencia, reservas y reversión con fixtures. |
+| 4: operaciones no financieras | Adaptadores implementados y siete pruebas aprobadas | Motor 3 | PR #6, b57a554; depende de #5 | 19 operaciones, referencias y reversión; 101 pruebas y verificaciones completas aprobadas. |
+| 5: operaciones financieras | 24 adaptadores implementados; nueve pruebas específicas aprobadas | #6 | Rama `feature/mcp-phase5-financial-catalog` | Suite completa y PR; compuerta real cerrada. |
 | 6: adjuntos, informes y endurecimiento | Pendiente | 3–5 | Por publicar | Componentes seguros sin inventar transporte de archivos. |
 | 7: cierre y aceptación | Pendiente | Entregas anteriores | Por publicar | Instalación nueva, compatibilidad, migraciones y guía manual. |
 
@@ -39,3 +39,9 @@ Leer este documento, `AGENTS.md`, estado, roadmap y paridad; ejecutar `git statu
 Catálogo cerrado de 19 acciones; operaciones existentes sin duplicar lógica. Correcciones: servicios V2 devuelven IDs de creación inequívocos; validación compartida de dependencias de tareas rechaza referencias inválidas, duplicados y ciclos. Reversión no financiera derivada de un recibo, con nueva huella/aprobación y rechazo si hubo cualquier cambio de negocio posterior. No revierte movimientos financieros ni borra auditoría. No hay migración nueva ni despliegue; rollback de código conserva la migración aditiva 0008. El transporte MCP se entrega aparte y permanece cerrado.
 
 Verificación 4A: npm ci; 14 finanzas + 83 MCP + 4 auditoría = 101 pruebas; TypeScript, lint (solo cuatro advertencias previas), build, auditoría pública de 213 archivos y verify:independent 0000–0008 aprobados. CI de #5 satisfactorio. Las pruebas humanas permanecen bloqueadas por despliegue/canal, no por reglas de dominio.
+
+### Entrega 5A
+
+24 adaptadores financieros y de movimientos legados de tareas, todos R2, con importes enteros acotados y esquemas cerrados. Reutilizan el servicio V2/motor financiero. Sin migración nueva ni movimientos reales. Las pruebas aisladas cubren transferencias, redondeo ACH, reservas de metas/obligaciones, pago parcial y recurrencia, cobro de ingreso, anulación, rollback ante fallo de recibo y dos pagos concurrentes. Se corrige el reporte neto que omitía la comisión de transferencias propias (regresión 0 → -6 centavos).
+
+La aplicación no tiene split/reconciliación, CRUD de conceptos, archivo de obligaciones/metas ni reasignación arbitraria de reservas: se documentan fuera de paridad, no se inventan. Los conceptos se recuerdan automáticamente con la lógica existente. Las escrituras reales siguen bloqueadas. Validación 5A completa: npm ci; 14 finanzas + 92 MCP + 4 auditoría = 110 pruebas aprobadas, TypeScript, lint sin errores (cuatro advertencias previas), build, auditoría de 216 archivos sin hallazgos y verify:independent 0000–0008 en D1 local. CI de #6 aprobado. Sin despliegue.

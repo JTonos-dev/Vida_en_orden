@@ -63,3 +63,20 @@ No están implementados como herramientas MCP: `create`, `update`, `delete`, `vo
 Reversión: `prepareReversal` calcula una nueva propuesta desde un recibo de fase 4 sin cambios posteriores. No acepta tablas/patches del llamador, no restaura backups, conserva auditoría y exige aprobación nueva. Las finanzas se anulan/compensan con sus servicios específicos.
 
 Sin soporte en la aplicación actual: eliminar/archivar áreas; eliminar proyectos; agenda como entidad CRUD independiente. No se inventan acciones equivalentes ni se declaran implementadas. Archivar tareas y pausar/completar proyectos son operaciones disponibles.
+
+## Catálogo financiero aislado (fase 5)
+
+| Dominio | Acciones soportadas |
+|---|---|
+| Cuentas | finance.account.create/update/archive (solo saldo cero) |
+| Categorías | finance.category.create/update/delete (sin referencias) |
+| Movimientos | finance.transaction.create (income/expense/transfer/adjustment), update_amount, void |
+| Presupuesto | finance.budget.set/update/addition.create/delete |
+| Obligaciones/ingresos previstos | finance.obligation.create/update/pay; frecuencia once/weekly/monthly/yearly, reserva y ocurrencias calculadas por el servicio |
+| Metas | finance.goal.create/update/contribute, finance.goal.entry.update/revert |
+| Configuración | finance.settings.update (zona, colchón y comisiones) |
+| Gasto legado de tarea | task.movement.create/delete, separado del libro financiero V2 |
+
+24 acciones R2; montos enteros de centavos limitados a 10^12 (movimiento legado convierte a unidades del servicio). Las transferencias propias solo afectan el neto por sus comisiones. La anulación/reducción/aporte reutiliza restitución de reservas y auditoría de dominio; no se permite rollback genérico de filas financieras.
+
+**Sin soporte actual:** transaction.split/reconcile, edición independiente de enlaces de un movimiento existente, CRUD de conceptos, archivo de obligaciones/metas, calendario de aportes, reasignación genérica de reservas, currency distinta de DOP e importaciones/restauraciones. No se declaran implementadas. Los vínculos tarea/proyecto/meta existen al crear la operación y sus validaciones siguen activas. No se agrega infraestructura bancaria real.

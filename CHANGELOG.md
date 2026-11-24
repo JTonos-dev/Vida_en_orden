@@ -1,5 +1,12 @@
 # Historial de cambios
 
+## Fase 5: adaptadores financieros aislados · 2026-11-24
+
+- 24 operaciones R2 con servicios existentes, centavos enteros, reservas, pagos, aportes y anulaciones, sin escritura real habilitada.
+- Pruebas de concurrencia, idempotencia, redondeo, integridad contable y rollback completo ante fallas.
+- Se corrige get_finance_report: netCashImpactMinor descuenta la comisión de transferencias propias, sin contar el principal como ingreso/gasto.
+- Sin migración nueva, despliegue ni datos reales.
+
 ## Fase 4: adaptadores no financieros · 2026-11-24
 
 - Catálogo cerrado de 19 acciones que usa los servicios compartidos y referencias locales entre operaciones.

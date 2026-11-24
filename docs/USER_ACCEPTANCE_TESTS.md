@@ -33,3 +33,24 @@ Preparación común: Site privado de pruebas con D1 ficticia, plugin de desarrol
 | UAT-4-DELETE-REVERSE | Crear tarea UAT con nota; eliminarla; preparar reversión inmediatamente y aprobar nueva propuesta. | El borrado/reversión muestra todo su alcance, restaura IDs/relaciones y conserva auditoría. Si hay cambios posteriores se exige corrección específica. | Bloqueada |
 
 Para reportar: caso, versión/commit de desarrollo, estado observada, pasos, resultado esperado y error/código. No adjuntar claves, cookies ni información financiera real. Cada incidencia corregida tendrá regresión automática antes del cierre.
+
+## Aceptación financiera (fase 5)
+
+Requisitos de todos los casos: instancia de desarrollo privada y vacía de datos reales, canal humano validado, revisión del mantenedor y habilitación específica futura de ejecución. **Ahora todos están bloqueados para MCP real por la compuerta cerrada.** No probar en la instalación personal. Crear dos cuentas `UAT Synthetic A/B`, saldo 100000/0 centavos a fecha de hoy, categorías ficticias de ingreso/gasto y tarea/proyecto UAT. El flujo de propuesta → diff → autenticador → recibo → recarga es el de la sección anterior. Verificar también con get_account/get_budget/get_obligation/get_goal/get_finance_report y list_audit_log. Las pruebas de redondeo, rollback, carreras y duplicación son automáticas; aquí se acepta la experiencia real del plugin y la coincidencia de la UI.
+
+| Caso / funcionalidad | Pasos y datos ficticios | Resultado persistido esperado / denegación | Estado |
+|---|---|---|---|
+| UAT-5-ACCOUNT | Crear A/B; cambiar nombre/banco de B; archivar otra cuenta UAT de saldo cero. | Saldos iniciales y nombres coinciden. Archivar A con saldo se deniega sin efecto. | Bloqueada |
+| UAT-5-CATEGORY | Crear categoría `UAT Synthetic expense`, editar nombre/color, eliminar otra sin referencias. | Catálogo persistido; categoría vinculada no se elimina. | Bloqueada |
+| UAT-5-INCOME-EXPENSE | Registrar ingreso 10000 y gasto 2500 centavos con conceptos UAT y tarea/proyecto vinculados. | Diff muestra cuenta, importe, concepto y vínculos; saldos cambian exactamente +10000/−2500. | Bloqueada |
+| UAT-5-TRANSFER | Transferir 12345 centavos A→B al mismo banco, luego usar otro banco y ACH al 5 bps. | Principal no cuenta como ingreso/gasto; comisión ACH 6 centavos afecta saldo e informe neto. No ejecutar una transferencia bancaria externa. | Bloqueada |
+| UAT-5-TRANSACTION-UPDATE | Cambiar gasto UAT 2500→2000 con nueva propuesta; anular con razón `UAT Synthetic void`. | La UI y el recibo muestran corrección/anulación; se restituye saldo y reserva vinculada. Auditoría se conserva. | Bloqueada |
+| UAT-5-BUDGET | Establecer base de mes actual 10000 centavos; añadir 2000; cambiar adición a 1500; eliminar adición. | Base y adición separadas, importes efectivos correctos al recargar get_budget. | Bloqueada |
+| UAT-5-OBLIGATION | Crear obligación mensual UAT 10000 con reserva 10000, categoría del presupuesto; actualizar título; pagar 4000 y luego 6000. | Pago parcial/total y siguiente ocurrencia visibles; reserva disminuye; compromiso cubierto no se suma dos veces. | Bloqueada |
+| UAT-5-INCOME-OCCURRENCE | Crear ingreso previsto once 1200; cobrarlo. | Ocurrencia pagada, cuenta +1200, ingreso recibido sin reserva de gasto. | Bloqueada |
+| UAT-5-GOAL | Crear meta 50000, aportar 20000, gastar 12000 vinculado a meta y anular el gasto. | Reserva 20000→8000→20000; usado 0→12000→0; UI/lectura coinciden. | Bloqueada |
+| UAT-5-CONTRIBUTION | En una meta UAT sin consumo, editar aporte 20000→18000 y revertirlo. | Reserva final cero, aporte anulado conserva trazabilidad. Una reserva consumida no se revierte completa. | Bloqueada |
+| UAT-5-SETTINGS | Proponer zona válida, colchón 1000, ACH 5 bps y LBTR 100 centavos; revisar íntegro el resumen. | get_configuration refleja solo los ajustes aprobados; no cambia propietario ni permisos. | Bloqueada |
+| UAT-5-LEGACY-TASK-SPEND | Crear gasto legado de tarea por 123 centavos y eliminarlo. | Bitácora/gasto de tarea muestra 1,23 unidades; no se confunde con movimiento del libro V2. | Bloqueada |
+
+Precaución especial: ante timeout no repetir un movimiento suponiendo fallo; pedir get_execution_result y conservar propuesta/revisión/clave idempotente. Ante resultado incierto o diferente, detener ese caso, registrar el código y reportar sin datos reales. No habilitar SQL, importaciones o restauraciones para corregirlo.
