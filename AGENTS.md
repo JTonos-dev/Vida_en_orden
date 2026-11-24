@@ -24,6 +24,10 @@ No publiques ni introduzcas:
 
 Si detectas un secreto o dato personal, detén el trabajo, elimina el material de la copia propuesta, repite la auditoría y documenta el incidente. No reescribas historia compartida con `force push`.
 
+No incrustes valores personales como patrones de un auditor: usa reglas genéricas y fixtures ficticios. Los informes públicos solo incluyen categorías, rutas y ubicación; los valores, espejos y diffs contaminados permanecen fuera de Git. Distingue siempre fuente actual saneada de historial público purgado.
+
+Una retirada histórica requiere inventariar ramas, tags, PR, forks, Actions y cachés. Sigue `docs/HISTORY_SANITIZATION_PLAN.md`: prepara y prueba primero un candidato local sin red. Cualquier publicación de raíz nueva, reemplazo de historia, cambio de visibilidad o eliminación de repositorio/fork exige aprobación específica del objetivo y del procedimiento. No desactives ni omitas protecciones. No merges ni copies `.git` de clones anteriores a una distribución nueva.
+
 ## Ramas y pull requests
 
 `main` representa la última versión integrada, estable y verificada.
@@ -51,6 +55,8 @@ Como mínimo, antes de abrir un PR ejecuta:
 npm ci
 npm run test:finance
 npm run test:mcp
+npm run test:audit
+npm run audit:public
 npx tsc --noEmit
 npm run lint
 npm run build
@@ -71,6 +77,8 @@ Añade pruebas proporcionales para:
 No declares aprobada una comprobación que no pudiste ejecutar. El script `scripts/qa-v2.mjs` modifica su entorno de prueba: nunca lo apuntes a producción.
 
 `npm run verify:independent` debe ejecutarse después del build. Crea una base D1 local temporal, aplica `drizzle/0000` a `drizzle/0007` en orden y la elimina al terminar; no acepta ni necesita credenciales productivas.
+
+`npm run audit:public` inspecciona la fuente versionada, sin imprimir valores detectados. Su modo `-- --history` inspecciona todos los objetos locales, también los inalcanzables; no demuestra por sí solo la retirada de refs o cachés del servidor. Mientras el saneamiento remoto esté pendiente, CI verde no equivale a historial limpio. No implementar fase 3 antes del cierre y de la aprobación de `docs/PHASE3_TECHNICAL_PLAN.md`.
 
 ## Datos, migraciones y compatibilidad
 

@@ -1,5 +1,12 @@
 # Historial de cambios
 
+## Auditoría histórica y preparación de fase 3 · 2026-11-24
+
+- PR #3 integrado con revisión y CI satisfactorios; se distingue la fuente actual del historial todavía expuesto.
+- Se retiran valores particulares del verificador y se añade auditoría genérica de fuente/objetos históricos, con regresiones y CI que no imprime valores sensibles.
+- Se prepara un generador local de distribución sin antecesores, sin remotos y con comparación de árbol y hashes. No ejecuta reemplazos, publicaciones ni borrados remotos.
+- Se documentan alcance, fork, diffs, cachés y procedimiento de Support, junto con el plan técnico de fase 3. No se implementan propuestas, aprobaciones, escrituras MCP ni migraciones nuevas.
+
 ## Instalación independiente: bootstrap vacío y validación integral · 2026-11-24
 
 - Se retiran fixtures personales incrustados en tareas y la clasificación automática ligada a registros de origen. No se borran datos existentes ni se reescribe historia compartida.
