@@ -84,3 +84,13 @@ Sin soporte en la aplicación actual: eliminar/archivar áreas; eliminar proyect
 ## Transporte de propuestas opt-in (fase 3B)
 
 Diez herramientas nuevas solo al configurar explícitamente propuestas en la instancia de desarrollo: prepare_change_plan, revise_change_plan, cancel_change_plan, get_pending_proposal, list_my_pending_proposals, request_approval, get_approval_status, commit_approved_change_plan, get_execution_result y prepare_non_financial_reversal. Las de metadatos mutables no se anuncian como readOnly; las 31 anteriores conservan readOnlyHint=true. No hay herramienta approve/enroll/execute_sql ni ruta de ejecución alternativa. commit siempre se deniega en esta entrega. El canal humano es página HTTPS con WebAuthn, separado de MCP.
+
+## Fase 6: componentes implementados
+
+- Propuestas: idempotencia de preparación, expected_revision, salud, leases, evidencia durable, revalidación de credenciales, verificación posterior y efectos por acción/impacto financiero ligado a huella.
+- `inspect_attachment_context`: texto/CSV/recibo JSON acotados como datos no confiables; no obtiene binarios, ejecuta fórmulas ni hace OCR.
+- `get_financial_integrity_report`: compara vistas privadas del libro, compromisos y flujos; detecta carreras/límites, no concilia con bancos.
+- Los updates V2 omiten sin borrar campos existentes; las búsquedas literales mantienen 200 caracteres sin patrones LIKE largos.
+- Catálogo: 31 sin flags; 33 solo ampliaciones; 42 solo propuestas; 44 con ambos. No se anuncian binarios, OCR, SQL, alta de confianza ni escrituras de negocio habilitadas.
+
+Siguen pendientes aceptación humana alojada, cuota/desempeño real y funcionalidades del plan maestro que la aplicación aún no soporta, enumeradas arriba. Implementación aislada no equivale a paridad funcional aceptada en producción.

@@ -14,6 +14,7 @@ export async function POST(request: Request) {
   const runtimeEnv = env as unknown as McpRuntimeEnvironment;
   return handleMcpRequest(request, {
     database: runtimeEnv.DB,
+    extendedReadsEnabled: runtimeEnv.MCP_EXTENDED_READS_ENABLED === "true",
     ...(runtimeEnv.MCP_PROPOSALS_ENABLED === "true" && runtimeEnv.DB ? {
       createProposalEngine: (actor) => runtimeProposalEngine(runtimeEnv.DB!, actor, runtimeEnv),
       approvalOrigin: runtimeEnv.MCP_APPROVAL_ORIGIN,

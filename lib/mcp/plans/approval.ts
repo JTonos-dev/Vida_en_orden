@@ -16,7 +16,7 @@ export function webAuthnVerifier(config: { origin: string; credentials: readonly
     channel: "webauthn",
     async verify(proof: unknown, challenge: string, actor: McpIdentity) {
       if (!proof || typeof proof !== "object" || JSON.stringify(proof).length > 16 * 1024) throw new Error("Invalid assertion");
-      const response = proof as AuthenticationResponseJSON;
+      const response = JSON.parse(JSON.stringify(proof)) as AuthenticationResponseJSON;
       const credential = config.credentials.find((entry) => entry.ownerId === actor.userId && entry.id === response.id);
       if (!credential) throw new Error("Credential is not pinned for this owner");
       const verified = await verifyAuthenticationResponse({
@@ -27,7 +27,7 @@ export function webAuthnVerifier(config: { origin: string; credentials: readonly
       // Nonces are consumed transactionally by the engine. Counter=0 accommodates synced passkeys;
       // neither a counter nor an identity header is accepted as approval without this signature.
       if (!verified.verified || !verified.authenticationInfo.userVerified) throw new Error("User verification required");
-      return { credentialId: credential.id };
+      return { credentialId: credential.id, evidence: { publicKey: credential.publicKey, origin: config.origin, proof: response } };
     },
   };
 }

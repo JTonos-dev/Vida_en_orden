@@ -71,6 +71,13 @@
       "when": 1795536009000,
       "tag": "0009_mcp_credential_candidates",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1795536010000,
+      "tag": "0010_mcp_hardening",
+      "breakpoints": true
     }
   ]
 }

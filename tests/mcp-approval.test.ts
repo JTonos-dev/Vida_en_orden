@@ -10,7 +10,8 @@ const origin = "https://approval.example.test";
 test("verifica una assertion criptográfica ligada a origen, challenge, credencial y usuario", async () => {
   const fixture = credential(), challenge = randomChallenge();
   const verifier = webAuthnVerifier({ origin, credentials: [fixture.pin] });
-  assert.deepEqual(await verifier.verify(fixture.assertion(challenge), challenge, actor), { credentialId: fixture.pin.id });
+  const verified=await verifier.verify(fixture.assertion(challenge),challenge,actor);
+  assert.equal(verified.credentialId,fixture.pin.id);assert.equal(verified.evidence?.publicKey,fixture.pin.publicKey);
 });
 
 test("rechaza firma de otra clave, challenge/origen distintos y ausencia de verificación humana", async () => {

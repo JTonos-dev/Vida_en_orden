@@ -13,8 +13,8 @@ El endurecimiento de GitHub, la guía de portabilidad y la prueba de instalació
 | 3 | Motor de propuestas, diff, huella, aprobación humana autenticada, caducidad e idempotencia | Motor, transporte opt-in y canal WebAuthn implementados; pruebas humanas/alojadas pendientes. | Probar transporte, canal humano real y atomicidad D1 antes de habilitar ejecución. |
 | 4 | Escrituras no financieras: tareas, áreas, proyectos, planificación y bitácora | 19 adaptadores y reversión implementados en aislamiento; transporte y aceptación pendientes. | Atomicidad, rollback y paridad con servicios existentes. |
 | 5 | Escrituras financieras y relaciones cruzadas | 24 adaptadores R2 y pruebas contables implementados en aislamiento; aceptación/ejecución real pendientes. | Pruebas contables, no doble conteo, concurrencia, reversión y reconciliación. |
-| 6 | Adjuntos interpretados, informes ampliados y endurecimiento operativo | No iniciada. | Seguridad ante prompt injection, observabilidad, carga y manejo de datos incompletos. |
-| 7 | Cierre documental, publicación, conexión y pruebas end-to-end | Parcial: este repositorio cubre la transferencia y documentación; falta validar una segunda instalación independiente. | Otro agente debe instalar, conectar su propio Site/plugin y repetir las pruebas sin la conversación original. |
+| 6 | Adjuntos interpretados, informes ampliados y endurecimiento operativo | Texto/CSV/JSON, informe interno, límites, evidencia y recuperación implementados; binarios/OCR y validación de host pendientes. | Seguridad ante prompt injection, observabilidad, carga y manejo de datos incompletos. |
+| 7 | Cierre documental, publicación, conexión y pruebas end-to-end | Cierre técnico en preparación; instalación de fase 2 ya validada. Falta instalar/verificar la nueva rama y aceptación humana. | Otro agente debe instalar, conectar su propio Site/plugin y repetir las pruebas sin la conversación original. |
 
 ## Dependencias
 

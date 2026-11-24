@@ -1,3 +1,7 @@
+import { financialImpact } from "./financial-impact.ts";
+import { webAuthnVerifier } from "./approval.ts";
+import { queryBudget } from "./budget.ts";
+import { parseBoundedJson } from "./limits.ts";
 import { z } from "zod";
 import { HOUSEHOLD_SCOPE } from "../../data-scopes.ts";
 import { dateInTimeZone } from "../../finance-math.ts";
@@ -15,11 +19,11 @@ const MAX_SNAPSHOT_BYTES = 2 * 1024 * 1024;
 const MAX_DIFF_BYTES = 64 * 1024;
 const MAX_CHANGED_ROWS = 100;
 type Stored = { proposal_id: string; revision: number; state: ProposalState; digest: string; payload: string; expires_at: number; base_revision: number };
-type EngineOptions = { actor: McpIdentity; registry: ActionRegistry; verifier: ApprovalVerifier; executionEnabled: boolean; now?: () => Date; ttlMs?: number };
+type EngineOptions = { actor: McpIdentity; registry: ActionRegistry; verifier: ApprovalVerifier; executionEnabled: boolean; now?: () => Date; ttlMs?: number; queryLimit?: number };
 
-function changes(before: Snapshot, after: Snapshot): RowChange[] {
+function changes(before: Snapshot, after: Snapshot, tables:ReadonlyArray<typeof BUSINESS_TABLES[number]> = BUSINESS_TABLES): RowChange[] {
   const result: RowChange[] = [];
-  for (const table of BUSINESS_TABLES) {
+  for (const table of tables) {
     const oldRows = new Map(before[table.name].map((row) => [String(row[table.primaryKey]), row]));
     const newRows = new Map(after[table.name].map((row) => [String(row[table.primaryKey]), row]));
     for (const id of new Set([...oldRows.keys(), ...newRows.keys()])) {
@@ -28,6 +32,10 @@ function changes(before: Snapshot, after: Snapshot): RowChange[] {
     }
   }
   return result;
+}
+
+function validMinorColumns(snapshot:Snapshot) {
+  for(const table of BUSINESS_TABLES.filter(t=>t.name.startsWith("finance_"))) for(const row of snapshot[table.name]) for(const [key,value] of Object.entries(row)) if(key.endsWith("_minor")&&value!==null&&(!Number.isSafeInteger(value)||Number(value)<0)) throw new PlanError("numeric_limit","La base contiene un importe inválido; requiere revisión de dominio.",400);
 }
 
 function resolveReferences(value: unknown, results: Map<string, string | null>): unknown {
@@ -55,9 +63,9 @@ export class ProposalEngine {
   }
   private now() { return this.options.now?.() ?? new Date(); }
   private owner() { return this.options.actor.userId; }
-  private async audit(proposalId: string, revision: number, event: string) {
-    await this.database.prepare("INSERT INTO mcp_plan_audit(id,owner_id,proposal_id,revision,event,created_at) VALUES(?,?,?,?,?,?)")
-      .bind(crypto.randomUUID(), this.owner(), proposalId, revision, event, this.now().getTime()).run();
+  private async audit(proposalId: string, revision: number, event: string, metrics: Record<string,number> = {}) {
+    await this.database.prepare("INSERT INTO mcp_plan_audit(id,owner_id,proposal_id,revision,event,created_at,metrics) VALUES(?,?,?,?,?,?,?)")
+      .bind(crypto.randomUUID(), this.owner(), proposalId, revision, event, this.now().getTime(),JSON.stringify(metrics)).run();
   }
   private async stored(proposalId: string, revision?: number): Promise<Stored> {
     const row = await this.database.prepare(`SELECT p.* FROM mcp_proposals p JOIN mcp_proposal_heads h ON h.proposal_id=p.proposal_id WHERE p.proposal_id=? AND p.owner_id=? AND p.revision=${revision === undefined ? "h.revision" : "?"}`)
@@ -82,13 +90,41 @@ export class ProposalEngine {
     await this.database.batch([
       ...BUSINESS_TABLES.map((table) => this.database.prepare(`DELETE FROM mcp_stage_${table.name} WHERE proposal_id=?`).bind(stageId)),
       this.database.prepare("DELETE FROM mcp_execution_guards WHERE execution_id=?").bind(stageId),
+      this.database.prepare("DELETE FROM mcp_stage_leases WHERE stage_id=?").bind(stageId),
     ]);
   }
-  async prepare(input: unknown, prior?: { proposalId: string; revision: number }, requiredBaseRevision?: number): Promise<Proposal> {
-    if (new TextEncoder().encode(JSON.stringify(input)).byteLength > 64 * 1024) throw new PlanError("input_limit", "El plan excede 64 KiB.", 413);
-    const parsed = actionsSchema.safeParse(input);
+  private async infrastructure() {
+    const entries = await this.database.prepare("SELECT name FROM sqlite_master WHERE type IN ('table','trigger')").all<{name:string}>();
+    const names = new Set(entries.results.map((row) => row.name));
+    const expected = ["mcp_installation","mcp_proposal_heads","mcp_proposals","mcp_approval_challenges","mcp_approvals","mcp_executions","mcp_execution_guards","mcp_plan_audit","mcp_registration_challenges","mcp_prepare_requests","mcp_stage_leases","mcp_approval_evidence",...BUSINESS_TABLES.flatMap((table) => [table.name,`mcp_stage_${table.name}`,...["insert","update","delete"].map((event) => `mcp_revision_${table.name}_${event}`)])];
+    if (expected.some((name) => !names.has(name))) throw new PlanError("migration_required","Faltan tablas o triggers del motor; aplicar todas las migraciones.",503);
+  }
+  async maintenance() {
+    const expired = await this.database.prepare("SELECT stage_id FROM mcp_stage_leases WHERE owner_id=? AND expires_at<=? LIMIT 20").bind(this.owner(),this.now().getTime()).all<{stage_id:string}>();
+    for (const lease of expired.results) await this.cleanupStage(lease.stage_id);
+    await this.database.prepare("DELETE FROM mcp_approval_challenges WHERE owner_id=? AND expires_at<=?").bind(this.owner(),this.now().getTime()).run();
+    return {expiredStagesRemoved:expired.results.length};
+  }
+  async prepare(input: unknown, idempotencyKey?: string) { return this.prepareVersion(input,undefined,undefined,idempotencyKey); }
+  private async prepareVersion(input: unknown, prior?: { proposalId: string; revision: number }, requiredBaseRevision?: number, idempotencyKey?: string): Promise<Proposal> {
+    await this.infrastructure();
+    await this.maintenance();
+    const raw = JSON.stringify(input);
+    if (typeof raw !== "string") throw new PlanError("invalid_input", "El plan requiere JSON.", 400);
+    const parsed = actionsSchema.safeParse(parseBoundedJson(raw));
     if (!parsed.success) throw new PlanError("invalid_input", "El plan requiere entre una y veinte acciones con esquema cerrado.", 400);
     if (new Set(parsed.data.map((action) => action.actionId)).size !== parsed.data.length) throw new PlanError("duplicate_action", "Los IDs de acción deben ser únicos.", 400);
+    if (idempotencyKey !== undefined && (!idempotencyKey || idempotencyKey.length > 128)) throw new PlanError("invalid_input", "Clave de preparación inválida.", 400);
+    const keyHash = idempotencyKey === undefined ? null : await digest({ owner: this.owner(), key: idempotencyKey });
+    const inputHash = await digest(parsed.data);
+    const priorRequest = async () => {
+      if (!keyHash) return null;
+      const existing = await this.database.prepare("SELECT proposal_id,input_hash FROM mcp_prepare_requests WHERE owner_id=? AND key_hash=?").bind(this.owner(),keyHash).first<{proposal_id:string;input_hash:string}>();
+      if (!existing) return null;
+      if (existing.input_hash !== inputHash) throw new PlanError("idempotency_conflict", "La clave de preparación corresponde a otras acciones.");
+      return this.get(existing.proposal_id,1);
+    };
+    const repeated = await priorRequest(); if (repeated) return repeated;
     const definitions = parsed.data.map((action) => {
       const definition = this.options.registry.get(action.kind);
       if (!definition) throw new PlanError("unsupported_action", "Operación no soportada por esta versión.", 400);
@@ -102,44 +138,67 @@ export class ProposalEngine {
     const now = this.now(), expiresAt = now.getTime() + Math.min(10 * 60_000, Math.max(1000, this.options.ttlMs ?? 10 * 60_000));
     const scopeValues = BUSINESS_TABLES.map((table) => table.shared ? HOUSEHOLD_SCOPE : this.owner());
     const countSql = BUSINESS_TABLES.map((table) => `(SELECT COUNT(*) FROM ${table.name} WHERE ${table.scopeColumn}=?)`).join("+");
-    await this.database.batch([
+    try { await this.database.batch([
       this.database.prepare(`INSERT INTO mcp_execution_guards(execution_id,valid) SELECT ?,CASE WHEN (${countSql})<=? THEN 1 ELSE 0 END`).bind(stageId, ...scopeValues, MAX_SNAPSHOT_ROWS),
+      this.database.prepare("INSERT INTO mcp_stage_leases(stage_id,owner_id,expires_at) VALUES(?,?,?)").bind(stageId,this.owner(),now.getTime()+10*60_000),
       ...BUSINESS_TABLES.map((table, index) => this.database.prepare(`INSERT INTO mcp_stage_${table.name}(proposal_id,${table.columns.join(",")}) SELECT ?,${table.columns.join(",")} FROM ${table.name} WHERE ${table.scopeColumn}=?`).bind(stageId, scopeValues[index])),
-    ]);
+    ]); } catch(error) { if(error instanceof Error && /CHECK constraint failed.*valid/i.test(error.message)) throw new PlanError("snapshot_limit","La instalación excede 2.000 filas de preparación; requiere particionar el motor.",413); throw new PlanError("staging_failed","No se pudo preparar staging; comprobar migraciones y cuota D1.",503); }
     try {
       const before = await this.stageRows(stageId);
+      validMinorColumns(before);
       if (new TextEncoder().encode(canonicalize(before)).byteLength > MAX_SNAPSHOT_BYTES) throw new PlanError("snapshot_limit", "La base excede el límite seguro de preparación.", 413);
-      const stage = stagingDatabase(this.database, stageId);
-      const resolved: PlanAction[] = [], results: ActionResult[] = [], references = new Map<string, string | null>();
+      const budget = queryBudget(this.database, Math.min(400,Math.max(1,this.options.queryLimit ?? 400)));
+      const touched = new Set<string>();
+      const stage = stagingDatabase(budget.database, stageId,table=>touched.add(table));
+      const reads = createMcpReadService(stage,this.options.actor,()=>now);
+      const hasFinance = definitions.some(definition=>definition.phase===5);
+      const month = dateInTimeZone(now,"America/Santo_Domingo").slice(0,7);
+      const beforeFinance = hasFinance ? await reads.getBudget({month,limit:1}) as {summary:Record<string,number>} : null;
       let previous = before;
+      const resolved: PlanAction[] = [], results: ActionResult[] = [], references = new Map<string, string | null>();
       for (const [index, action] of parsed.data.entries()) {
         const definition = definitions[index];
         const validated = definition.schema.safeParse(resolveReferences(action.input, references));
         if (!validated.success) throw new PlanError("invalid_input", `Argumentos inválidos en ${action.actionId}.`, 400);
+        const target = BUSINESS_TABLES.find((table) => table.name === definition.targetTable)!;
+        const oldIds = new Set(previous[target.name].map(row=>String(row[target.primaryKey])));
+        touched.clear();
         const value = await runWithDomainDatabase(stage, () => definition.execute(this.options.actor, validated.data), () => now);
-        const next = await this.stageRows(stageId);
-        const created = changes(previous, next).filter((change) => change.table === definition.targetTable && !change.before && change.after);
+        const tables = BUSINESS_TABLES.filter(table=>touched.has(table.name));
+        const snapshots = tables.length ? await stage.batch(tables.map(table=>stage.prepare(`SELECT ${table.columns.join(",")} FROM ${table.name} ORDER BY ${table.primaryKey}`))) : [];
+        const next = {...previous};for(const [tableIndex,table] of tables.entries())next[table.name]=snapshots[tableIndex].results.map(row=>Object.fromEntries(table.columns.map(column=>[column,(row as Row)[column]??null])) as Row);
+        const effects = changes(previous,next,tables);previous=next;
         const returnedId = value && typeof value === "object" && "id" in value ? String(value.id) : null;
-        const entityId = returnedId || (created.length === 1 ? created[0].id : typeof validated.data.id === "string" ? validated.data.id : null);
+        let entityId = returnedId || (typeof validated.data.id === "string" ? validated.data.id : null);
+        if (!entityId) {
+          const created = next[target.name].map((row) => String(row[target.primaryKey])).filter((id) => !oldIds.has(id));
+          if (created.length === 1) entityId = created[0];
+        }
         references.set(action.actionId, entityId);
-        results.push({ actionId: action.actionId, kind: action.kind, entityId });
+        results.push({ actionId: action.actionId, kind: action.kind, entityId, effects });
         resolved.push({ ...action, input: validated.data });
-        previous = next;
       }
       const integrity = await createMcpReadService(stage, this.options.actor).validateReferences({ limit: 50 }) as { valid: boolean };
       if (!integrity.valid) throw new PlanError("invalid_reference", "El plan produciría referencias inválidas.", 400);
-      const delta = changes(before, previous);
+      const after = await this.stageRows(stageId);validMinorColumns(after);
+      const delta = changes(before, after);
       if (delta.length > MAX_CHANGED_ROWS || new TextEncoder().encode(canonicalize(delta)).byteLength > MAX_DIFF_BYTES) throw new PlanError("diff_limit", "El cambio excede el límite seguro; divide el plan.", 413);
-      const payload: PreparedPayload = { contractVersion: 1, installationId: info.installation_id, ownerId: this.owner(), proposalId, revision, createdAt: now.getTime(), expiresAt, contextDate: dateInTimeZone(now, "America/Santo_Domingo"), baseRevision: info.business_revision, actions: resolved, changes: delta, results, risk: definitions.some((definition) => definition.risk === "R2") ? "R2" : "R1" };
+      const afterFinance = hasFinance ? await reads.getBudget({month,limit:1}) as {summary:Record<string,number>} : null;
+      const impact = beforeFinance && afterFinance ? financialImpact(before,after,beforeFinance.summary,afterFinance.summary,now) : null;
+      if(impact && ![...Object.values(impact.before),...Object.values(impact.after),...impact.accounts.flatMap(a=>[a.beforeMinor??0,a.afterMinor??0])].every(Number.isSafeInteger))throw new PlanError("numeric_limit","El impacto excede el rango entero seguro.",400);
+      const payload: PreparedPayload = { ...(impact?{financialImpact:impact}:{}), contractVersion: 1, installationId: info.installation_id, ownerId: this.owner(), proposalId, revision, createdAt: now.getTime(), expiresAt, contextDate: dateInTimeZone(now, "America/Santo_Domingo"), baseRevision: info.business_revision, actions: resolved, changes: delta, results, risk: definitions.some((definition) => definition.risk === "R2") || delta.some(change=>change.table.startsWith("finance_")||change.table==="home_movements") ? "R2" : "R1" };
+      if(new TextEncoder().encode(canonicalize(payload)).byteLength>128*1024)throw new PlanError("diff_limit","La propuesta completa excede 128 KiB; divide el plan.",413);
       const fingerprint = await digest({ domain: "vida-en-orden/proposal/v1", payload });
       const revisionGuard = crypto.randomUUID();
-      await this.database.batch([
+      try { await this.database.batch([
         ...(prior ? [this.database.prepare("INSERT INTO mcp_execution_guards(execution_id,valid) SELECT ?,CASE WHEN EXISTS(SELECT 1 FROM mcp_proposal_heads h JOIN mcp_proposals p ON p.proposal_id=h.proposal_id AND p.revision=h.revision WHERE h.proposal_id=? AND h.owner_id=? AND h.revision=? AND p.state='INVALIDATED') THEN 1 ELSE 0 END").bind(revisionGuard, proposalId, this.owner(), revision - 1)] : []),
         ...(prior ? [] : [this.database.prepare("INSERT INTO mcp_proposal_heads(proposal_id,owner_id,revision) VALUES(?,?,?)").bind(proposalId, this.owner(), revision)]),
         this.database.prepare("INSERT INTO mcp_proposals(proposal_id,revision,owner_id,state,digest,payload,base_revision,expires_at,created_at) VALUES(?,?,?,'VALIDATED',?,?,?,?,?)").bind(proposalId, revision, this.owner(), fingerprint, canonicalize(payload), info.business_revision, expiresAt, now.getTime()),
+        this.database.prepare("INSERT INTO mcp_plan_audit(id,owner_id,proposal_id,revision,event,created_at,metrics) VALUES(?,?,?,?,'prepared',?,?)").bind(crypto.randomUUID(),this.owner(),proposalId,revision,this.now().getTime(),JSON.stringify(budget.stats())),
+        ...(keyHash ? [this.database.prepare("INSERT INTO mcp_prepare_requests(owner_id,key_hash,input_hash,proposal_id) VALUES(?,?,?,?)").bind(this.owner(),keyHash,inputHash,proposalId)] : []),
         ...(prior ? [this.database.prepare("UPDATE mcp_proposal_heads SET revision=? WHERE proposal_id=? AND owner_id=?").bind(revision, proposalId, this.owner()), this.database.prepare("DELETE FROM mcp_execution_guards WHERE execution_id=?").bind(revisionGuard)] : []),
-      ]);
-      await this.audit(proposalId, revision, "prepared");
+      ]); } catch (error) { const existing = await priorRequest(); if (existing) return existing; throw error; }
+
       return { proposalId, revision, state: "VALIDATED", digest: fingerprint, payload };
     } finally { await this.cleanupStage(stageId); }
   }
@@ -164,40 +223,46 @@ export class ProposalEngine {
         }
       },
     });
-    return new ProposalEngine(this.originalDatabase, { ...this.options, registry }).prepare([{ actionId: "reverse", kind, input: { sourceProposalId: proposalId, sourceRevision: revision } }], undefined, receipt.revisionAfter);
+    return new ProposalEngine(this.originalDatabase, { ...this.options, registry }).prepareVersion([{ actionId: "reverse", kind, input: { sourceProposalId: proposalId, sourceRevision: revision } }], undefined, receipt.revisionAfter);
   }
-  async revise(proposalId: string, input: unknown) {
+  async revise(proposalId: string, input: unknown, expectedRevision?: number) {
     const old = await this.stored(proposalId);
+    if (expectedRevision !== undefined && old.revision !== expectedRevision) throw new PlanError("stale_proposal","La revisión cambió; consulta el estado actual.");
     if (old.state === "COMMITTED") throw new PlanError("already_committed", "Prepara una operación de reversión independiente.");
     const guard = crypto.randomUUID();
     await this.database.batch([
       this.database.prepare("INSERT INTO mcp_execution_guards(execution_id,valid) SELECT ?,CASE WHEN EXISTS(SELECT 1 FROM mcp_proposals p JOIN mcp_proposal_heads h ON h.proposal_id=p.proposal_id AND h.revision=p.revision WHERE p.proposal_id=? AND p.revision=? AND p.owner_id=? AND p.state<>'COMMITTED') THEN 1 ELSE 0 END").bind(guard, proposalId, old.revision, this.owner()),
       this.database.prepare("UPDATE mcp_proposals SET state='INVALIDATED' WHERE proposal_id=? AND revision=? AND owner_id=? AND state<>'COMMITTED'").bind(proposalId, old.revision, this.owner()),
       this.database.prepare("DELETE FROM mcp_approvals WHERE proposal_id=? AND revision=? AND owner_id=?").bind(proposalId, old.revision, this.owner()),
+      this.database.prepare("INSERT INTO mcp_plan_audit(id,owner_id,proposal_id,revision,event,created_at) VALUES(?,?,?,?,'invalidated',?)").bind(crypto.randomUUID(),this.owner(),proposalId,old.revision,this.now().getTime()),
       this.database.prepare("DELETE FROM mcp_execution_guards WHERE execution_id=?").bind(guard),
     ]);
-    return this.prepare(input, { proposalId, revision: old.revision + 1 });
+    return this.prepareVersion(input, { proposalId, revision: old.revision + 1 });
   }
-  async cancel(proposalId: string) {
+  async cancel(proposalId: string, expectedRevision?: number) {
     const proposal = await this.stored(proposalId);
+    if (expectedRevision !== undefined && proposal.revision !== expectedRevision) throw new PlanError("stale_proposal","La revisión cambió; consulta el estado actual.");
     if (proposal.state === "COMMITTED") throw new PlanError("already_committed", "La ejecución ya fue confirmada.");
     const guard = crypto.randomUUID();
     await this.database.batch([
       this.database.prepare("INSERT INTO mcp_execution_guards(execution_id,valid) SELECT ?,CASE WHEN EXISTS(SELECT 1 FROM mcp_proposals p JOIN mcp_proposal_heads h ON h.proposal_id=p.proposal_id AND h.revision=p.revision WHERE p.proposal_id=? AND p.revision=? AND p.owner_id=? AND p.state<>'COMMITTED') THEN 1 ELSE 0 END").bind(guard, proposalId, proposal.revision, this.owner()),
       this.database.prepare("UPDATE mcp_proposals SET state='CANCELLED' WHERE proposal_id=? AND revision=? AND owner_id=? AND state<>'COMMITTED'").bind(proposalId, proposal.revision, this.owner()),
+      this.database.prepare("INSERT INTO mcp_plan_audit(id,owner_id,proposal_id,revision,event,created_at) VALUES(?,?,?,?,'cancelled',?)").bind(crypto.randomUUID(),this.owner(),proposalId,proposal.revision,this.now().getTime()),
       this.database.prepare("DELETE FROM mcp_approvals WHERE proposal_id=? AND revision=? AND owner_id=?").bind(proposalId, proposal.revision, this.owner()),
       this.database.prepare("DELETE FROM mcp_execution_guards WHERE execution_id=?").bind(guard),
     ]);
-    await this.audit(proposalId, proposal.revision, "cancelled");
     return this.get(proposalId);
   }
   async requestApproval(proposalId: string) {
     const proposal = await this.get(proposalId);
     if (!["VALIDATED", "PENDING_APPROVAL"].includes(proposal.state)) throw new PlanError("invalid_state", "La propuesta no admite aprobación.");
+    if (await digest({domain:"vida-en-orden/proposal/v1",payload:proposal.payload}) !== proposal.digest) throw new PlanError("digest_mismatch","La propuesta fue alterada.",403);
     const challenge = randomChallenge();
     await this.database.batch([
+      this.database.prepare("DELETE FROM mcp_approval_challenges WHERE proposal_id=? AND revision=? AND owner_id=? AND used=0").bind(proposalId,proposal.revision,this.owner()),
       this.database.prepare("UPDATE mcp_proposals SET state='PENDING_APPROVAL' WHERE proposal_id=? AND revision=? AND owner_id=? AND state='VALIDATED'").bind(proposalId, proposal.revision, this.owner()),
       this.database.prepare("INSERT INTO mcp_approval_challenges(challenge,proposal_id,revision,owner_id,digest,expires_at) VALUES(?,?,?,?,?,?)").bind(challenge, proposalId, proposal.revision, this.owner(), proposal.digest, proposal.payload.expiresAt),
+      this.database.prepare("INSERT INTO mcp_plan_audit(id,owner_id,proposal_id,revision,event,created_at) VALUES(?,?,?,?,'approval_requested',?)").bind(crypto.randomUUID(),this.owner(),proposalId,proposal.revision,this.now().getTime()),
     ]);
     return { proposalId, revision: proposal.revision, digest: proposal.digest, challenge, expiresAt: proposal.payload.expiresAt };
   }
@@ -205,23 +270,47 @@ export class ProposalEngine {
     const proposal = await this.get(proposalId);
     const nonce = await this.database.prepare("SELECT challenge FROM mcp_approval_challenges WHERE challenge=? AND proposal_id=? AND revision=? AND owner_id=? AND digest=? AND used=0 AND expires_at>?").bind(challenge, proposalId, proposal.revision, this.owner(), proposal.digest, this.now().getTime()).first();
     if (!nonce || proposal.state !== "PENDING_APPROVAL") throw new PlanError("invalid_approval", "Aprobación inválida, vencida o consumida.", 403);
-    let verified: { credentialId: string };
+    let verified: Awaited<ReturnType<ApprovalVerifier["verify"]>>;
     try { verified = await this.options.verifier.verify(proof, challenge, this.options.actor); }
-    catch { throw new PlanError("invalid_approval", "No se pudo verificar la acción humana.", 403); }
+    catch { try { await this.audit(proposalId,proposal.revision,"approval_denied"); } catch { /* A denial never grants approval, including when its telemetry fails. */ } throw new PlanError("invalid_approval", "No se pudo verificar la acción humana.", 403); }
+    if (this.options.verifier.channel === "webauthn" && !verified.evidence) throw new PlanError("invalid_approval","Falta evidencia verificable.",403);
+    const evidence = canonicalize({channel:this.options.verifier.channel,...(verified.evidence || {proof})});
     const guard = crypto.randomUUID();
     await this.database.batch([
       this.database.prepare("INSERT INTO mcp_execution_guards(execution_id,valid) SELECT ?,CASE WHEN EXISTS(SELECT 1 FROM mcp_proposals p JOIN mcp_proposal_heads h ON h.proposal_id=p.proposal_id AND h.revision=p.revision JOIN mcp_approval_challenges c ON c.proposal_id=p.proposal_id AND c.revision=p.revision WHERE p.proposal_id=? AND p.owner_id=? AND p.state='PENDING_APPROVAL' AND p.digest=? AND p.expires_at>? AND c.challenge=? AND c.owner_id=p.owner_id AND c.digest=p.digest AND c.expires_at=p.expires_at AND c.used=0) THEN 1 ELSE 0 END").bind(guard, proposalId, this.owner(), proposal.digest, this.now().getTime(), challenge),
       this.database.prepare("INSERT INTO mcp_approvals(proposal_id,revision,owner_id,digest,challenge,credential_id,expires_at,approved_at) VALUES(?,?,?,?,?,?,?,?)").bind(proposalId, proposal.revision, this.owner(), proposal.digest, challenge, verified.credentialId, proposal.payload.expiresAt, this.now().getTime()),
+      this.database.prepare("INSERT INTO mcp_approval_evidence(proposal_id,revision,owner_id,digest,challenge,credential_id,evidence,created_at) VALUES(?,?,?,?,?,?,?,?)").bind(proposalId,proposal.revision,this.owner(),proposal.digest,challenge,verified.credentialId,evidence,this.now().getTime()),
+      this.database.prepare("INSERT INTO mcp_plan_audit(id,owner_id,proposal_id,revision,event,created_at) VALUES(?,?,?,?,'approved',?)").bind(crypto.randomUUID(),this.owner(),proposalId,proposal.revision,this.now().getTime()),
       this.database.prepare("UPDATE mcp_approval_challenges SET used=1 WHERE challenge=?").bind(challenge),
       this.database.prepare("UPDATE mcp_proposals SET state='APPROVED' WHERE proposal_id=? AND revision=? AND owner_id=?").bind(proposalId, proposal.revision, this.owner()),
       this.database.prepare("DELETE FROM mcp_execution_guards WHERE execution_id=?").bind(guard),
     ]);
-    await this.audit(proposalId, proposal.revision, "approved");
     return this.get(proposalId);
   }
   async executionResult(proposalId: string, revision: number): Promise<ExecutionReceipt | null> {
     const row = await this.database.prepare("SELECT result FROM mcp_executions WHERE proposal_id=? AND revision=? AND owner_id=?").bind(proposalId, revision, this.owner()).first<{ result: string }>();
     return row ? JSON.parse(row.result) as ExecutionReceipt : null;
+  }
+  async health() {
+    await this.infrastructure();
+    const counts = await this.database.prepare("SELECT CASE WHEN p.expires_at<=? AND p.state IN ('VALIDATED','PENDING_APPROVAL','APPROVED') THEN 'EXPIRED' ELSE p.state END state,COUNT(*) total FROM mcp_proposals p JOIN mcp_proposal_heads h ON h.proposal_id=p.proposal_id AND h.revision=p.revision WHERE p.owner_id=? GROUP BY 1").bind(this.now().getTime(),this.owner()).all<{state:string;total:number}>();
+    const leases = await this.database.prepare("SELECT COUNT(*) total,COALESCE(SUM(CASE WHEN expires_at<=? THEN 1 ELSE 0 END),0) expired FROM mcp_stage_leases WHERE owner_id=?").bind(this.now().getTime(),this.owner()).first<{total:number;expired:number}>();
+    return {schemaReady:true,proposalsByState:counts.results,staging:leases,businessWritesEnabled:false,limits:{actions:20,rows:MAX_SNAPSHOT_ROWS,snapshotBytes:MAX_SNAPSHOT_BYTES,diffRows:MAX_CHANGED_ROWS,diffBytes:MAX_DIFF_BYTES,domainQueries:400,prepareMilliseconds:60000}};
+  }
+  async verifyExecution(proposalId:string,revision:number) {
+    const receipt = await this.executionResult(proposalId,revision);if(!receipt)return {receiptPresent:false};
+    const proposal = await this.get(proposalId,revision);
+    const digestVerified = proposal.digest===receipt.digest && await digest({domain:"vida-en-orden/proposal/v1",payload:proposal.payload})===receipt.digest;
+    if(!digestVerified)return {receiptPresent:true,digestVerified:false,stillMatches:false};
+    const statements = proposal.payload.changes.map(change=>{const table=BUSINESS_TABLES.find(t=>t.name===change.table);if(!table)throw new PlanError("invalid_delta","Tabla no autorizada.",403);return this.database.prepare(`SELECT ${table.columns.join(",")} FROM ${table.name} WHERE ${table.primaryKey}=?`).bind(change.id);});
+    statements.push(this.database.prepare("SELECT business_revision FROM mcp_installation WHERE id=1"));
+    const rows=await this.database.batch(statements);
+    const stillMatches=proposal.payload.changes.every((change,index)=>canonicalize(rows[index].results[0]||null)===canonicalize(change.after));
+    const revisionMatches=Number((rows.at(-1)?.results[0] as {business_revision:number})?.business_revision)===receipt.revisionAfter;
+    const evidence=await this.database.prepare("SELECT challenge,credential_id,evidence FROM mcp_approval_evidence WHERE proposal_id=? AND revision=? AND owner_id=? AND digest=?").bind(proposalId,revision,this.owner(),receipt.digest).first<{challenge:string;credential_id:string;evidence:string}>();
+    let signatureVerified=false,channel="missing";
+    if(evidence){try{const archived=JSON.parse(evidence.evidence) as {channel:string;origin:string;publicKey:string;proof:unknown};channel=archived.channel;if(channel==="webauthn"){const verified=await webAuthnVerifier({origin:archived.origin,credentials:[{ownerId:this.owner(),id:evidence.credential_id,publicKey:archived.publicKey}]}).verify(archived.proof,evidence.challenge,this.options.actor);signatureVerified=verified.credentialId===evidence.credential_id;}}catch{signatureVerified=false;}}
+    return {receiptPresent:true,digestVerified,stillMatches,revisionMatches,checkedRows:proposal.payload.changes.length,approvalEvidence:{channel,signatureVerifiedAgainstRecordedKey:signatureVerified},note:revisionMatches?"Verificación actual del diff persistido.":"Hubo cambios posteriores; el recibo original conserva su estado histórico."};
   }
   async commit(proposalId: string, revision: number, fingerprint: string, key: string): Promise<ExecutionReceipt> {
     if (!/^[a-f0-9]{64}$/.test(fingerprint) || !Number.isSafeInteger(revision) || revision < 1 || !key || key.length > 128) throw new PlanError("invalid_input", "Solicitud de ejecución inválida.", 400);
@@ -239,8 +328,17 @@ export class ProposalEngine {
     if (proposal.state !== "APPROVED") throw new PlanError("approval_required", "Se requiere aprobación humana vigente.", 403);
     if (proposal.digest !== fingerprint || await digest({ domain: "vida-en-orden/proposal/v1", payload: proposal.payload }) !== fingerprint) throw new PlanError("digest_mismatch", "La propuesta fue alterada.", 403);
     if (dateInTimeZone(this.now(), "America/Santo_Domingo") !== proposal.payload.contextDate) throw new PlanError("stale_proposal", "Cambió la fecha de cálculo; prepara nuevamente.");
+    const evidence = await this.database.prepare("SELECT e.*,a.credential_id active_credential FROM mcp_approval_evidence e JOIN mcp_approvals a ON a.proposal_id=e.proposal_id AND a.revision=e.revision AND a.owner_id=e.owner_id AND a.digest=e.digest AND a.challenge=e.challenge WHERE e.proposal_id=? AND e.revision=? AND e.owner_id=? AND e.digest=?").bind(proposalId,revision,this.owner(),fingerprint).first<{evidence:string;challenge:string;credential_id:string;active_credential:string}>();
+    if (!evidence || evidence.credential_id !== evidence.active_credential) {
+      const concurrent = await this.executionResult(proposalId,revision);if(concurrent?.digest===fingerprint)return concurrent;
+      throw new PlanError("approval_evidence_required","Falta evidencia íntegra de aprobación.",403);
+    }
+    try {
+      const archived = JSON.parse(evidence.evidence) as {channel:string;proof:unknown};
+      if (archived.channel !== this.options.verifier.channel || (await this.options.verifier.verify(archived.proof,evidence.challenge,this.options.actor)).credentialId !== evidence.credential_id) throw Error("revoked");
+    } catch { const concurrent = await this.executionResult(proposalId,revision);if(concurrent?.digest===fingerprint)return concurrent;throw new PlanError("approval_revoked","La credencial ya no es válida; prepara y aprueba nuevamente.",403); }
     const executionId = crypto.randomUUID();
-    const statements = [this.database.prepare("INSERT INTO mcp_execution_guards(execution_id,valid) SELECT ?,CASE WHEN EXISTS(SELECT 1 FROM mcp_proposals p JOIN mcp_proposal_heads h ON h.proposal_id=p.proposal_id AND h.revision=p.revision JOIN mcp_approvals a ON a.proposal_id=p.proposal_id AND a.revision=p.revision JOIN mcp_installation i ON i.id=1 WHERE p.proposal_id=? AND p.revision=? AND p.owner_id=? AND p.state='APPROVED' AND p.digest=? AND p.expires_at>? AND a.expires_at>? AND a.owner_id=p.owner_id AND a.digest=p.digest AND i.installation_id=? AND i.business_revision=p.base_revision) THEN 1 ELSE 0 END").bind(executionId, proposalId, revision, this.owner(), fingerprint, this.now().getTime(), this.now().getTime(), proposal.payload.installationId)];
+    const statements = [this.database.prepare("INSERT INTO mcp_execution_guards(execution_id,valid) SELECT ?,CASE WHEN EXISTS(SELECT 1 FROM mcp_proposals p JOIN mcp_proposal_heads h ON h.proposal_id=p.proposal_id AND h.revision=p.revision JOIN mcp_approvals a ON a.proposal_id=p.proposal_id AND a.revision=p.revision JOIN mcp_approval_evidence e ON e.proposal_id=a.proposal_id AND e.revision=a.revision AND e.owner_id=a.owner_id AND e.digest=a.digest AND e.challenge=a.challenge AND e.credential_id=a.credential_id JOIN mcp_installation i ON i.id=1 WHERE p.proposal_id=? AND p.revision=? AND p.owner_id=? AND p.state='APPROVED' AND p.digest=? AND p.expires_at>? AND a.expires_at>? AND a.owner_id=p.owner_id AND a.digest=p.digest AND i.installation_id=? AND i.business_revision=p.base_revision AND e.evidence=? AND a.credential_id=?) THEN 1 ELSE 0 END").bind(executionId, proposalId, revision, this.owner(), fingerprint, this.now().getTime(), this.now().getTime(), proposal.payload.installationId,evidence.evidence,evidence.credential_id)];
     for (const change of proposal.payload.changes) {
       const table = BUSINESS_TABLES.find((entry) => entry.name === change.table);
       if (!table) throw new PlanError("invalid_delta", "Tabla no autorizada.", 403);

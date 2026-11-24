@@ -1,3 +1,4 @@
+import { readBoundedJson } from "./limits.ts";
 import { z } from "zod";
 import { authenticateMcpRequest, McpAuthenticationError, type McpIdentity, type McpOwnerPolicy } from "../auth.ts";
 import { randomChallenge } from "./canonical.ts";
@@ -14,7 +15,7 @@ export function approvalSession(request:Request,policy:McpOwnerPolicy,origin:str
  const url=new URL(origin);if(url.protocol!=="https:"||url.origin!==origin||new URL(request.url).origin!==origin)throw new PlanError("origin_mismatch","Origen de aprobación no autorizado.",403);
  const values=(request.headers.get("cookie")||"").split(";").map(v=>v.trim()).filter(v=>v.startsWith(cookieName+"="));
  const token=values.length===1&&csrfSchema.safeParse(values[0].slice(cookieName.length+1)).success?values[0].slice(cookieName.length+1):"";
- if(request.method==="POST"&&(request.headers.get("origin")!==origin||!token||request.headers.get("x-veo-csrf")!==token||!request.headers.get("content-type")?.startsWith("application/json")))throw new PlanError("csrf_failed","La sesión de aprobación debe iniciarse en este Site.",403);
+ if(request.method==="POST"&&(request.headers.get("origin")!==origin||!token||request.headers.get("x-veo-csrf")!==token||request.headers.get("content-type")?.split(";")[0].trim().toLowerCase()!=="application/json"))throw new PlanError("csrf_failed","La sesión de aprobación debe iniciarse en este Site.",403);
  return {actor,token:token||randomChallenge()};
 }
 export function approvalJson(value:unknown,status=200,token?:string){return Response.json(value,{status,headers:{...headers,...(token?{"set-cookie":`${cookieName}=${token}; Path=/; Secure; HttpOnly; SameSite=Strict; Max-Age=600`}:{})}});}
@@ -23,11 +24,7 @@ export function approvalError(error:unknown){
  if(error instanceof PlanError)return approvalJson({error:error.code,message:error.message},error.status);
  return approvalJson({error:"approval_failed",message:"No se confirmó la aprobación. Actualiza el estado antes de reintentar."},409);
 }
-export async function approvalBody(request:Request){
- if(Number(request.headers.get("content-length")||0)>64*1024)throw new PlanError("input_limit","Solicitud demasiado grande.",413);
- const raw=await request.text();if(new TextEncoder().encode(raw).byteLength>64*1024)throw new PlanError("input_limit","Solicitud demasiado grande.",413);
- try{return JSON.parse(raw) as unknown;}catch{throw new PlanError("invalid_input","JSON inválido.",400);}
-}
+export const approvalBody = readBoundedJson;
 export async function handleApprovalRequest(request:Request,proposalId:string,dependencies:ApprovalHttpDependencies){
  try{
   if(!["GET","POST"].includes(request.method))return approvalJson({error:"method_not_allowed"},405);

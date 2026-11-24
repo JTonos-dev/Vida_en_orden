@@ -1,3 +1,4 @@
+import { isCalendarDate } from "./validation.ts";
 import { domainDatabase, domainNow } from "./context.ts";
 import { HOUSEHOLD_SCOPE } from "../data-scopes.ts";
 import {
@@ -25,7 +26,7 @@ function text(value: unknown, label: string, required = false) {
 function date(value: unknown, label: string, required = false) {
   const result = text(value, label, required);
   if (!result) return "";
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(result) || Number.isNaN(Date.parse(`${result}T12:00:00Z`))) {
+  if (!isCalendarDate(result)) {
     throw new Error(`${label} no es válida`);
   }
   return result;
@@ -475,6 +476,8 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
     const endTime = allDay ? "" : time(body.endTime, "La hora final");
     if (endDate < startDate || (endDate === startDate && startTime && endTime && endTime <= startTime)) throw new Error("El final del evento debe ser posterior al inicio");
     const recurrence = ["none", "daily", "weekly", "monthly", "yearly"].includes(String(body.recurrence)) ? String(body.recurrence) : "none";
+    const recurrenceUntil = date(body.recurrenceUntil, "El fin de recurrencia");
+    if (recurrence !== "none" && recurrenceUntil && recurrenceUntil < startDate) throw new Error("La recurrencia no puede terminar antes del inicio");
     await shared("home_areas",body.areaId); await shared("home_projects",body.projectId); await sharedTask(body.linkedTaskId);
     if (action === "event.create") {
       const id = uid();

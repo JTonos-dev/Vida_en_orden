@@ -1,9 +1,10 @@
+import { patchFields, patchDefinition, mergeUpdate } from "./patch-input.ts";
 import { z } from "zod";
 import { v2Action } from "../../domain/v2-service.ts";
 import { action } from "../../domain/home-service.ts";
 import type { ActionDefinition } from "./types.ts";
 import { actionDefinition, string, enumeration, integer, id, optional as o, nullable as n, date, emptyDate, color, timezone, type Field } from "./fields.ts";
-const fin = (kind: string,targetTable: ActionDefinition["targetTable"],fields: Record<string,Field>) => actionDefinition({ kind,phase:5,risk:"R2",targetTable,execute:(actor,input)=>v2Action(actor.userId,{action:kind,...input}) },fields);
+const fin = (kind: string,targetTable: ActionDefinition["targetTable"],fields: Record<string,Field>) => patchDefinition(actionDefinition({ kind,phase:5,risk:"R2",targetTable,execute:async(actor,input)=>v2Action(actor.userId,{action:kind,...await mergeUpdate(kind,actor,input)}) },patchFields(kind,fields)));
 const month: Field = {schema:z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/),json:{type:"string",pattern:"^\\d{4}-(0[1-9]|1[0-2])$"}};
 const account = {name:string(200,1),type:enumeration(["bank","cash","savings","credit"]),bankName:o(string(200))};
 const category = {name:string(200,1),kind:enumeration(["income","expense"]),color:o(color)};

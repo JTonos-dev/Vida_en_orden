@@ -6,11 +6,12 @@ export type Row = Record<string, string | number | null>;
 export type Snapshot = Record<string, Row[]>;
 export type PlanAction = { actionId: string; kind: string; input: Record<string, unknown> };
 export type RowChange = { table: BusinessTableName; id: string; before: Row | null; after: Row | null };
-export type ActionResult = { actionId: string; kind: string; entityId: string | null };
+export type ActionResult = { actionId: string; kind: string; entityId: string | null; effects?: RowChange[] };
+export type FinancialImpact={date:string;month:string;before:Record<string,number>;after:Record<string,number>;accounts:{id:string;name:string;beforeMinor:number|null;afterMinor:number|null}[];warnings:string[]};
 export type PreparedPayload = {
   contractVersion: 1; installationId: string; ownerId: string; proposalId: string; revision: number;
   createdAt: number; expiresAt: number; contextDate: string; baseRevision: number;
-  actions: PlanAction[]; changes: RowChange[]; results: ActionResult[]; risk: "R1" | "R2";
+  financialImpact?:FinancialImpact; actions: PlanAction[]; changes: RowChange[]; results: ActionResult[]; risk: "R1" | "R2";
 };
 export type ProposalState = "VALIDATED" | "PENDING_APPROVAL" | "APPROVED" | "COMMITTED" | "CANCELLED" | "EXPIRED" | "INVALIDATED";
 export type Proposal = { proposalId: string; revision: number; state: ProposalState; digest: string; payload: PreparedPayload };
@@ -24,7 +25,7 @@ export type ActionDefinition = {
 export type ActionRegistry = ReadonlyMap<string, ActionDefinition>;
 export type ApprovalVerifier = {
   readonly channel: "webauthn" | "isolated-test";
-  verify: (proof: unknown, challenge: string, actor: McpIdentity) => Promise<{ credentialId: string }>;
+  verify: (proof: unknown, challenge: string, actor: McpIdentity) => Promise<{ credentialId: string; evidence?: {publicKey:string;origin:string;proof:unknown} }>;
 };
 
 export class PlanError extends Error {

@@ -69,13 +69,15 @@ export function stageSql(sql: string, stageId: string): string | null {
   return sql;
 }
 
-export function stagingDatabase(database: DomainDatabase, stageId: string): DomainDatabase {
+export function stagingDatabase(database: DomainDatabase, stageId: string, onWrite?: (table:string)=>void): DomainDatabase {
   const prepare = (sql: string): D1PreparedStatement => {
     const rewritten = stageSql(sql, stageId);
     if (rewritten === null) {
       const noop = { bind() { return this; }, async run() { return { success: true, results: [], meta: {} }; } };
       return noop as unknown as D1PreparedStatement;
     }
+    const target = /^(?:INSERT(?: OR IGNORE)? INTO|UPDATE|DELETE FROM) (\w+)/i.exec(sql)?.[1];
+    if (target && names.has(target)) onWrite?.(target);
     const statement = database.prepare(rewritten);
     const wrapped = {
       [native]: statement,

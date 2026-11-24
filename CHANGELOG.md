@@ -1,5 +1,13 @@
 # Historial de cambios
 
+## Fase 6: límites, evidencia y recuperación · 2026-11-24
+
+- JSON acotado por stream, UTF-8, profundidad, nodos y claves; fechas reales y búsquedas literales de 200 caracteres sin LIKE largo.
+- Contexto de adjuntos texto/CSV/JSON sin fetch/OCR/ejecución y reporte interno de integridad sin conciliación bancaria externa.
+- Evidencia WebAuthn durable, revocación antes del commit, idempotencia de preparación, expected_revision, leases y métricas sin contenido. Migración 0010 invalida planes antiguos y elimina solo staging previo.
+- Efectos por acción e impacto financiero antes/después en la huella y revisión humana, con alertas de negativos/duplicados/futuros. Parches conservan campos omitidos.
+- Catálogo predeterminado 31; opt-in completo 44. Escrituras reales siguen deshabilitadas.
+
 ## Fase 3B: transporte opcional y canal humano · 2026-11-24
 
 - Diez herramientas de propuestas opt-in; el catálogo predeterminado sigue en 31 lecturas.

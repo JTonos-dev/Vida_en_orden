@@ -1,5 +1,7 @@
 # Fase 3: propuestas y aprobación verificable
 
+Estado de ejecución: el fundamento, adaptadores y transporte ya están implementados en PR #5–#8; endurecimiento en rama dependiente de fase 6. Las secciones de fundamento 3A describen aquella entrega; para estado actual, límites y configuración usar DEVELOPMENT_PROGRESS.md, HUMAN_APPROVAL_SETUP.md y MCP_HARDENING.md. La interacción humana alojada y la activación real siguen pendientes.
+
 Estado: **implementación autorizada en entorno aislado** por el mandato del responsable del 24 de noviembre de 2026. La exposición histórica queda como riesgo conocido y no bloquea el desarrollo; no se crea un repositorio alternativo. Esta propuesta no agrega rutas, herramientas, tablas ni permisos MCP. Se conservan las 31 lecturas y `MCP_BUSINESS_WRITES_ENABLED=false`.
 
 ## Punto de partida comprobado

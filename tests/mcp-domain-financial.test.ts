@@ -13,6 +13,7 @@ test("transferencia propia conserva liquidez y no inventa ingresos/gastos; void 
  const f=domainFixture();try{
   const [account,destination]=await setup(f);
   const {plan}=await f.run([a("t","finance.transaction.create",{type:"transfer",accountId:account,destinationAccountId:destination,amountMinor:12345,occurredOn:date,description:"Synthetic own transfer",transferMode:"same_bank"})]);
+  assert.equal(plan.payload.financialImpact?.before.liquidMinor,100000);assert.equal(plan.payload.financialImpact?.after.liquidMinor,100000);assert.equal(plan.payload.financialImpact?.accounts.length,2);assert.ok(plan.payload.results[0].effects?.some(e=>e.table==="finance_transactions"));
   const row=f.sqlite.prepare("SELECT * FROM finance_transactions").get()!;assert.equal(row.amount_minor,12345);assert.equal(row.fee_minor,0);
   const reads=createMcpReadService(f.database,actor);
   const report=await reads.getFinanceReport({group_by:"type",date_from:date,date_to:date}) as {summary:{netCashImpactMinor:number}};
