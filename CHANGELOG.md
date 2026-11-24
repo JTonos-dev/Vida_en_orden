@@ -5,7 +5,7 @@
 - El candidato de esquema del PR #12 se publicó en un Site privado nuevo: deployment satisfactorio, MCP provisionado y 48 tablas observadas. No se modificó una instalación personal.
 - El propietario reportó «Falta migrar la base MCP» al registrar su autenticador antes de preparar una propuesta. Se reprodujo el 503 sobre la proyección nueva y se añadió una regresión HTTP antes de corregirlo.
 - El POST de registro autenticado/CSRF válido usa ahora la misma comprobación de esquema y bootstrap atómico que prepare. GET, solicitudes denegadas y lecturas no inicializan. Esquema incompleto, versión futura y fallo de batch se deniegan sin efectos. El candidato no fija confianza ni habilita negocio.
-- Ambas integraciones Worker prueban el orden real de instalación: registrar primero, preparar después. Suite repetida: 146 aprobadas, TypeScript/lint/schema/build, auditorías sin hallazgos, D1 independiente y ambos Workers con 27 QA cada uno. CI/publicación posteriores y aceptación humana se registran en DEVELOPMENT_PROGRESS; no se deducen del deployment inicial.
+- Ambas integraciones Worker prueban el orden real de instalación: registrar primero, preparar después. Código 5359d43: 146 aprobadas, TypeScript/lint/schema/build, auditorías sin hallazgos, D1 independiente y ambos Workers con 27 QA cada uno; CI y clon GitHub aprobados. Publicado en versión 2 del mismo Site privado, sin cambios de SQL. Reintento humano pendiente; no se deduce aceptación del deployment.
 
 ## Compatibilidad Sites: proyección y bootstrap · 2026-11-24
 

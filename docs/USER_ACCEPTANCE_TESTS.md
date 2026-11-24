@@ -1,6 +1,6 @@
 # Pruebas funcionales del propietario
 
-Estado: Site privado nuevo de desarrollo publicado; aceptación humana pendiente. El primer intento de registro informó «Falta migrar la base MCP»: incidencia reproducida automáticamente, corrección de bootstrap en validación/publicación según DEVELOPMENT_PROGRESS. Usar solo datos ficticios; no ejecutar escrituras en la instalación personal ni habilitar una compuerta para saltarse un bloqueo.
+Estado: Site privado nuevo de desarrollo publicado; aceptación humana pendiente. El primer intento de registro informó «Falta migrar la base MCP»: incidencia reproducida automáticamente y corrección 5359d43 probada/publicada en versión 2. Reintento humano solicitado, aún no aprobado. Ver DEVELOPMENT_PROGRESS. Usar solo datos ficticios; no ejecutar escrituras en la instalación personal ni habilitar una compuerta para saltarse un bloqueo.
 
 Los casos cubiertos por tests automatizados se documentarán como evidencia técnica; el propietario solo debe comprobar interacción real de plataforma y aceptación funcional que esos tests no pueden demostrar.
 
@@ -61,7 +61,7 @@ Precaución especial: ante timeout no repetir un movimiento suponiendo fallo; pe
 
 La instancia privada de desarrollo ya está publicada con la proyección de esquema y 0011; sigue pendiente la interacción del propietario. Las URLs/configuración concretas se entregan privadamente, no se incluyen en este repositorio. El plugin figura instalado; si las herramientas nuevas no aparecen en el chat, seleccionarlo en Plugins → Personal → Created by you o comenzar una conversación con esa app. Instalado no equivale a conexión/aceptación verificadas.
 
-Fase: 3B. Estado: **pendiente de reintento humano tras la corrección del registro inicial**. La instancia de desarrollo usa la proyección 0000–0011 y configuración propia. No depende de habilitar escrituras. Requiere una persona; las firmas sintéticas no la sustituyen.
+Fase: 3B. Estado: **pendiente de reintento humano en la versión 2 con la corrección del registro inicial**. La instancia de desarrollo usa la proyección 0000–0011 y configuración propia. No depende de habilitar escrituras. Requiere una persona; las firmas sintéticas no la sustituyen.
 
 - Requisitos/datos: seguir HUMAN_APPROVAL_SETUP.md; propietario con autenticador y credencial personalmente fijada. Única propuesta: crear `UAT Synthetic approval` sin datos reales.
 - Pasos exactos: registrar candidato en `/approvals/enroll`, fijarlo administrativamente, preparar cambio desde ChatGPT, pedir enlace request_approval, abrirlo autenticado, comprobar diff/versión/huella y aprobar con el control del sistema.

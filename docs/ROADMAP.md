@@ -14,7 +14,7 @@ El endurecimiento de GitHub, la guía de portabilidad y la prueba de instalació
 | 4 | Escrituras no financieras: tareas, áreas, proyectos, planificación y bitácora | 19 adaptadores y reversión probados en aislamiento; transporte preparado, ejecución real cerrada. | Aceptación funcional después del canal humano y de una habilitación revisada. |
 | 5 | Escrituras financieras y relaciones cruzadas | 24 adaptadores R2 y pruebas contables implementados en aislamiento; aceptación/ejecución real pendientes. | Pruebas contables, no doble conteo, concurrencia, reversión y reconciliación. |
 | 6 | Adjuntos interpretados, informes ampliados y endurecimiento operativo | Texto/CSV/JSON, informe interno, límites, evidencia y recuperación implementados; binarios/OCR no disponibles, carga y cuotas alojadas pendientes. | Aceptación de los informes/adjuntos en ChatGPT y validación operativa del host. |
-| 7 | Cierre documental, publicación, conexión y pruebas end-to-end | 143 pruebas, Worker/D1 completo y proyectado, ORM, instalación GitHub, CI y guías aprobados. Dependencias sin alertas. Site privado nuevo publicado, MCP provisionado y 48 tablas observadas. | Autenticador humano, conexión autenticada del nuevo plugin, aceptación y revisión del mantenedor pendientes. No se declara completada. |
+| 7 | Cierre documental, publicación, conexión y pruebas end-to-end | 146 pruebas, Worker/D1 completo y proyectado, ORM, instalación GitHub, CI y guías aprobados. Dependencias sin alertas. Site privado nuevo versión 2 publicado, MCP provisionado y 48 tablas observadas. | Autenticador humano, conexión autenticada del nuevo plugin, aceptación y revisión del mantenedor pendientes. No se declara completada. |
 
 ## Dependencias
 
@@ -24,6 +24,6 @@ La fase 3 depende de una aprobación humana demostrable en la plataforma. Las fa
 
 ## Ejecución vigente
 
-El PR #12 implementa proyección de esquema y bootstrap autenticado para Sites; ver SITES_METADATA_BOOTSTRAP. Originales conservados, nueva 0011 y candidato inicial publicado. El registro humano detectó un 503 antes de la primera propuesta; corrección reproducida con tres regresiones nuevas y 146 pruebas aprobadas. DEVELOPMENT_PROGRESS separa publicación/CI del arreglo y reintento humano pendientes. El propietario no necesita investigar un mecanismo SQL administrativo.
+El PR #12 implementa proyección de esquema y bootstrap autenticado para Sites; ver SITES_METADATA_BOOTSTRAP. Originales conservados, nueva 0011 y candidato inicial publicado. El registro humano detectó un 503 antes de la primera propuesta; corrección 5359d43 con tres regresiones nuevas,146 pruebas aprobadas, CI/clon verificados y versión 2 publicada. Reintento humano pendiente según DEVELOPMENT_PROGRESS. El propietario no necesita investigar un mecanismo SQL administrativo.
 
 El responsable autoriza las fases 3–7 en ramas dependientes. La exposición histórica sigue abierta; no se continúa la sustitución del repositorio y no bloquea este desarrollo. Se implementan y prueban componentes aislados sin habilitar escrituras reales. El seguimiento reproducible y los bloqueos están en `DEVELOPMENT_PROGRESS.md` y las pruebas humanas en `USER_ACCEPTANCE_TESTS.md`.

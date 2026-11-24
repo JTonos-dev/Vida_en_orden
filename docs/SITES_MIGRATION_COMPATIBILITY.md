@@ -1,6 +1,6 @@
 # Compatibilidad de publicación en Sites
 
-El PR #12 resolvió la publicación de una instalación nueva mediante la proyección y el bootstrap descritos en [SITES_METADATA_BOOTSTRAP.md](SITES_METADATA_BOOTSTRAP.md). El código a05433d se publicó con éxito en un Site privado nuevo: versión 1/entorno 1, MCP provisionado y 48 tablas observadas. No se modificó una instalación personal. La aceptación humana y el health autenticado del nuevo plugin siguen pendientes.
+El PR #12 resolvió la publicación de una instalación nueva mediante la proyección y el bootstrap descritos en [SITES_METADATA_BOOTSTRAP.md](SITES_METADATA_BOOTSTRAP.md). El candidato inicial a05433d y la corrección de registro 5359d43 se publicaron con éxito en el mismo Site privado nuevo: versión 2/entorno 1, MCP provisionado y 48 tablas observadas. No se modificó una instalación personal. La aceptación humana y el health autenticado del nuevo plugin siguen pendientes.
 
 El primer ensayo humano descubrió un error adicional: enrollment se ejecutaba antes de la primera propuesta y confundía la ausencia de la fila de metadatos con una migración faltante. La regresión reproduce exactamente ese 503 sobre la cadena proyectada. La corrección permite el mismo bootstrap atómico desde el POST autenticado y protegido por CSRF de registro; GET, lecturas y solicitudes denegadas siguen sin inicializar. No fija confianza ni habilita negocio. Ver DEVELOPMENT_PROGRESS para el estado probado/publicado de la corrección.
 

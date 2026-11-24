@@ -1,6 +1,6 @@
 # Instalación Sites con esquema y bootstrap separados
 
-Entrega dependiente de #11, rama fix/mcp-schema-only-bootstrap, PR #12. Código a05433d probado y publicado en un Site privado nuevo: deployment satisfactorio, versión 1/entorno 1, MCP provisionado y 48 tablas observadas. La interacción humana del autenticador y las llamadas autenticadas del nuevo plugin siguen pendientes; no se certifican por esa publicación.
+Entrega dependiente de #11, rama fix/mcp-schema-only-bootstrap, PR #12. El candidato a05433d se publicó en un Site privado nuevo. La corrección posterior de registro inicial 5359d43 pasó 146 pruebas/CI/clon y se publicó como versión 2/entorno 1 del mismo Site, con MCP provisionado y 48 tablas observadas; hashes de migraciones sin cambios. La interacción humana del autenticador y las llamadas autenticadas del nuevo plugin siguen pendientes; no se certifican por esa publicación.
 
 ## Conservación de migraciones
 
@@ -36,9 +36,9 @@ Esto solo prepara infraestructura/metadatos; no aprueba propuestas ni activa neg
 
 ## Upgrades y reversión
 
-Esta automatización de exportación está marcada freshInstallationOnly. No actualiza una instalación personal ni presume el estado de su D1. Para una instalación de main fase2, los SQL 0000–0007 son idénticos; el propietario debe verificar ledger/backup, autorizar la actualización, deshabilitar propuestas y drenar requests antes del flujo soportado. Una instalación experimental que ya aplicó SQL completo 0008–0010 requiere inspección administrativa de hashes/estado antes de adoptar otra representación: no repetir SQL ni falsificar el ledger. La utilidad no cambia nada en ella.
+Esta automatización de exportación está marcada freshInstallationOnly. No actualiza una instalación personal ni presume el estado de su D1. Para una instalación de main fase 2, los SQL 0000–0007 son idénticos; el propietario debe verificar ledger/backup, autorizar la actualización, deshabilitar propuestas y drenar requests antes del flujo soportado. Una instalación experimental que ya aplicó SQL completo 0008–0010 requiere inspección administrativa de hashes/estado antes de adoptar otra representación: no repetir SQL ni falsificar el ledger. La utilidad no cambia nada en ella.
 
-El rollback vuelve a un código verificado con flags apagados, conserva la columna/tablas y evidencia y no restaura D1. El bootstrap de versión1 no se deshace automáticamente. La adopción de un contrato posterior requiere una migración/transición explícita revisada; no un número elegido por el modelo.
+El rollback vuelve a un código verificado con flags apagados, conserva la columna/tablas y evidencia y no restaura D1. El bootstrap de versión 1 no se deshace automáticamente. La adopción de un contrato posterior requiere una migración/transición explícita revisada; no un número elegido por el modelo.
 
 ## Evidencia requerida
 

@@ -1,6 +1,6 @@
 # Estado actual reproducible
 
-Corte: 24 de noviembre de 2026. Main oficial sigue 317cfd8 (PR #3, fase 2). Las fases 3–7 están implementadas en ramas/PR dependientes #4→#12, con CI verde en los commits publicados antes de la corrección de registro y revisión humana pendiente. DEVELOPMENT_PROGRESS identifica el último HEAD verificado. Código, commit público, fuente privada Sites, versión, deployment y aceptación son estados distintos. La exposición histórica no está resuelta y su sustitución permanece suspendida.
+Corte: 24 de noviembre de 2026. Main oficial sigue 317cfd8 (PR #3, fase 2). Las fases 3–7 están implementadas en ramas/PR dependientes #4→#12, con CI verde incluido el código corregido 5359d43 y revisión humana pendiente. DEVELOPMENT_PROGRESS identifica la evidencia exacta; comprobar también el HEAD documental posterior antes de integrar. Código, commit público, fuente privada Sites, versión, deployment y aceptación son estados distintos. La exposición histórica no está resuelta y su sustitución permanece suspendida.
 
 ## Código propuesto
 
@@ -17,17 +17,17 @@ SQL originales 0000–0010 intactos; 0011 añade metadata_version. 48 tablas y 5
 | Solo propuestas |42 |Lecturas y metadatos/staging |
 | Ambos |44 |Las dos superficies anteriores |
 
-Las31 conservan nombre, contrato, readOnlyHint=true y destructiveHint=false. Las herramientas que mutan metadatos tienen anotaciones acordes. businessWritesEnabled=false en fábrica y transporte: ni APPROVED permite negocio. No existe approve/enroll/SQL en MCP; argumentos, confirmed o un documento no sustituyen la firma humana.
+Las 31 conservan nombre, contrato, readOnlyHint=true y destructiveHint=false. Las herramientas que mutan metadatos tienen anotaciones acordes. businessWritesEnabled=false en fábrica y transporte: ni APPROVED permite negocio. No existe approve/enroll/SQL en MCP; argumentos, confirmed o un documento no sustituyen la firma humana.
 
 ## Publicación y pruebas observadas
 
-El código a05433d se publicó desde un commit privado trazable en **un Site nuevo de desarrollo**, owner-only, versión Sites1/entorno1, MCP provisionado y48 tablas alojadas observadas. Identidad/URL/deployment se registran privadamente; no se cambió la instalación personal ni el Site original. El plugin nuevo figura instalado, pero sus herramientas no están expuestas en este chat: conexión por usuario real/health/ChatGPT y autenticador siguen pendientes. No hay claves confiables fijadas ni aprobación humana certificada.
+El código corregido 5359d43 se publicó desde un commit privado trazable en **el mismo Site nuevo de desarrollo**, owner-only, versión Sites 2/entorno 1, MCP provisionado y 48 tablas alojadas observadas. Los hashes de migraciones coinciden con la versión 1. Identidad/URL/deployment se registran privadamente; no se cambió la instalación personal ni el Site original. El plugin nuevo figura instalado, pero sus herramientas no están expuestas en este chat: conexión por usuario real/health/ChatGPT y autenticador siguen pendientes. No hay claves confiables fijadas ni aprobación humana certificada.
 
 El candidato a05433d aprobó 143 pruebas, TypeScript, lint sin errores/cuatro advertencias previas, schema sin cambios, build, auditoría fuente 261 archivos/cero hallazgos, npm cero alertas y D1 independiente. Worker completo/proyectado: 31 lecturas, bootstrap, WebAuthn sintético, CSRF, inscripción no confiable, anti-framing y compuerta cerrada; 27 QA API/UI cada uno. CI y clon GitHub aprobados. Servicio alojado sin identidad de visitante denegado 401 en MCP/enrollment; página anti-framing aprobada. Estos resultados no certifican una persona, hardware ni aceptación ChatGPT.
 
-El primer registro humano reportó un 503 «Falta migrar la base MCP», reproducido antes de la primera propuesta. Se corrigió el orden de bootstrap y se añadieron tres regresiones; **146 pruebas (14 financieras, 128 MCP, 4 auditoría) aprobadas**. DEVELOPMENT_PROGRESS registra por separado suite/CI/publicación del nuevo código y el reintento humano; no presentar el deployment inicial como verificación de esta corrección.
+El primer registro humano reportó un 503 «Falta migrar la base MCP», reproducido antes de la primera propuesta. Se corrigió el orden de bootstrap y se añadieron tres regresiones; **146 pruebas (14 financieras, 128 MCP, 4 auditoría) aprobadas**. Suite completa repetida, CI del arreglo verde, clon verificado y versión 2 publicada. Se pidió reintento humano; sigue pendiente, sin presentar el deployment como aceptación del autenticador.
 
-La instalación independiente existente se comprobó sin cambios: fase2,31 lecturas, ejecución deshabilitada y cero incidencias referenciales. No se usaron sus datos/configuración para desarrollar.
+La instalación independiente existente se comprobó sin cambios: fase 2,31 lecturas, ejecución deshabilitada y cero incidencias referenciales. No se usaron sus datos/configuración para desarrollar.
 
 ## Límites vigentes
 
@@ -35,4 +35,4 @@ Aceptación del propietario, revisión/merge y habilitación posterior siguen pe
 
 Las protecciones efectivas consultadas exigen PR/verify y bloquean force/delete, pero admiten cero aprobaciones y no exigen check actualizado con base. La cuenta ejecutora solo lee el oficial y publica en su fork. Se exige revisión humana por procedimiento; no se eluden controles ni se fusiona por tener CI verde.
 
-Continuidad/commits: DEVELOPMENT_PROGRESS. Informe: IMPLEMENTATION_REPORT. Aceptación: USER_ACCEPTANCE_TESTS. Actualización/rollback: UPGRADE_AND_ROLLBACK. Todo distingue verificación local, publicación y aceptación; fase7 no se declara completada.
+Continuidad/commits: DEVELOPMENT_PROGRESS. Informe: IMPLEMENTATION_REPORT. Aceptación: USER_ACCEPTANCE_TESTS. Actualización/rollback: UPGRADE_AND_ROLLBACK. Todo distingue verificación local, publicación y aceptación; fase 7 no se declara completada.
