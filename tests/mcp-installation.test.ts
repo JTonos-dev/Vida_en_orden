@@ -41,7 +41,7 @@ function installation(label?: string) {
   const sqlite = new DatabaseSync(":memory:");
   const migrations = readdirSync(new URL("../drizzle/", import.meta.url))
     .filter((file) => /^\d{4}_.+\.sql$/.test(file)).sort();
-  assert.equal(migrations.length, 8);
+  assert.ok(migrations.length >= 8);
   for (const migration of migrations) sqlite.exec(readFileSync(new URL(`../drizzle/${migration}`, import.meta.url), "utf8"));
   const insert = (table: string, values: Record<string, SQLInputValue>) => {
     const columns = Object.keys(values);

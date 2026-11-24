@@ -43,6 +43,27 @@
       "when": 1795104000000,
       "tag": "0005_transfer_fee_rates",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1795536006000,
+      "tag": "0006_finance_concepts",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1795536007000,
+      "tag": "0007_goal_budget_details",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1795536008000,
+      "tag": "0008_mcp_proposal_engine",
+      "breakpoints": true
     }
   ]
 }

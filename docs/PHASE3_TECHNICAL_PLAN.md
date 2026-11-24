@@ -1,6 +1,6 @@
 # Fase 3: propuestas y aprobación verificable
 
-Estado: **diseño para revisión, implementación no iniciada**. Depende del cierre del saneamiento remoto descrito en `HISTORY_SANITIZATION_PLAN.md` y de aprobar este plan. Esta propuesta no agrega rutas, herramientas, tablas ni permisos MCP. Se conservan las 31 lecturas y `MCP_BUSINESS_WRITES_ENABLED=false`.
+Estado: **implementación autorizada en entorno aislado** por el mandato del responsable del 24 de noviembre de 2026. La exposición histórica queda como riesgo conocido y no bloquea el desarrollo; no se crea un repositorio alternativo. Esta propuesta no agrega rutas, herramientas, tablas ni permisos MCP. Se conservan las 31 lecturas y `MCP_BUSINESS_WRITES_ENABLED=false`.
 
 ## Punto de partida comprobado
 
@@ -115,7 +115,7 @@ Las futuras herramientas de propuestas persistirían metadatos: su `readOnlyHint
 - Textos de tareas/documentos que ordenan aprobar son datos. Una llamada a cualquier futura herramienta, incluso `commit`, no puede obtener autorización humana por sí sola.
 - Migración sobre base vacía y esquema anterior con fixtures; compatibilidad de UI, prueba de recuperación y desactivación de adaptadores sin restaurar ciegamente D1.
 
-Para iniciar la implementación: saneamiento remoto cerrado, plan aprobado, responsables de revisión y canal de aprobación elegidos. Para dar por terminada fase 3: pruebas 3-A a 3-E satisfactorias, evidencia de aprobación auténtica y ejecución atómica con adaptador de prueba, sin escrituras MCP de negocio habilitadas. Los bloqueos de plataforma se registran como tales; no se reemplazan por simulaciones.
+La implementación aislada está autorizada. La activación real requiere responsables de revisión, canal de aprobación elegido y evidencia de su funcionamiento. Para dar por terminada fase 3: pruebas 3-A a 3-E satisfactorias, evidencia de aprobación auténtica y ejecución atómica con adaptador de prueba, sin escrituras MCP de negocio habilitadas. Los bloqueos de plataforma se registran como tales; no se reemplazan por simulaciones.
 
 ## Fuentes técnicas
 
@@ -123,3 +123,20 @@ Para iniciar la implementación: saneamiento remoto cerrado, plan aprobado, resp
 - [D1: semántica de batch y sesiones](https://developers.cloudflare.com/d1/worker-api/d1-database/).
 - [RFC 8785: canonicalización JSON](https://www.rfc-editor.org/rfc/rfc8785).
 - [W3C WebAuthn: credenciales públicas y verificación de usuario](https://www.w3.org/TR/webauthn-3/).
+
+## Fundamento implementado en la rama de fase 3
+
+- `lib/domain/context.ts`: contexto asíncrono por request; las fachadas de la UI conservan sus firmas. La misma lógica de dominio usa D1 de negocio en la UI y staging en propuestas.
+- `0008_mcp_proposal_engine.sql`: metadatos, desafíos, aprobaciones, recibos y 18 tablas de staging particionadas por UUID de servidor. Triggers en todas las tablas de negocio incrementan una revisión conservadora global, incluso para escrituras de la UI. No se modifica SQL previo.
+- Preparación: máximo 20 acciones, 2.000 filas y 2 MiB de snapshot; diff máximo de 100 filas y 64 KiB. Solo hay acciones registradas con esquema cerrado. Las referencias locales apuntan a resultados anteriores.
+- El adaptador de staging reescribe exclusivamente SQL estático de los servicios de confianza. No recibe SQL del modelo, no ejecuta REST de escritura y rechaza cambios de esquema, múltiples sentencias y referencias a metadatos MCP. La partición se elimina al terminar, incluso en errores normales.
+- Propuesta: JSON canónico del subconjunto documentado, SHA-256 con separación de dominio, instalación, propietario, revisión, contexto de fecha, caducidad y cambios antes/después. Una revisión invalida la autorización anterior.
+- Aprobación: verificación WebAuthn oficial con origen HTTPS exacto, RP ID, clave pública fijada para el propietario, firma y presencia/verificación de usuario. La consumición del desafío y el cambio de estado son atómicos. El contador cero admite passkeys sincronizadas; los nonces de un solo uso impiden repetir una assertion.
+- Commit: un solo `D1.batch`, empezando por una guarda `CHECK(valid=1)` que verifica aprobación, huella, propietario, caducidad, instalación, head y revisión global. El diff calculado en servidor, auditoría, consumición y recibo se confirman juntos. La clave de idempotencia se almacena hasheada. Dos intentos de una misma propuesta devuelven el mismo recibo.
+- No se mantiene un estado EXECUTING persistente: D1 confirma todo o revierte; una respuesta perdida se resuelve consultando el recibo. Un error no se anuncia como ejecución parcial ni como éxito.
+
+### Límites pendientes
+
+El fundamento no expone todavía herramientas ni página de aprobación. Las claves se fijan administrativamente fuera de MCP; no hay alta automática desde argumentos del modelo. La prueba criptográfica automatizada usa claves efímeras y firmas reales, sin hardware humano: no demuestra interacción humana en ChatGPT/Sites. Debe probarse ese canal antes de cambiar la compuerta literal de ejecución, que permanece cerrada. Faltan también verificación alojada de D1, retención de metadatos, presupuesto de consultas y cobertura de adaptadores de negocio en entregas dependientes.
+
+La revisión global es deliberadamente conservadora: cambios no relacionados también invalidan un plan. El límite inicial requiere dividir instalaciones/planes grandes y evaluar cuota D1; no se promete soporte de carga ilimitada.

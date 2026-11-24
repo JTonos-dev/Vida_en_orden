@@ -43,3 +43,7 @@ Las ampliaciones de Fase 2 agregan filtros o relaciones sin convertirlas en herr
 ## Fuera de paridad deliberadamente
 
 No están implementados como herramientas MCP: `create`, `update`, `delete`, `void`, `restore`, `prepare_change_plan`, `request_approval`, `commit_approved_change_plan` ni `execute_sql`. Las escrituras de la interfaz no implican que el MCP pueda escribir.
+
+## Desarrollo aislado de fase 3
+
+`lib/mcp/plans/engine.ts` implementa preparación, revisión, cancelación, aprobación, ejecución atómica y consulta de recibos. Aún no hay herramientas nuevas expuestas ni adaptadores de negocio publicados. La verificación WebAuthn usa claves administrativas fijadas, sin inscripción desde el modelo. Producción conserva 31 lecturas.

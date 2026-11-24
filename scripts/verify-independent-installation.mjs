@@ -55,8 +55,8 @@ try {
   const migrations = readdirSync(migrationsDir)
     .filter((file) => /^\d{4}_.+\.sql$/.test(file))
     .sort();
-  const expected = ["0000", "0001", "0002", "0003", "0004", "0005", "0006", "0007"];
-  if (migrations.length !== expected.length || migrations.some((file, index) => !file.startsWith(`${expected[index]}_`))) {
+  const expected = migrations.map((_, index) => String(index).padStart(4, "0"));
+  if (migrations.length < 8 || migrations.some((file, index) => !file.startsWith(`${expected[index]}_`))) {
     fail(`expected ordered migrations ${expected.join(", ")}; found ${migrations.join(", ")}`);
   }
   if (!existsSync(distConfig)) fail("dist/server/wrangler.json is missing; run npm run build first");

@@ -76,9 +76,9 @@ Añade pruebas proporcionales para:
 
 No declares aprobada una comprobación que no pudiste ejecutar. El script `scripts/qa-v2.mjs` modifica su entorno de prueba: nunca lo apuntes a producción.
 
-`npm run verify:independent` debe ejecutarse después del build. Crea una base D1 local temporal, aplica `drizzle/0000` a `drizzle/0007` en orden y la elimina al terminar; no acepta ni necesita credenciales productivas.
+`npm run verify:independent` debe ejecutarse después del build. Crea una base D1 local temporal, aplica todas las migraciones SQL contiguas desde `drizzle/0000` en orden y la elimina al terminar; no acepta ni necesita credenciales productivas.
 
-`npm run audit:public` inspecciona la fuente versionada, sin imprimir valores detectados. Su modo `-- --history` inspecciona todos los objetos locales, también los inalcanzables; no demuestra por sí solo la retirada de refs o cachés del servidor. Mientras el saneamiento remoto esté pendiente, CI verde no equivale a historial limpio. No implementar fase 3 antes del cierre y de la aprobación de `docs/PHASE3_TECHNICAL_PLAN.md`.
+`npm run audit:public` inspecciona la fuente versionada, sin imprimir valores detectados. Su modo `-- --history` inspecciona todos los objetos locales, también los inalcanzables; no demuestra por sí solo la retirada de refs o cachés del servidor. Mientras el saneamiento remoto esté pendiente, CI verde no equivale a historial limpio. El mandato del responsable del 24 de noviembre de 2026 autoriza implementar secuencialmente las fases 3–7 en ramas dependientes. El riesgo histórico no bloquea ese desarrollo y no se continúa la sustitución del repositorio. Las escrituras reales MCP siguen deshabilitadas hasta demostrar aprobación humana en la plataforma.
 
 ## Datos, migraciones y compatibilidad
 
