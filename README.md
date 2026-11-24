@@ -34,6 +34,7 @@ npm run verify:schema
 npm run build
 npm run verify:independent
 npm run verify:worker
+npm run verify:sites
 npm run dev
 ```
 
@@ -45,7 +46,7 @@ La copia pública incluye un `.openai/hosting.json` con un marcador seguro. Sust
 2. Instala dependencias con `npm ci`.
 3. Crea tu propio ChatGPT Site y configura un binding D1 llamado `DB`.
 4. Sustituye el marcador de `.openai/hosting.json` por el identificador de tu Site.
-5. Comprueba/aplica las migraciones de la versión seleccionada en orden (main fase2: 0000–0007; rama fases3–7: 0000–0010) únicamente por el flujo soportado y probado del host. Lee [actualización y rollback](docs/UPGRADE_AND_ROLLBACK.md) antes de actualizar una base existente.
+5. Comprueba las migraciones de la versión seleccionada en D1 local (main fase 2: 0000–0007; rama fases 3–7: 0000–0011). Para un Site nuevo usa la [proyección de esquema y bootstrap](docs/SITES_METADATA_BOOTSTRAP.md), ya publicada en desarrollo; conserva los SQL originales. Lee [actualización y rollback](docs/UPGRADE_AND_ROLLBACK.md) antes de actualizar una base existente.
 6. Configura `MCP_OWNER_EMAIL` y, si está disponible en tu entorno, `MCP_OWNER_USER_ID` como secretos del Site.
 7. Publica con la capacidad MCP declarada y valida `server/discover`, `tools/list` y una lectura inocua.
 

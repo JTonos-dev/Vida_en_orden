@@ -16,7 +16,7 @@ Se implementa el canal alternativo del plan maestro: página autenticada del Sit
 
 No actualizar la instalación personal ni el Site original para probar esto. Usar una instancia de desarrollo privada, con D1 ficticia propia y acceso solo del propietario.
 
-Seguir primero SITES_METADATA_BOOTSTRAP.md: para Sites se exporta una proyección de esquema sin modificar los SQL originales. El primer prepare autenticado inicializa metadatos de forma atómica, sin negocio; ninguna lectura lo hace. verify:hosting debe pasar en el checkout privado proyectado. La prueba humana permanece pendiente hasta confirmar un deployment real de ese candidato.
+Seguir primero SITES_METADATA_BOOTSTRAP.md: para Sites se exporta una proyección de esquema sin modificar los SQL originales. El primer POST de registro de autenticador o prepare autenticados inicializa metadatos atómicamente, sin negocio; ninguna lectura lo hace. verify:hosting debe pasar en el checkout privado proyectado. El primer candidato ya se publicó, pero el registro antes de preparar una propuesta reveló un 503 erróneo; la corrección y regresión se registran en DEVELOPMENT_PROGRESS. La prueba humana permanece pendiente hasta reintentar personalmente sobre el código corregido.
 
 1. Integrar/revisar las dependencias de PR en orden, o instalar la rama exacta de desarrollo indicada en DEVELOPMENT_PROGRESS. Ejecutar suite y build.
 2. Validar 0000–0011 en D1 local. Para Sites publicar la proyección de esquema preparada desde el commit limpio según SITES_METADATA_BOOTSTRAP; no aplicar la cadena mixta original a ciegas ni sustituirla por ORM sin triggers. La primera preparación inicializa metadata_version=1 e invalida planes anteriores; conserva negocio, identidad/revisión existentes y recibos.

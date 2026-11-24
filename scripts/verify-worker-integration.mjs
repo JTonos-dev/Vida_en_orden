@@ -47,6 +47,14 @@ try{
  const home=await tool("get_configuration",{section:"home"});assert.equal(home.home,null);
  const preSetupHealth=await tool("get_change_plan_health");assert.equal(preSetupHealth.metadataReady,false);
  console.log(`PASS · 31 read tools through the built Worker (${successful} valid, ${notFound} expected not_found); no business rows.`);
+ // Regression: owner enrollment precedes the first proposal in the actual setup guide.
+ const enrollment=await request("/api/mcp/enrollment"),enrollmentHeaders={origin:base,cookie:enrollment.headers["set-cookie"][0].split(";")[0],"x-veo-csrf":enrollment.json.csrfToken};
+ assert.equal((await tool("get_change_plan_health")).metadataReady,false,"Enrollment GET must not initialize metadata");
+ assert.equal((await request("/api/mcp/enrollment",{action:"options"},{...enrollmentHeaders,"x-veo-csrf":"bad"})).status,403);
+ assert.equal((await tool("get_change_plan_health")).metadataReady,false,"Denied enrollment must not initialize metadata");
+ const options=await request("/api/mcp/enrollment",{action:"options"},enrollmentHeaders);assert.equal(options.status,200,options.text);
+ const candidate=await request("/api/mcp/enrollment",{action:"candidate",challenge:options.json.publicKey.challenge,proof:key.registration(options.json.publicKey.challenge)},enrollmentHeaders);assert.equal(candidate.status,200,candidate.text);assert.equal(candidate.json.trusted,false);
+ assert.equal((await tool("get_change_plan_health")).metadataReady,true);
  const plan=await tool("prepare_change_plan",{actions:[{actionId:"t",kind:"task.create",input:{title:"Synthetic Worker approval"}}],idempotency_key:"worker-prepare"});assert.ok(plan.proposalId);
  assert.equal((await tool("get_change_plan_health")).metadataReady,true);
  assert.equal((await tool("get_financial_integrity_report",{month:new Date().toISOString().slice(0,7)})).status,"consistent");
@@ -59,8 +67,6 @@ try{
  assert.equal((await tool("commit_approved_change_plan",{proposal_id:plan.proposalId,revision:1,digest:plan.digest,idempotency_key:"worker-commit"})).error,"writes_disabled");
  assert.equal((await tool("search_tasks",{query:"Synthetic Worker approval",status:"all"})).items.length,0);
  const page=await request("/approvals/"+plan.proposalId);assert.equal(page.status,200);assert.equal(page.headers["x-frame-options"],"DENY");assert.ok(String(page.headers["content-security-policy"]).includes("frame-ancestors 'none'"));
- const enrollment=await request("/api/mcp/enrollment"),enrollmentHeaders={origin:base,cookie:enrollment.headers["set-cookie"][0].split(";")[0],"x-veo-csrf":enrollment.json.csrfToken};
- const options=await request("/api/mcp/enrollment",{action:"options"},enrollmentHeaders);assert.equal(options.status,200);const candidate=await request("/api/mcp/enrollment",{action:"candidate",challenge:options.json.publicKey.challenge,proof:key.registration(options.json.publicKey.challenge)},enrollmentHeaders);assert.equal(candidate.status,200,candidate.text);assert.equal(candidate.json.trusted,false);
  console.log("PASS · Worker WebAuthn cryptography, CSRF, candidate-only enrollment, anti-framing and closed MCP execution gate.");
  const ca=join(temp,"localhost-ca.pem");writeFileSync(ca,certificate);
  await new Promise((resolveChild,reject)=>{const child=spawn(process.execPath,["--dns-result-order=ipv4first",join(root,"scripts/qa-v2.mjs")],{cwd:root,env:{...process.env,QA_BASE_URL:base,NODE_EXTRA_CA_CERTS:ca},stdio:["ignore","pipe","pipe"]});child.stdout.on("data",chunk=>process.stdout.write(chunk));child.stderr.on("data",chunk=>process.stderr.write(chunk));child.once("error",reject);child.once("exit",code=>code===0?resolveChild():reject(Error("Local UI QA failed")));});

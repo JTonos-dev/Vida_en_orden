@@ -44,9 +44,10 @@ npm run build
 npm run verify:independent
 npm run verify:worker
 npm run verify:sites
+npm run verify:sites
 ```
 
-`verify:independent` crea una D1 local temporal con Wrangler, aplica todas las migraciones SQL contiguas desde `drizzle/0000`, ejecuta una consulta de humo y elimina el directorio temporal. En la rama de fases 3–7 llega hasta `0010` (48 tablas); `main` conserva la versión integrada. No ejecuta `--remote`, no necesita un token y no importa datos. `verify:schema` comprueba que Drizzle no genere cambios en una copia temporal; `verify:worker` ejecuta el Worker compilado con D1 y credenciales exclusivamente sintéticas en HTTPS loopback, incluyendo las 31 lecturas y 27 comprobaciones de la interfaz. No certifica aprobación humana en ChatGPT.
+`verify:independent` crea una D1 local temporal con Wrangler, aplica todas las migraciones SQL contiguas desde `drizzle/0000`, ejecuta una consulta de humo y elimina el directorio temporal. En la rama de fases 3–7 llega hasta `0011` (48 tablas); `main` conserva la versión integrada. No ejecuta `--remote`, no necesita un token y no importa datos. `verify:schema` comprueba que Drizzle no genere cambios en una copia temporal. `verify:worker` ejecuta el Worker compilado con la cadena original y `verify:sites` con la proyección de esquema; ambos usan D1 y credenciales exclusivamente sintéticas en HTTPS loopback, incluyendo las 31 lecturas y 27 comprobaciones de la interfaz. No certifican aprobación humana en ChatGPT.
 
 `test:mcp` también invoca individualmente las 31 herramientas con el esquema SQL real y datos ficticios, prueba una base vacía y compara dos bases independientes. Las lecturas no deben insertar valores predeterminados. La primera escritura de la interfaz tampoco debe cargar tareas ni proyectos de la instalación original; `scripts/qa-v2.mjs` comprueba esta condición únicamente contra una vista local aislada.
 
@@ -67,7 +68,7 @@ En el Site nuevo:
 5. aplica las migraciones en orden desde `drizzle/` usando el flujo de despliegue documentado por Sites;
 6. no cargues el JSON de respaldo ni seeds con datos reales.
 
-Antes de publicar ejecuta verify:hosting. En la rama de fases 3–7 está bloqueado por metadatos fuera de las migraciones de esquema; sigue SITES_MIGRATION_COMPATIBILITY.md. El visor de tablas disponible por herramientas es de lectura, no constituye un migrador. Si falta un mecanismo administrativo admitido, documenta el bloqueo y no declares aplicado SQL ni inventes una ruta de escritura. Nunca uses una base remota para la prueba local.
+Para la rama de fases 3–7 sigue SITES_METADATA_BOOTSTRAP.md: prepare:sites exporta una proyección de esquema desde un commit limpio; verify:hosting debe pasar en el checkout privado proyectado antes de publicar. Los SQL originales se conservan. El primer registro o preparación explícitos y autenticados inicializa los metadatos atómicamente; las lecturas no lo hacen. Este flujo se publicó satisfactoriamente en una instancia privada nueva. El visor de tablas es de lectura, no constituye un migrador. No inventes SQL MCP ni modifiques ledgers para actualizar una instalación existente; inspecciona su estado y sigue UPGRADE_AND_ROLLBACK.md. Nunca uses una base remota para la prueba local.
 
 ## 5. Identidad y permisos
 

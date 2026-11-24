@@ -11,7 +11,16 @@ export async function runtimeMetadata(database:McpReadDatabase):Promise<RuntimeM
  catch{throw new PlanError("migration_required","Falta la migración de metadatos MCP; aplicar el esquema completo.",503);}
 }
 
-/** Only explicit, authenticated proposal preparation calls this. No DDL or business DML. */
+/** Read-only schema check shared by proposal preparation and explicit credential registration. */
+export async function requireRuntimeSchema(database:McpReadDatabase){
+ const entries=await database.prepare("SELECT name FROM sqlite_master WHERE type IN ('table','trigger')").all<{name:string}>();
+ const names=new Set(entries.results.map(row=>row.name));
+ const expected=["mcp_installation","mcp_proposal_heads","mcp_proposals","mcp_approval_challenges","mcp_approvals","mcp_executions","mcp_execution_guards","mcp_plan_audit","mcp_registration_challenges","mcp_prepare_requests","mcp_stage_leases","mcp_approval_evidence",...BUSINESS_TABLES.flatMap(table=>[table.name,`mcp_stage_${table.name}`,...["insert","update","delete"].map(event=>`mcp_revision_${table.name}_${event}`)])];
+ if(expected.some(name=>!names.has(name)))throw new PlanError("migration_required","Faltan tablas o triggers del motor; aplicar todas las migraciones.",503);
+ await runtimeMetadata(database);
+}
+
+/** Only explicit authenticated prepare or enrollment POST calls this. No DDL or business DML. */
 export async function initializeRuntimeMetadata(database:DomainDatabase,owner:string,now:number){
  const current=await runtimeMetadata(database);
  if(current?.metadata_version===MCP_METADATA_VERSION)return current;
@@ -35,6 +44,6 @@ export async function initializeRuntimeMetadata(database:DomainDatabase,owner:st
 
 export async function requireRuntimeMetadata(database:McpReadDatabase){
  const info=await runtimeMetadata(database);
- if(info?.metadata_version!==MCP_METADATA_VERSION)throw new PlanError("initialization_required","Prepara una propuesta propia para inicializar metadatos; las lecturas no lo hacen.",503);
+ if(info?.metadata_version!==MCP_METADATA_VERSION)throw new PlanError("initialization_required","Inicia el registro de tu autenticador o prepara una propuesta propia para inicializar metadatos; las lecturas no lo hacen.",503);
  return info;
 }

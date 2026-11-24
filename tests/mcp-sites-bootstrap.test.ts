@@ -9,11 +9,42 @@ import { actionRegistry } from "../lib/mcp/plans/catalog.ts";
 import { initializeRuntimeMetadata } from "../lib/mcp/plans/metadata.ts";
 import { callExtendedTool } from "../lib/mcp/plans/extended-tools.ts";
 import { HOUSEHOLD_SCOPE } from "../lib/data-scopes.ts";
+import { credentialEnrollment } from "../lib/mcp/plans/enrollment.ts";
+import { handleEnrollmentRequest } from "../lib/mcp/plans/enrollment-http.ts";
+import { credential } from "./helpers/webauthn.ts";
 const actor={userId:"synthetic-owner",email:"owner@example.test",fullName:"Synthetic owner"};
 const verifier={channel:"isolated-test" as const,async verify(proof:unknown,challenge:string){if(proof!==challenge)throw Error("denied");return {credentialId:"test-key"};}};
 const project=(file:string,sql:string)=>projectSitesMigration(file,sql).sql;
 const plan=[{actionId:"t",kind:"task.create",input:{title:"Synthetic projected proposal"}}];
 const engine=(database:D1Database)=>new ProposalEngine(database,{actor,registry:actionRegistry,verifier,executionEnabled:false});
+
+test("regresión: inscripción humana funciona antes de preparar la primera propuesta en Sites",async()=>{
+ const f=testDatabase(Infinity,project),origin="https://approval.example.test",url=origin+"/api/mcp/enrollment";
+ const identity={"oai-authenticated-user-id":actor.userId,"oai-authenticated-user-email":actor.email};
+ const deps={database:f.database,ownerPolicy:{ownerUserId:actor.userId},origin};
+ try{
+  const get=await handleEnrollmentRequest(new Request(url,{headers:identity}),deps),session=await get.json() as {csrfToken:string};
+  const headers={...identity,"content-type":"application/json",origin,cookie:get.headers.get("set-cookie")!.split(";")[0],"x-veo-csrf":session.csrfToken};
+  const post=(body:unknown,extra:Record<string,string>={})=>handleEnrollmentRequest(new Request(url,{method:"POST",headers:{...headers,...extra},body:JSON.stringify(body)}),deps);
+  assert.equal((await engine(f.database).health()).metadataReady,false);
+  assert.equal((await post({action:"options"},{"x-veo-csrf":"bad"})).status,403);
+  assert.equal((await post({action:"options"},{"oai-authenticated-user-id":"other"})).status,403);
+  assert.equal((await post({action:"options",confirmed:true})).status,400);
+  assert.equal(f.sqlite.prepare("SELECT COUNT(*) n FROM mcp_installation").get()?.n,0);
+  const response=await post({action:"options"});assert.equal(response.status,200,JSON.stringify(await response.clone().json()));
+  const options=await response.json() as {publicKey:{challenge:string;user:{id:string}}};
+  const candidate=await post({action:"candidate",challenge:options.publicKey.challenge,proof:credential(actor.userId,origin).registration(options.publicKey.challenge)});
+  assert.equal(candidate.status,200);assert.equal((await candidate.json() as {trusted:boolean}).trusted,false);
+  const installation=f.sqlite.prepare("SELECT * FROM mcp_installation").get();assert.equal(installation?.metadata_version,1);
+  const again=await post({action:"options"});assert.equal(again.status,200);
+  assert.equal((await again.json() as {publicKey:{user:{id:string}}}).publicKey.user.id,options.publicKey.user.id);
+  await engine(f.database).prepare(plan);
+  assert.equal(f.sqlite.prepare("SELECT installation_id FROM mcp_installation").get()?.installation_id,installation?.installation_id);
+  assert.equal(f.sqlite.prepare("SELECT COUNT(*) n FROM mcp_plan_audit WHERE event='metadata_initialized'").get()?.n,1);
+  assert.equal(f.sqlite.prepare("SELECT COUNT(*) n FROM home_tasks").get()?.n,0);
+  assert.equal(f.sqlite.prepare("SELECT COUNT(*) n FROM mcp_approvals").get()?.n,0);
+ }finally{f.close();}
+});
 
 test("proyección Sites conserva esquema/triggers y bytes de 0000–0007, sin ejecutar DML de metadatos",()=>{
  const full=testDatabase(),sites=testDatabase(Infinity,project);try{
@@ -26,6 +57,31 @@ test("proyección Sites conserva esquema/triggers y bytes de 0000–0007, sin ej
   assert.throws(()=>projectSitesMigration("0010_mcp_hardening.sql","UPDATE mcp_proposals SET payload='{}';"),/unsupported data/);
   assert.deepEqual(inspectHostingMigration("CREATE TABLE seeded AS SELECT 1 value;").map(row=>row.operation),["CREATE"]);
  }finally{full.close();sites.close();}
+});
+
+test("registro inicial no oculta un esquema incompleto ni degrada metadatos futuros",async()=>{
+ const f=testDatabase(Infinity,project),origin="https://approval.example.test";try{
+  assert.throws(()=>credentialEnrollment(f.database,{...actor,userId:""},origin),{code:"missing_identity"});
+  f.sqlite.exec("DROP TRIGGER mcp_revision_home_tasks_insert");
+  await assert.rejects(()=>credentialEnrollment(f.database,actor,origin).options(),{code:"migration_required"});
+  assert.equal(f.sqlite.prepare("SELECT COUNT(*) n FROM mcp_installation").get()?.n,0);
+ }finally{f.close();}
+ const future=testDatabase();try{
+  future.sqlite.exec("UPDATE mcp_installation SET metadata_version=2");
+  await assert.rejects(()=>credentialEnrollment(future.database,actor,origin).options(),{code:"metadata_version_unsupported"});
+  assert.equal(future.sqlite.prepare("SELECT metadata_version FROM mcp_installation").get()?.metadata_version,2);
+  assert.equal(future.sqlite.prepare("SELECT COUNT(*) n FROM mcp_registration_challenges").get()?.n,0);
+ }finally{future.close();}
+});
+
+test("fallo del bootstrap de registro revierte identidad y no produce desafío ni negocio",async()=>{
+ const f=testDatabase(Infinity,project);try{
+  f.failWhen(sql=>sql.includes("metadata_initialized"));
+  await assert.rejects(()=>credentialEnrollment(f.database,actor,"https://approval.example.test").options());
+  assert.equal(f.sqlite.prepare("SELECT COUNT(*) n FROM mcp_installation").get()?.n,0);
+  assert.equal(f.sqlite.prepare("SELECT COUNT(*) n FROM mcp_registration_challenges").get()?.n,0);
+  assert.equal(f.sqlite.prepare("SELECT COUNT(*) n FROM home_tasks").get()?.n,0);
+ }finally{f.close();}
 });
 
 test("salud/lecturas no inicializan; preparación autenticada inicializa una vez sin negocio",async()=>{

@@ -1,36 +1,34 @@
-# Compatibilidad pendiente de publicación en Sites
+# Compatibilidad de publicación en Sites
 
-**Actualización en rama dependiente:** SITES_METADATA_BOOTSTRAP.md implementa una salida compatible para una instalación nueva: exportar una proyección DDL verificable, conservar originales y ejecutar el bootstrap de metadatos una vez desde preparación autenticada. La cadena pública completa sigue mostrando 21 DML históricos; el gate debe ejecutarse en el candidato proyectado, que debe mostrar cero. Está en validación; este diagnóstico conserva la limitación que motivó la corrección, no una solicitud de información al propietario.
+El PR #12 resolvió la publicación de una instalación nueva mediante la proyección y el bootstrap descritos en [SITES_METADATA_BOOTSTRAP.md](SITES_METADATA_BOOTSTRAP.md). El código a05433d se publicó con éxito en un Site privado nuevo: versión 1/entorno 1, MCP provisionado y 48 tablas observadas. No se modificó una instalación personal. La aceptación humana y el health autenticado del nuevo plugin siguen pendientes.
 
-Estado: **no se ha publicado ni probado esta rama en el backend de Sites**. Se creó un único proyecto privado nuevo de desarrollo y se configuraron variables propias; la D1 está declarada como DB en el manifiesto, pero su aprovisionamiento alojado no está verificado. No se guardó una versión ni se inició un deployment. Ninguna instalación personal fue modificada.
+El primer ensayo humano descubrió un error adicional: enrollment se ejecutaba antes de la primera propuesta y confundía la ausencia de la fila de metadatos con una migración faltante. La regresión reproduce exactamente ese 503 sobre la cadena proyectada. La corrección permite el mismo bootstrap atómico desde el POST autenticado y protegido por CSRF de registro; GET, lecturas y solicitudes denegadas siguen sin inicializar. No fija confianza ni habilita negocio. Ver DEVELOPMENT_PROGRESS para el estado probado/publicado de la corrección.
 
-## Límite documentado y gate reproducible
+## Límite documentado y diagnóstico original
 
-La skill oficial Sites 1.1.7 remite a `<plugin-root>/skills/sites/references/storage.md`: «Keep migrations schema-only and bounded. Backfills and seed datasets belong outside migrations». También indica que Sites aplica migraciones antes de subir el Worker, que SQL/snapshots/journal aplicados son inmutables y que no se crean tablas de migración en requests.
+La skill oficial Sites 1.1.7 remite a `<plugin-root>/skills/sites/references/storage.md`: «Keep migrations schema-only and bounded. Backfills and seed datasets belong outside migrations». Sites aplica migraciones antes de subir el Worker; SQL/snapshots/journal aplicados son inmutables. No se crean tablas ni ledgers desde requests.
 
-Nuestro SQL probado en D1 local contiene:
-
-| Archivo | Esquema | Operaciones de metadatos fuera de esquema |
+| Archivo original conservado | Esquema | Metadatos fuera de esquema |
 |---|---|---|
-| 0008_mcp_proposal_engine.sql | 26 tablas, índices y 54 triggers | Un INSERT para identificar la instalación con un valor aleatorio propio |
-| 0009_mcp_credential_candidates.sql | Tabla de desafíos | Ninguna |
-| 0010_mcp_hardening.sql | Tres tablas, índice y columna de métricas | Un UPDATE de invalidación y 19 DELETE de aprobaciones/staging anteriores |
+| 0008_mcp_proposal_engine.sql | 26 tablas, índices y 54 triggers | Un INSERT de identidad aleatoria propia |
+| 0009_mcp_credential_candidates.sql | Tabla de desafíos | Ninguno |
+| 0010_mcp_hardening.sql | Tres tablas, índice y métricas | Un UPDATE y 19 DELETE de propuestas/aprobaciones/staging anteriores |
+| 0011_mcp_metadata_bootstrap.sql | Columna metadata_version | Ninguno |
 
-Los DELETE no borran cuentas, movimientos, tareas ni otra tabla de negocio; aun así no son DDL. La inicialización y la invalidación no se omiten para conseguir un despliegue. El motor falla cerrado si falta instalación o cualquiera de los 54 triggers. Los SQL históricos se conservan; no se reescriben porque otro colaborador podría haberlos aplicado en su entorno.
+Los DELETE no borran negocio. Inicialización/invalidación se trasladan al bootstrap atómico explícito, conservando identidad, revisión de negocio, recibos y evidencia. No se omiten para publicar. La comprobación compartida exige tablas y los 54 triggers antes del bootstrap.
 
-`npm run verify:hosting` es un **gate previo a publicar**, distinto de build/CI/verify:independent. Analiza las migraciones versionadas sin ejecutarlas y devuelve `blocked_non_schema_migrations`, con salida 1 y 21 instrucciones fuera de esquema. El CI prueba el clasificador y el contrato local; ese CI verde no equivale a un despliegue admisible. El gate no es un validador SQL completo ni una prueba del backend: incluso schema_only_candidate mantiene backendVerified=false.
+## Procedimiento vigente
 
-Esto es una incompatibilidad con el flujo documentado, **no un error de despliegue observado ni una afirmación de que el backend necesariamente rechace ese SQL**. No se envió el artefacto para probarlo ignorando la instrucción. Las herramientas Sites disponibles solo inspeccionan tablas/filas: no ofrecen una operación administrativa de SQL o migración fuera del flujo de publicación. No se inventa esa capacidad ni se sustituye por SQL MCP, un endpoint de mantenimiento o DDL durante requests.
+1. Ejecutar la suite y auditorías en el commit público limpio. Conservar los SQL originales y el marcador del manifiesto.
+2. Generar un árbol nuevo con prepare:sites. La proyección acepta únicamente las 21 instrucciones de metadatos conocidas, conserva DDL/triggers y registra hashes originales/proyectados y SHA de origen. No exporta `.git` ni configuración ajena.
+3. Configurar privadamente el Site propio y ejecutar verify:hosting allí. Debe devolver schema_only_candidate con cero instrucciones fuera de esquema. El gate sobre los originales falla deliberadamente; no relajar el auditor ni quitar triggers.
+4. Construir/empaquetar/publicar el commit privado exacto mediante el helper oficial. Reutilizar el proyecto de desarrollo ya creado; no crear otra instancia para corregir código. Registrar IDs/URL/SHA privado solo en la trazabilidad privada.
+5. Confirmar deployment, inventario y, mediante identidad real, health/catálogo. Probar registro antes de cualquier propuesta y completar UAT-3-HUMAN. Publicación, conexión y aprobación humana son verificaciones distintas.
 
-## Reanudación segura
+El gate estático no es un validador SQL completo y mantiene backendVerified=false: su salida por sí sola no prueba Sites. La publicación nativa sí se observó para el candidato descrito, pero no certifica todas las actualizaciones ni el autenticador. Las herramientas administrativas disponibles inspeccionan tablas/filas; no ofrecen SQL arbitrario ni autorizan fabricarlo en MCP.
 
-1. Conservar/reutilizar el project_id privado ya creado; está en el checkout ignorado de desarrollo indicado en DEVELOPMENT_PROGRESS. No repetir create_site ni usar el Site personal. El artefacto basal anterior a la corrección de dependencias tampoco debe publicarse.
-2. Obtener un mecanismo oficial y revisable para bootstrap/mantenimiento de metadatos **fuera** de las migraciones de esquema, y confirmación del soporte de triggers. Inspeccionar su funcionamiento real antes de redactar pasos de ejecución.
-3. Preparar en un PR la separación/compatibilidad para instalaciones nuevas y existentes, con trazabilidad de SQL ya aplicado y recuperación ante publicación parcial. Conservar todas las garantías y probar D1 local + Worker de nuevo. No mover silenciosamente INSERT/DELETE a lecturas ni eliminar triggers. No marcar migraciones aplicadas sin haberlas ejecutado.
-4. Repetir verify:hosting sobre el candidato admitido, auditorías y suite; usar el helper oficial de Sites para publicar el artefacto exacto del commit corregido. Registrar IDs/versiones privadamente y comprobar catálogo/aislamiento antes de UAT-3-HUMAN.
+## Instalaciones existentes y soporte
 
-## Borrador de consulta al responsable de plataforma / soporte
+La exportación está marcada freshInstallationOnly. Una instalación experimental que aplicó otra representación de 0008–0010 requiere autorización del propietario e inspección de ledger/hashes/estado antes de actualizar. No repetir SQL ni falsificar el ledger. Seguir UPGRADE_AND_ROLLBACK; las migraciones pueden haberse aplicado aunque una publicación falle después.
 
-No enviado. Completar identificadores **solo por el canal privado de soporte**, sin tokens, datos, respaldos ni credenciales.
-
-> Estamos preparando un Site privado nuevo con D1 propia y un MCP cuyo executor de negocio permanece deshabilitado. El código público requiere esquema aditivo, 54 triggers de revisión para detectar cambios desde UI, una fila de identificación de instalación y una invalidación/limpieza de metadatos al actualizar. Todas las migraciones y atomicidad están probadas en D1/workerd local. La guía de Sites indica migraciones solo de esquema y backfills/seed fuera de ellas. ¿Cuál es el mecanismo administrativo oficial para ejecutar y registrar ese bootstrap/mantenimiento fuera de las migraciones de publicación? ¿Se admiten CREATE TRIGGER y CHECK, cómo se comprueba el estado efectivo y cómo se reanuda un despliegue con migraciones parcialmente aplicadas? Necesitamos pasos verificables para una instalación nueva y para upgrades, además de los límites D1 efectivos. No solicitamos SQL accesible al modelo, desactivar protecciones ni modificar instalaciones ajenas. Podemos aportar por canal privado el proyecto nuevo y por enlace público los archivos SQL 0008/0010 y pruebas, sin información personal.
+El borrador original de consulta administrativa no se envió. Ya no se requiere que el propietario investigue soporte para instalar el Site nuevo. Si una actualización existente presenta un estado ambiguo, preparar una consulta privada con: versión/commit, hashes de migraciones y estado observado; preguntar cómo inspeccionar/reanudar una publicación parcial por el mecanismo admitido. No adjuntar secretos, datos, respaldos ni identidades a GitHub. No afirmar un rechazo del backend al SQL original: no se probó ignorando la regla de esquema.

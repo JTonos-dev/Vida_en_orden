@@ -1,16 +1,16 @@
 # Pruebas funcionales del propietario
 
-Estado inicial: pendientes de entregas de desarrollo. Usar exclusivamente una instancia de pruebas independiente y datos ficticios. No ejecutar casos de escritura en la instalación personal ni habilitar una compuerta de seguridad para saltarse un bloqueo.
+Estado: Site privado nuevo de desarrollo publicado; aceptación humana pendiente. El primer intento de registro informó «Falta migrar la base MCP»: incidencia reproducida automáticamente, corrección de bootstrap en validación/publicación según DEVELOPMENT_PROGRESS. Usar solo datos ficticios; no ejecutar escrituras en la instalación personal ni habilitar una compuerta para saltarse un bloqueo.
 
 Los casos cubiertos por tests automatizados se documentarán como evidencia técnica; el propietario solo debe comprobar interacción real de plataforma y aceptación funcional que esos tests no pueden demostrar.
 
 | Caso | Fase | Estado | Requisitos y pasos | Resultado y persistencia | Denegaciones y precauciones |
 |---|---|---|---|---|---|
 | UAT-AUTH-01: propietario conectado | 3 | Pendiente | Plugin de desarrollo, owner policy propia; solicitar capacidades y perfil. | Identidad propia, lecturas disponibles; ejecución real permanece deshabilitada. | Otra identidad debe ser rechazada; no compartir secretos ni introducir IDs de otra instalación. |
-| UAT-APPROVAL-01: aprobación humana real | 3 | Bloqueada hasta desplegar desarrollo | Preparar una propuesta ficticia y abrir su pantalla de aprobación. Comprobar diff, revisión y caducidad. Accionar personalmente el control de verificación. | Evidencia vinculada al digest/revisión; nunca aprobación automática por texto o por el agente. Consultar estado persistido. | Cancelar/verificación fallida/vencimiento deben impedir ejecución. No se considera verificado por un simulador. |
+| UAT-APPROVAL-01: aprobación humana real | 3 | Pendiente; registro inicial fallido reportado | Seguir UAT-3-HUMAN después de publicar la corrección del registro. Preparar propuesta ficticia y abrir aprobación; revisar diff, revisión y caducidad; verificar personalmente. | Evidencia vinculada al digest/revisión, sin crear negocio. Consultar estado persistido. | Cancelación/fallo/vencimiento impiden aprobación; ninguna aceptación se infiere del simulador. |
 | UAT-SAFETY-01: compuerta cerrada | 3 | Pendiente | Solicitar ejecutar una propuesta en una instancia sin canal aprobado. | Denegación explícita, sin cambios de negocio. | No cambiar configuración para forzar el resultado. |
 
-Se ampliará cada entrega con datos, pasos y verificación persistida concretos. Una prueba permanece pendiente o bloqueada hasta que el propietario reporte su resultado; no se marcará aprobada por inferencia.
+Los casos siguientes detallan datos, pasos y verificación persistida. Una prueba permanece pendiente o bloqueada hasta que el propietario reporte su resultado; no se marcará aprobada por inferencia.
 
 ## Aceptación no financiera (fase 4)
 
@@ -59,7 +59,9 @@ Precaución especial: ante timeout no repetir un movimiento suponiendo fallo; pe
 
 ## UAT-3-HUMAN — canal real de aprobación (prioridad máxima)
 
-Fase: 3B. Estado: **bloqueada hasta desplegar instancia de desarrollo con 0000–0010 y configuración propia**. No depende de habilitar escrituras. Esta prueba sí requiere una persona y no puede sustituirse por los tests de firmas sintéticas.
+La instancia privada de desarrollo ya está publicada con la proyección de esquema y 0011; sigue pendiente la interacción del propietario. Las URLs/configuración concretas se entregan privadamente, no se incluyen en este repositorio. El plugin figura instalado; si las herramientas nuevas no aparecen en el chat, seleccionarlo en Plugins → Personal → Created by you o comenzar una conversación con esa app. Instalado no equivale a conexión/aceptación verificadas.
+
+Fase: 3B. Estado: **pendiente de reintento humano tras la corrección del registro inicial**. La instancia de desarrollo usa la proyección 0000–0011 y configuración propia. No depende de habilitar escrituras. Requiere una persona; las firmas sintéticas no la sustituyen.
 
 - Requisitos/datos: seguir HUMAN_APPROVAL_SETUP.md; propietario con autenticador y credencial personalmente fijada. Única propuesta: crear `UAT Synthetic approval` sin datos reales.
 - Pasos exactos: registrar candidato en `/approvals/enroll`, fijarlo administrativamente, preparar cambio desde ChatGPT, pedir enlace request_approval, abrirlo autenticado, comprobar diff/versión/huella y aprobar con el control del sistema.
@@ -69,12 +71,12 @@ Fase: 3B. Estado: **bloqueada hasta desplegar instancia de desarrollo con 0000�
 
 ## Aceptación ampliada (fase 6)
 
-Requisitos comunes: instancia privada de desarrollo con 0010 y flags indicados; solo datos ficticios. No exige habilitar negocio. Se prueban aquí integración/visualización reales; los límites, denegaciones, carreras y parser tienen regresiones automatizadas.
+Requisitos comunes: instancia privada de desarrollo con 0011 y flags indicados; solo datos ficticios. No exige habilitar negocio. Se prueban aquí integración/visualización reales; límites, denegaciones, carreras y parser tienen regresiones automatizadas. El plugin figura instalado, pero la conexión autenticada del nuevo catálogo aún no se verificó. Para el informe, iniciar primero registro o preparación propios: una lectura nunca inicializa metadatos.
 
 | Caso | Datos y pasos exactos | Resultado / persistencia / errores | Estado |
 |---|---|---|---|
-| UAT-6-DOCUMENT | Pedir inspect_attachment_context con texto `UAT Synthetic receipt`, o JSON vendor=UAT, occurred_on=hoy, currency=DOP, total_minor=100, line_items=[{description:UAT,amount_minor:90}]. | Devuelve dato no confiable, alerta de discrepancia y aprobación falsa; no crea movimiento ni propone arreglos automáticamente. No usar recibos reales. | Bloqueada hasta plugin de desarrollo |
-| UAT-6-REPORT | Pedir get_financial_integrity_report para mes actual después de datos ficticios UAT del Site. | Comparar liquidez/compromisos con UI; indica ledger interno, no banco externo. Si cambia la base durante lectura, repetir; no declarar conciliación externa. | Bloqueada hasta plugin de desarrollo |
-| UAT-6-IMPACT | Preparar gasto ficticio de 1000 centavos en cuenta UAT con saldo 100; abrir resumen sin aprobar. | Ver efectos antes/después por acción y saldo −900, alerta de negativo, reservas/compromisos y huella. Cancelar propuesta; el libro no cambia. | Bloqueada hasta instancia de desarrollo |
+| UAT-6-DOCUMENT | Pedir inspect_attachment_context con texto `UAT Synthetic receipt`, o JSON vendor=UAT, occurred_on=hoy, currency=DOP, total_minor=100, line_items=[{description:UAT,amount_minor:90}]. | Devuelve dato no confiable, alerta de discrepancia y aprobación falsa; no crea movimiento ni propone arreglos automáticamente. No usar recibos reales. | Pendiente de conexión autenticada |
+| UAT-6-REPORT | Pedir get_financial_integrity_report para mes actual después de datos ficticios UAT del Site. | Comparar liquidez/compromisos con UI; indica ledger interno, no banco externo. Si cambia la base durante lectura, repetir; no declarar conciliación externa. | Pendiente de conexión y metadatos |
+| UAT-6-IMPACT | Preparar gasto ficticio de 1000 centavos en cuenta UAT con saldo 100; abrir resumen sin aprobar. | Ver efectos antes/después por acción y saldo −900, alerta de negativo, reservas/compromisos y huella. Cancelar propuesta; el libro no cambia. | Pendiente de conexión y datos UAT |
 | UAT-6-RECOVERY | Después de la ejecución local aislada ya automatizada, consultar get_execution_result solo cuando exista recibo UAT en una entrega habilitada. | Muestra integridad actual y evidencia archivada; cambios posteriores no borran el historial COMMITTED. No repetir movimientos por timeout. | Bloqueada por ejecución real deshabilitada |
-| UAT-6-HEALTH | Pedir get_change_plan_health en instancia de desarrollo. | Muestra límites y conteos propios sin títulos/documentos/credenciales. Las 31 lecturas siguen sin escribir ni hacer mantenimiento. | Bloqueada hasta plugin de desarrollo |
+| UAT-6-HEALTH | Pedir get_change_plan_health en instancia de desarrollo. | Muestra schemaReady, metadataReady, límites y conteos propios sin títulos/documentos/credenciales. Las 31 lecturas siguen sin escribir ni hacer mantenimiento. | Pendiente de conexión autenticada |

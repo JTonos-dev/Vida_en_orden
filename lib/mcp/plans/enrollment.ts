@@ -2,11 +2,16 @@ import { generateRegistrationOptions, verifyRegistrationResponse, type Registrat
 import type { DomainDatabase } from "../../domain/context.ts";
 import type { McpIdentity } from "../auth.ts";
 import { PlanError } from "./types.ts";
+import { initializeRuntimeMetadata, requireRuntimeSchema } from "./metadata.ts";
 export function credentialEnrollment(database:DomainDatabase,actor:McpIdentity,origin:string,now=()=>Date.now()){
+ if(!actor.userId||!actor.email)throw new PlanError("missing_identity","Se requiere identidad autenticada.",401);
  const url=new URL(origin);if(url.protocol!=="https:"||url.origin!==origin)throw new PlanError("origin_mismatch","Se requiere el origen HTTPS exacto.",403);
  return {
   async options(){
-   const installation=await database.prepare("SELECT installation_id FROM mcp_installation WHERE id=1").first<{installation_id:string}>();if(!installation)throw new PlanError("migration_required","Falta migrar la base MCP.",503);
+   // The enrollment page is the first authenticated setup action on a new Site.
+   // Its GET remains read-only; only the CSRF-protected registration POST reaches here.
+   await requireRuntimeSchema(database);
+   const installation=await initializeRuntimeMetadata(database,actor.userId,now());
    const userID=new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(`vida-en-orden/credential/${installation.installation_id}/${actor.userId}`)));
    const options=await generateRegistrationOptions({rpName:"Vida en Orden",rpID:url.hostname,userID,userName:actor.email,userDisplayName:actor.fullName||actor.email,attestationType:"none",supportedAlgorithmIDs:[-7,-257],authenticatorSelection:{residentKey:"preferred",userVerification:"required"},timeout:60000});
    await database.batch([database.prepare("DELETE FROM mcp_registration_challenges WHERE owner_id=? OR expires_at<=?").bind(actor.userId,now()),database.prepare("INSERT INTO mcp_registration_challenges(challenge,owner_id,expires_at,used) VALUES(?,?,?,0)").bind(options.challenge,actor.userId,now()+5*60000)]);

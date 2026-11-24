@@ -1,43 +1,38 @@
 # Estado actual reproducible
 
-Corte: 24 de noviembre de 2026. Este documento describe la rama propuesta de fases 3–7; no una versión desplegada. El oficial y el fork actual siguen siendo las únicas fuentes de desarrollo. La exposición histórica pública **no está resuelta**; su sustitución está suspendida por el responsable y no bloquea estas entregas.
+Corte: 24 de noviembre de 2026. Main oficial sigue 317cfd8 (PR #3, fase 2). Las fases 3–7 están implementadas en ramas/PR dependientes #4→#12, con CI verde en los commits publicados antes de la corrección de registro y revisión humana pendiente. DEVELOPMENT_PROGRESS identifica el último HEAD verificado. Código, commit público, fuente privada Sites, versión, deployment y aceptación son estados distintos. La exposición histórica no está resuelta y su sustitución permanece suspendida.
 
-Entrega de compatibilidad más reciente: SITES_METADATA_BOOTSTRAP.md. Añade 0011 y exportación DDL sin cambiar los SQL originales. El candidato proyectado supera las pruebas de Worker; la primera preparación inicializa metadatos autenticados fuera de migraciones, sin negocio. 143 pruebas locales aprobadas; publicación nativa/humana aún pendiente. El bloqueo del gate sobre la cadena original se resuelve usando el candidato proyectado, no ignorándolo.
+## Código propuesto
 
-## Código integrado e instalación existente
+React/Vinext sobre Workers/D1 DB, con servicios de dominio únicos en lib/domain y facades para la UI. MCP nunca llama a /api/action. Tareas/áreas/proyectos mantienen el scope compartido original; finanzas/eventos el propietario autenticado. No se incluyen datos, secretos o configuración de una instalación real.
 
-`main` oficial integra PR #3 (`317cfd8`), con 31 herramientas MCP de lectura. PR #4 y las entregas siguientes están pendientes de revisión/integración. No se ha fusionado, desplegado ni migrado ninguna instalación personal durante este desarrollo. Una comprobación de solo lectura de la instancia independiente confirmó fase 2, 31 herramientas, businessWritesEnabled=false y cero incidencias referenciales.
+Motor inmutable de propuestas con staging, diff por acción/impacto, identidad/huella, TTL, replay/idempotencia, concurrencia, WebAuthn, evidencia, batch atómico, auditoría y recibos. 19 acciones no financieras y 24 financieras reutilizan servicios existentes. Se incluyen validación/límites, adjuntos texto/CSV/JSON, informe interno, leases, recuperación y endurecimiento. Ver MCP_PARITY_MATRIX para acciones y excepciones.
 
-La UI conserva `/api/action`; MCP nunca llama a ese endpoint. Los datos de tareas/áreas/proyectos mantienen el scope compartido original y finanzas/eventos el scope privado autenticado. Cada Site tiene D1, propietario, secretos y configuración propios.
+SQL originales 0000–0010 intactos; 0011 añade metadata_version. 48 tablas y 54 triggers en el contrato. Para Sites se genera una proyección DDL con hashes; los metadatos se inicializan una vez desde registro o preparación explícitos y autenticados, sin negocio/DDL durante requests. GET, lecturas y denegaciones no inicializan. Nuevas propuestas ligan versión de metadatos a su huella; versiones antiguas/futuras se deniegan sin destruir recibos. Ver SITES_METADATA_BOOTSTRAP.
 
-## Rama propuesta
-
-- React/Vinext, Worker Cloudflare, D1 `DB` y Drizzle. Servicios de dominio compartidos mediante contexto de request; no hay segundo motor financiero.
-- Motor de propuestas: staging particionado, acciones cerradas, diff por acción y final, impacto financiero, SHA-256, expiración, propietario autenticado, revisión, idempotencia y guardas atómicas de concurrencia. Ejecución/recibo/auditoría y reversión no financiera probados en aislamiento.
-- Aprobación web: origen HTTPS exacto, owner-only, CSRF y WebAuthn con presencia/verificación de usuario. La inscripción entrega candidatos, nunca confianza automática. Credenciales fijadas administrativamente; el modelo no puede aprobar ni inscribir claves de confianza.
-- 19 acciones no financieras y 24 financieras reutilizan los servicios existentes. Catálogo detallado y excepciones en [MCP_PARITY_MATRIX.md](MCP_PARITY_MATRIX.md).
-- Endurecimiento: JSON acotado, presupuestos de consulta, idempotencia de preparación, leases/limpieza de staging vencido, evidencia durable, revocación, verificación posterior, adjuntos texto/CSV/JSON no confiables e informe interno de integridad.
-- Migraciones SQL 0000–0010, 48 tablas y 54 triggers de revisión. 0008/0009 son aditivas; 0010 invalida metadatos de propuestas antiguas y limpia staging, sin cambiar negocio. No aplicarlas a producción sin el procedimiento de [UPGRADE_AND_ROLLBACK.md](UPGRADE_AND_ROLLBACK.md).
-
-## Superficie MCP y compuerta
-
-| Configuración privada | Herramientas | Efectos permitidos |
+| Configuración privada | Herramientas | Efectos |
 |---|---:|---|
-| Sin flags | 31 | Lectura; sin inicialización ni mantenimiento |
-| Solo MCP_EXTENDED_READS_ENABLED | 33 | Lectura; adjuntos/informe adicionales |
-| Solo MCP_PROPOSALS_ENABLED | 42 | Lecturas y metadatos/staging de propuestas |
-| Ambos flags | 44 | Ambas superficies anteriores |
+| Sin flags |31 |Lectura; sin bootstrap/mantenimiento |
+| Solo ampliaciones |33 |Lectura; informe requiere metadatos inicializados explícitamente |
+| Solo propuestas |42 |Lecturas y metadatos/staging |
+| Ambos |44 |Las dos superficies anteriores |
 
-Las 31 herramientas anteriores conservan nombre, contrato y readOnlyHint=true/destructiveHint=false. Las herramientas que modifican metadatos tienen anotaciones acordes. `businessWritesEnabled=false` está fijado en código en fábrica y transporte; incluso una propuesta APPROVED devuelve `writes_disabled`. No existe herramienta approve/enroll/SQL, ni `confirmed: true` que sustituya la autorización.
+Las31 conservan nombre, contrato, readOnlyHint=true y destructiveHint=false. Las herramientas que mutan metadatos tienen anotaciones acordes. businessWritesEnabled=false en fábrica y transporte: ni APPROVED permite negocio. No existe approve/enroll/SQL en MCP; argumentos, confirmed o un documento no sustituyen la firma humana.
 
-## Evidencia y límites
+## Publicación y pruebas observadas
 
-Las pruebas versionadas incluyen SQLite con todas las migraciones, D1 local real mediante workerd, rollback forzado de recibo, carreras/idempotencia, aislamiento, WebAuthn sintético, contrato de las 31 lecturas, equivalencia ORM/SQL y upgrade. La verificación del Worker compilado usa HTTPS loopback, base temporal, firmas sintéticas y 27 comprobaciones de la interfaz. Nunca utiliza datos, claves ni bases de otra instalación.
+El código a05433d se publicó desde un commit privado trazable en **un Site nuevo de desarrollo**, owner-only, versión Sites1/entorno1, MCP provisionado y48 tablas alojadas observadas. Identidad/URL/deployment se registran privadamente; no se cambió la instalación personal ni el Site original. El plugin nuevo figura instalado, pero sus herramientas no están expuestas en este chat: conexión por usuario real/health/ChatGPT y autenticador siguen pendientes. No hay claves confiables fijadas ni aprobación humana certificada.
 
-Resultados finales, PR y continuidad: [DEVELOPMENT_PROGRESS.md](DEVELOPMENT_PROGRESS.md) e [IMPLEMENTATION_REPORT.md](IMPLEMENTATION_REPORT.md). Aceptación personal progresiva: [USER_ACCEPTANCE_TESTS.md](USER_ACCEPTANCE_TESTS.md). No convertir pruebas sintéticas en certificación de interacción humana, autenticador físico o cuotas del host.
+El candidato a05433d aprobó 143 pruebas, TypeScript, lint sin errores/cuatro advertencias previas, schema sin cambios, build, auditoría fuente 261 archivos/cero hallazgos, npm cero alertas y D1 independiente. Worker completo/proyectado: 31 lecturas, bootstrap, WebAuthn sintético, CSRF, inscripción no confiable, anti-framing y compuerta cerrada; 27 QA API/UI cada uno. CI y clon GitHub aprobados. Servicio alojado sin identidad de visitante denegado 401 en MCP/enrollment; página anti-framing aprobada. Estos resultados no certifican una persona, hardware ni aceptación ChatGPT.
 
-Pendientes externos: revisión del mantenedor, integración ordenada, instalación alojada de desarrollo, aprobación humana real y aceptación funcional. Binarios/OCR, conexión bancaria, importación/restauración MCP y operaciones inexistentes en la aplicación no se declaran implementadas. La retención de propuestas/evidencia y la carga máxima alojada requieren política/validación operativa; no se borra evidencia por mantenimiento ordinario.
+El primer registro humano reportó un 503 «Falta migrar la base MCP», reproducido antes de la primera propuesta. Se corrigió el orden de bootstrap y se añadieron tres regresiones; **146 pruebas (14 financieras, 128 MCP, 4 auditoría) aprobadas**. DEVELOPMENT_PROGRESS registra por separado suite/CI/publicación del nuevo código y el reintento humano; no presentar el deployment inicial como verificación de esta corrección.
 
-El cierre encontró dependencias vulnerables en la base anterior: la corrección dependiente actual obtiene cero alertas npm y supera las pruebas del runtime actualizado; ver DEPENDENCY_SECURITY.md. No se actualizó ninguna instalación existente. El Site nuevo de desarrollo sigue privado y sin publicar; aprovisionamiento D1 alojado y aprobación humana no están verificados. verify:hosting está bloqueado por 21 instrucciones de metadatos fuera del flujo de migración de esquema documentado, no por un rechazo observado del backend. Ver SITES_MIGRATION_COMPATIBILITY.md para el diagnóstico y consulta preparada; no se ignora ese gate para publicar.
+La instalación independiente existente se comprobó sin cambios: fase2,31 lecturas, ejecución deshabilitada y cero incidencias referenciales. No se usaron sus datos/configuración para desarrollar.
 
-Las reglas efectivas consultadas exigen PR/check verify y bloquean force-push/eliminación de main, pero admiten cero aprobaciones y no exigen check actualizado con base. La cuenta ejecutora solo lee el oficial y publica en su fork. Se mantiene revisión humana del mantenedor por procedimiento; no se eluden protecciones.
+## Límites vigentes
+
+Aceptación del propietario, revisión/merge y habilitación posterior siguen pendientes. Binarios/OCR, bancos, importación/restauración MCP y acciones inexistentes en la UI no se inventan. Cuotas/carga alojadas y retención de propuestas/evidencia requieren validación/política operativa. Las copias históricas, diffs, forks y cachés siguen siendo riesgo abierto.
+
+Las protecciones efectivas consultadas exigen PR/verify y bloquean force/delete, pero admiten cero aprobaciones y no exigen check actualizado con base. La cuenta ejecutora solo lee el oficial y publica en su fork. Se exige revisión humana por procedimiento; no se eluden controles ni se fusiona por tener CI verde.
+
+Continuidad/commits: DEVELOPMENT_PROGRESS. Informe: IMPLEMENTATION_REPORT. Aceptación: USER_ACCEPTANCE_TESTS. Actualización/rollback: UPGRADE_AND_ROLLBACK. Todo distingue verificación local, publicación y aceptación; fase7 no se declara completada.

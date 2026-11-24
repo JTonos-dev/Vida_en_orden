@@ -46,7 +46,7 @@ No hay CRUD directo, `restore` ni `execute_sql`. Las operaciones de dominio desc
 
 ## Desarrollo aislado de fase 3
 
-`lib/mcp/plans/engine.ts` implementa preparación, revisión, cancelación, aprobación, ejecución atómica y consulta de recibos. El transporte opcional y los 43 adaptadores están en ramas/PR dependientes; no están integrados ni desplegados por abrir un PR. La verificación WebAuthn usa claves administrativas fijadas, sin inscripción de confianza desde el modelo. La instalación personal conserva 31 lecturas.
+`lib/mcp/plans/engine.ts` implementa preparación, revisión, cancelación, aprobación, ejecución atómica y consulta de recibos. El transporte opcional y los 43 adaptadores están en ramas/PR dependientes, aún sin integrar. Se publicó un Site privado nuevo de desarrollo; el registro humano inicial reveló una incidencia de bootstrap seguida en DEVELOPMENT_PROGRESS. La verificación WebAuthn usa claves administrativas fijadas, sin inscripción de confianza desde el modelo. La ejecución real permanece cerrada y la instalación personal conserva 31 lecturas.
 
 ## Catálogo no financiero en desarrollo (fase 4)
 

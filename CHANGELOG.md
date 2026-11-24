@@ -1,11 +1,18 @@
 # Historial de cambios
 
+## Registro inicial del autenticador · 2026-11-24
+
+- El candidato de esquema del PR #12 se publicó en un Site privado nuevo: deployment satisfactorio, MCP provisionado y 48 tablas observadas. No se modificó una instalación personal.
+- El propietario reportó «Falta migrar la base MCP» al registrar su autenticador antes de preparar una propuesta. Se reprodujo el 503 sobre la proyección nueva y se añadió una regresión HTTP antes de corregirlo.
+- El POST de registro autenticado/CSRF válido usa ahora la misma comprobación de esquema y bootstrap atómico que prepare. GET, solicitudes denegadas y lecturas no inicializan. Esquema incompleto, versión futura y fallo de batch se deniegan sin efectos. El candidato no fija confianza ni habilita negocio.
+- Ambas integraciones Worker prueban el orden real de instalación: registrar primero, preparar después. Suite repetida: 146 aprobadas, TypeScript/lint/schema/build, auditorías sin hallazgos, D1 independiente y ambos Workers con 27 QA cada uno. CI/publicación posteriores y aceptación humana se registran en DEVELOPMENT_PROGRESS; no se deducen del deployment inicial.
+
 ## Compatibilidad Sites: proyección y bootstrap · 2026-11-24
 
 - Se conserva el SQL original 0000–0010 y se añade 0011, una columna de versión de metadatos. La exportación de un commit limpio genera un candidato Sites de solo esquema con hashes y sin Git/identidad ajenos; 0000–0007 permanecen idénticos.
 - La primera preparación autenticada inicializa metadatos en batch atómico, conserva negocio/revisión/recibos y registra una única transición. Lecturas/salud no inicializan; payloads anteriores y metadatos futuros fallan cerrados.
 - Las guardas de aprobación/commit verifican la versión. No se habilita negocio ni existe bootstrap SQL elegible por el modelo.
-- 143 pruebas, schema/build/D1 y dos integraciones Worker (cadena completa y proyección Sites) aprobados localmente; 27 comprobaciones API/UI en cada modo. Publicación y aprobación humana reales todavía pendientes.
+- 143 pruebas, schema/build/D1 y dos integraciones Worker (cadena completa y proyección Sites) aprobados en a05433d; 27 comprobaciones API/UI en cada modo. Ese candidato se publicó después; la aceptación humana continúa pendiente y reveló la regresión de registro descrita arriba.
 
 ## Corrección de dependencias y gate de publicación · 2026-11-24
 

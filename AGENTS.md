@@ -114,7 +114,7 @@ Distingue siempre entre código implementado, probado, publicado en una rama, fu
 - Un merge en `main` no debe desplegar automáticamente la instalación personal de otro colaborador.
 - Las actualizaciones de producción requieren autorización explícita, respaldo, validación y rollback.
 - Si Sites no permite automatizar una parte del flujo, documenta el paso manual exacto; no lo simules.
-- Para Sites genera la proyección con `prepare:sites` desde un commit público limpio y sigue `docs/SITES_METADATA_BOOTSTRAP.md`. Conserva los SQL originales; no modifiques migraciones aplicadas ni ledgers. Ejecuta `verify:hosting` en el checkout privado proyectado antes de publicar: debe quedar sin instrucciones fuera de esquema. No retirar triggers ni ignorar ese gate. CI local verde no certifica compatibilidad del host.
+- Para Sites genera la proyección con `prepare:sites` desde un commit público limpio y sigue `docs/SITES_METADATA_BOOTSTRAP.md`. Conserva los SQL originales; no modifiques migraciones aplicadas ni ledgers. Ejecuta `verify:hosting` en el checkout privado proyectado antes de publicar: debe quedar sin instrucciones fuera de esquema. No retirar triggers ni ignorar ese gate. CI local verde no certifica compatibilidad del host. El bootstrap solo ocurre en preparación o registro de autenticador explícitos y autenticados; GET, lecturas y denegaciones no inicializan. La integración debe probar registro antes de la primera propuesta, como la guía real.
 
 ## Colaboración por fases
 

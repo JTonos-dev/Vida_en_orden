@@ -1,5 +1,5 @@
 import { financialImpact } from "./financial-impact.ts";
-import { initializeRuntimeMetadata, runtimeMetadata, requireRuntimeMetadata, MCP_METADATA_VERSION } from "./metadata.ts";
+import { initializeRuntimeMetadata, runtimeMetadata, requireRuntimeSchema, requireRuntimeMetadata, MCP_METADATA_VERSION } from "./metadata.ts";
 import { webAuthnVerifier } from "./approval.ts";
 import { queryBudget } from "./budget.ts";
 import { parseBoundedJson } from "./limits.ts";
@@ -95,11 +95,7 @@ export class ProposalEngine {
     ]);
   }
   private async infrastructure() {
-    const entries = await this.database.prepare("SELECT name FROM sqlite_master WHERE type IN ('table','trigger')").all<{name:string}>();
-    const names = new Set(entries.results.map((row) => row.name));
-    const expected = ["mcp_installation","mcp_proposal_heads","mcp_proposals","mcp_approval_challenges","mcp_approvals","mcp_executions","mcp_execution_guards","mcp_plan_audit","mcp_registration_challenges","mcp_prepare_requests","mcp_stage_leases","mcp_approval_evidence",...BUSINESS_TABLES.flatMap((table) => [table.name,`mcp_stage_${table.name}`,...["insert","update","delete"].map((event) => `mcp_revision_${table.name}_${event}`)])];
-    if (expected.some((name) => !names.has(name))) throw new PlanError("migration_required","Faltan tablas o triggers del motor; aplicar todas las migraciones.",503);
-    await runtimeMetadata(this.database);
+    await requireRuntimeSchema(this.database);
   }
   async maintenance() {
     const expired = await this.database.prepare("SELECT stage_id FROM mcp_stage_leases WHERE owner_id=? AND expires_at<=? LIMIT 20").bind(this.owner(),this.now().getTime()).all<{stage_id:string}>();
