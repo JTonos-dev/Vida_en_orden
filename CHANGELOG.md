@@ -1,5 +1,12 @@
 # Historial de cambios
 
+## Instalación independiente: bootstrap vacío y validación integral · 2026-11-24
+
+- Se retiran fixtures personales incrustados en tareas y la clasificación automática ligada a registros de origen. No se borran datos existentes ni se reescribe historia compartida.
+- Se ejecutan las 31 herramientas MCP contra SQLite migrado, con datos ficticios y en vacío; se comprueban aislamiento, paginación, autorización y ausencia de escrituras.
+- La auditoría de portabilidad rechaza el bootstrap heredado. QA V2 usa fechas relativas y comprueba que la primera escritura no carga tareas o proyectos ajenos.
+- Sin migraciones nuevas ni cambios en los contratos MCP. Las fases 3 y posteriores permanecen pendientes.
+
 Este es el changelog canónico del repositorio. `docs/CHANGELOG.md` se conserva como enlace documental para compatibilidad con la estructura transferida.
 
 ## Infraestructura de colaboración · 2026-11-24

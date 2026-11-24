@@ -45,3 +45,5 @@ Desde una conversación nueva de ChatGPT con el plugin de tu Site:
 6. Confirma que no existe ninguna herramienta de crear, editar, eliminar, anular o restaurar.
 
 Una lista de herramientas no sustituye la prueba individual desde el plugin de la nueva instalación.
+
+Cuando Sites permite publicar con la capacidad `mcp`, puede crear e instalar automáticamente el plugin privado del nuevo Site. Comprueba su conexión mediante la herramienta oficial de Sites con `include_mcp_connection: true` y usa el `plugin_id` devuelto. Si la plataforma confirma que está instalado pero esta conversación no recibe sus herramientas, abre una conversación nueva y selecciona el plugin de esa instancia. No reutilices el plugin original ni configures un servidor local para sustituir esa comprobación.

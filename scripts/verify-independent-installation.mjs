@@ -42,6 +42,14 @@ try {
   ];
   if (privateMarkers.some((marker) => marker.test(source))) fail("a known personal Site identifier or email is present");
 
+  const runtimeSource = tracked
+    .filter((file) => file.startsWith("lib/") && /\.[cm]?tsx?$/.test(file))
+    .map((file) => readFileSync(join(root, file), "utf8"))
+    .join("\n");
+  if (/(?:const|let)\s+seedRows\b|org-project-|OrganizationTask/.test(runtimeSource)) {
+    fail("legacy installation fixtures or automatic task organization remain in runtime code");
+  }
+
   const hosting = JSON.parse(readFileSync(join(root, ".openai", "hosting.json"), "utf8"));
   if (!hosting.project_id || /^appgprj_/i.test(hosting.project_id)) {
     fail(".openai/hosting.json must use the public placeholder, not a Site project identifier");

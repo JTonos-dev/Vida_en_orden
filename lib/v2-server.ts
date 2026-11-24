@@ -217,96 +217,6 @@ async function ensureDefaults(ownerId: string) {
   }
 }
 
-type OrganizationTask = { id: string; title: string; parent_id: string | null };
-
-/**
- * The first V2 release exposed the area/project model but intentionally did not
- * guess how the legacy household tasks should be grouped.  The existing data
- * set is stable and already has meaningful root tasks, so perform a one-time,
- * idempotent organization pass after the legacy migration has exposed those
- * tasks in the shared household scope. The audit marker prevents later manual
- * classifications from being overwritten.
- */
-async function ensureOrganization() {
-  const database = db();
-  const completed = await database.prepare("SELECT id FROM audit_log WHERE owner_id=? AND entity_type='system' AND entity_id='organization-v1' AND action='completed' LIMIT 1")
-    .bind(HOUSEHOLD_SCOPE).first();
-  if (completed) return;
-
-  const stamp = now();
-  const areaRows = await database.prepare("SELECT id,name,color FROM home_areas WHERE scope_id=? ORDER BY order_index,name").bind(HOUSEHOLD_SCOPE).all<Row>();
-  const areaByName = new Map(areaRows.results.map((row) => [String(row.name).toLowerCase(), String(row.id)]));
-  const areaIds: Record<string, string> = {};
-  const statements: D1PreparedStatement[] = [];
-
-  const areas = [
-    { key: "home", id: "org-area-home", name: "Hogar y mantenimiento", color: "#2463eb" },
-    { key: "family", id: "org-area-family", name: "Familia y trámites", color: "#7c5ce7" },
-    { key: "mobility", id: "org-area-mobility", name: "Movilidad", color: "#e48c2a" },
-    { key: "children", id: "org-area-children", name: "Hijos y familia", color: "#d45fa8" },
-    { key: "shopping", id: "org-area-shopping", name: "Compras y hogar", color: "#2a9769" },
-  ];
-  for (const area of areas) {
-    const existing = areaByName.get(area.name.toLowerCase()) || (area.key === "home" ? areaByName.get("hogar") : undefined);
-    areaIds[area.key] = existing || area.id;
-    if (existing) {
-      statements.push(database.prepare("UPDATE home_areas SET name=?,color=?,updated_at=? WHERE id=? AND scope_id=?")
-        .bind(area.name, area.color, stamp, existing, HOUSEHOLD_SCOPE));
-    } else {
-      statements.push(database.prepare("INSERT OR IGNORE INTO home_areas (id,scope_id,name,color,order_index,created_at,updated_at) VALUES (?,?,?,?,?,?,?)")
-        .bind(area.id, HOUSEHOLD_SCOPE, area.name, area.color, areas.indexOf(area), stamp, stamp));
-    }
-  }
-
-  const projects = [
-    { key: "divorce", id: "org-project-divorce", area: "family", name: "Proceso de divorcio", description: "Gestiones, documentos y pagos relacionados con el proceso de divorcio." },
-    { key: "car", id: "org-project-car", area: "mobility", name: "Reparación y reclamación del carro", description: "Diagnóstico, reparación y trámites con la oficina y el seguro." },
-    { key: "bathrooms", id: "org-project-bathrooms", area: "home", name: "Baños y desagües", description: "Reparaciones, cotizaciones y mejoras de los baños y sus desagües." },
-    { key: "lighting", id: "org-project-lighting", area: "home", name: "Espejos e iluminación", description: "Espejos, lámparas y bombillos para las habitaciones y áreas comunes." },
-    { key: "repairs", id: "org-project-repairs", area: "home", name: "Pintura y reparaciones estructurales", description: "Pintura, techo, sala, clósets y otras reparaciones del hogar." },
-    { key: "decor", id: "org-project-decor", area: "home", name: "Decoración y textiles", description: "Navidad, juegos de cama, sábanas, colchas, cortinas y muebles." },
-    { key: "children", id: "org-project-children", area: "children", name: "Equipamiento de los niños", description: "Compras y mejoras destinadas a Rubí, Abel y los niños." },
-    { key: "shopping", id: "org-project-shopping", area: "shopping", name: "Compras generales de la casa", description: "Artículos y compras domésticas que no forman parte de una reparación mayor." },
-  ];
-  const projectIds: Record<string, string> = {};
-  for (const project of projects) {
-    projectIds[project.key] = project.id;
-    statements.push(database.prepare("INSERT OR IGNORE INTO home_projects (id,scope_id,area_id,name,description,status,start_date,target_date,budget_minor,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)")
-      .bind(project.id, HOUSEHOLD_SCOPE, areaIds[project.area], project.name, project.description, "active", "", "", null, stamp, stamp));
-  }
-  if (statements.length) await database.batch(statements);
-
-  const taskRows = (await database.prepare("SELECT id,title,parent_id FROM home_tasks WHERE user_id=?").bind(HOUSEHOLD_SCOPE).all<OrganizationTask>()).results;
-  const byId = new Map(taskRows.map((task) => [task.id, task]));
-  const rootOf = (task: OrganizationTask) => {
-    let current = task;
-    const visited = new Set<string>();
-    while (current.parent_id && byId.has(current.parent_id) && !visited.has(current.id)) {
-      visited.add(current.id);
-      current = byId.get(current.parent_id)!;
-    }
-    return current;
-  };
-  const rootKey = (task: OrganizationTask) => {
-    const root = rootOf(task);
-    if (root.id === "base-1") return "divorce";
-    if (root.id === "d36764c9-5cf9-43da-8450-75fdc22fbba9" || root.title.toLowerCase().includes("carro")) return "car";
-    if (["base-4", "base-9", "base-14", "base-22"].includes(root.id) || /baño|desagüe|tubería/i.test(root.title)) return "bathrooms";
-    if (["base-10", "base-17"].includes(root.id) || /espejo|lámpara|bombillo|iluminación/i.test(root.title)) return "lighting";
-    if (["base-11", "base-12", "base-13", "base-18", "base-19", "4d8b29ae-31b3-415f-a59d-d49d2ad1b95c", "7769514f-8a71-4616-8872-50d983740e68"].includes(root.id) || /pintar|techo|reparación|armario|clóset|sala/i.test(root.title)) return "repairs";
-    if (["base-2", "base-3", "base-5", "base-6", "base-7", "base-8"].includes(root.id) || /navidad|juego de cama|sábanas|colchas|cortinas|muebles/i.test(root.title)) return "decor";
-    if (["base-15", "base-16"].includes(root.id) || /rubí|abel|niños/i.test(root.title)) return "children";
-    return "shopping";
-  };
-  if (!taskRows.length) return;
-  await database.batch([...taskRows.map((task) => {
-    const key = rootKey(task);
-    return database.prepare("UPDATE home_tasks SET area_id=?,project_id=? WHERE id=? AND user_id=?")
-      .bind(areaIds[projects.find((project) => project.key === key)?.area || "shopping"], projectIds[key], task.id, HOUSEHOLD_SCOPE);
-  }), database.prepare("INSERT OR IGNORE INTO audit_log (id,owner_id,entity_type,entity_id,action,metadata,occurred_at) VALUES (?,?,?,?,?,?,?)")
-    .bind("org-system-organization-v1", HOUSEHOLD_SCOPE, "system", "organization-v1", "completed", JSON.stringify({ tasks: taskRows.length }), stamp)]);
-}
-
 type Row = Record<string, unknown>;
 
 export async function v2StateFor(ownerId: string) {
@@ -515,7 +425,6 @@ export async function v2StateFor(ownerId: string) {
 
 export async function v2Action(ownerId: string, body: Record<string, unknown>) {
   await ensureDefaults(ownerId);
-  await ensureOrganization();
   const database = db();
   const action = String(body.action || "");
   const stamp = now();
