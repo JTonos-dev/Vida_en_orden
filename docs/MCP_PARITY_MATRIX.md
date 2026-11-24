@@ -71,7 +71,7 @@ Sin soporte en la aplicación actual: eliminar/archivar áreas; eliminar proyect
 | Cuentas | finance.account.create/update/archive (solo saldo cero) |
 | Categorías | finance.category.create/update/delete (sin referencias) |
 | Movimientos | finance.transaction.create (income/expense/transfer/adjustment), update_amount, void |
-| Presupuesto | finance.budget.set/update/addition.create/delete |
+| Presupuesto | finance.budget.set, finance.budget.update, finance.budget.addition.create, finance.budget.delete |
 | Obligaciones/ingresos previstos | finance.obligation.create/update/pay; frecuencia once/weekly/monthly/yearly, reserva y ocurrencias calculadas por el servicio |
 | Metas | finance.goal.create/update/contribute, finance.goal.entry.update/revert |
 | Configuración | finance.settings.update (zona, colchón y comisiones) |

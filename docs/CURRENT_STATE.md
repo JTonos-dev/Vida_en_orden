@@ -2,6 +2,8 @@
 
 Corte: 24 de noviembre de 2026. Este documento describe la rama propuesta de fases 3–7; no una versión desplegada. El oficial y el fork actual siguen siendo las únicas fuentes de desarrollo. La exposición histórica pública **no está resuelta**; su sustitución está suspendida por el responsable y no bloquea estas entregas.
 
+Entrega de compatibilidad más reciente: SITES_METADATA_BOOTSTRAP.md. Añade 0011 y exportación DDL sin cambiar los SQL originales. El candidato proyectado supera las pruebas de Worker; la primera preparación inicializa metadatos autenticados fuera de migraciones, sin negocio. 143 pruebas locales aprobadas; publicación nativa/humana aún pendiente. El bloqueo del gate sobre la cadena original se resuelve usando el candidato proyectado, no ignorándolo.
+
 ## Código integrado e instalación existente
 
 `main` oficial integra PR #3 (`317cfd8`), con 31 herramientas MCP de lectura. PR #4 y las entregas siguientes están pendientes de revisión/integración. No se ha fusionado, desplegado ni migrado ninguna instalación personal durante este desarrollo. Una comprobación de solo lectura de la instancia independiente confirmó fase 2, 31 herramientas, businessWritesEnabled=false y cero incidencias referenciales.

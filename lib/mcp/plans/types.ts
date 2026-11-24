@@ -9,7 +9,7 @@ export type RowChange = { table: BusinessTableName; id: string; before: Row | nu
 export type ActionResult = { actionId: string; kind: string; entityId: string | null; effects?: RowChange[] };
 export type FinancialImpact={date:string;month:string;before:Record<string,number>;after:Record<string,number>;accounts:{id:string;name:string;beforeMinor:number|null;afterMinor:number|null}[];warnings:string[]};
 export type PreparedPayload = {
-  contractVersion: 1; installationId: string; ownerId: string; proposalId: string; revision: number;
+  contractVersion: 1; metadataVersion?:1; installationId: string; ownerId: string; proposalId: string; revision: number;
   createdAt: number; expiresAt: number; contextDate: string; baseRevision: number;
   financialImpact?:FinancialImpact; actions: PlanAction[]; changes: RowChange[]; results: ActionResult[]; risk: "R1" | "R2";
 };

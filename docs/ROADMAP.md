@@ -24,4 +24,6 @@ La fase 3 depende de una aprobación humana demostrable en la plataforma. Las fa
 
 ## Ejecución vigente
 
+La entrega posterior a #11 implementa proyección de esquema y bootstrap autenticado para Sites; ver SITES_METADATA_BOOTSTRAP. Originales conservados, nueva 0011 y 143 pruebas locales, incluidos ambos modos del Worker. Falta confirmar publicación nativa y la interacción humana; ya no se pide al propietario investigar un mecanismo SQL administrativo.
+
 El responsable autoriza las fases 3–7 en ramas dependientes. La exposición histórica sigue abierta; no se continúa la sustitución del repositorio y no bloquea este desarrollo. Se implementan y prueban componentes aislados sin habilitar escrituras reales. El seguimiento reproducible y los bloqueos están en `DEVELOPMENT_PROGRESS.md` y las pruebas humanas en `USER_ACCEPTANCE_TESTS.md`.

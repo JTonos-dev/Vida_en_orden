@@ -1,5 +1,7 @@
 # Compatibilidad pendiente de publicación en Sites
 
+**Actualización en rama dependiente:** SITES_METADATA_BOOTSTRAP.md implementa una salida compatible para una instalación nueva: exportar una proyección DDL verificable, conservar originales y ejecutar el bootstrap de metadatos una vez desde preparación autenticada. La cadena pública completa sigue mostrando 21 DML históricos; el gate debe ejecutarse en el candidato proyectado, que debe mostrar cero. Está en validación; este diagnóstico conserva la limitación que motivó la corrección, no una solicitud de información al propietario.
+
 Estado: **no se ha publicado ni probado esta rama en el backend de Sites**. Se creó un único proyecto privado nuevo de desarrollo y se configuraron variables propias; la D1 está declarada como DB en el manifiesto, pero su aprovisionamiento alojado no está verificado. No se guardó una versión ni se inició un deployment. Ninguna instalación personal fue modificada.
 
 ## Límite documentado y gate reproducible

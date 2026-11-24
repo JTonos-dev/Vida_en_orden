@@ -2,6 +2,8 @@
 
 Esta entrega es código en PR dependientes; no autoriza actualizar una instalación personal. Ejecutar primero en una instancia privada de desarrollo con datos ficticios. Cada instalación administra sus propios recursos y versiones; GitHub no despliega otros Sites.
 
+La entrega de bootstrap agrega 0011 (columna de metadatos) y una proyección para publicar en Sites sin cambiar los SQL originales. Seguir SITES_METADATA_BOOTSTRAP para una instalación nueva. No usar esa automatización para sobrescribir una instalación experimental que aplicó otra representación; inspeccionar hashes/ledger y obtener autorización de su propietario. La identidad y la revisión de negocio existentes no se reinician.
+
 No publicar el lockfile basal del cierre: la auditoría detectó dependencias críticas. Incluir la corrección dependiente documentada en DEPENDENCY_SECURITY.md y verificar audit:dependencies además de la suite funcional, antes de cualquier actualización.
 
 ## Seleccionar y comprobar la versión

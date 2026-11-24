@@ -13,7 +13,8 @@ Mandato vigente: 24 de noviembre de 2026. El responsable autoriza desarrollar to
 | 3B: transporte/canal web | feature/mcp-proposal-transport-approval / 20de2bf | [#8](https://github.com/JorgeTonos28/Vida_en_orden/pull/8) | #7; 115 pruebas; 0009 |
 | 6: endurecimiento | feature/mcp-phase6-hardening / bc453ec | [#9](https://github.com/JorgeTonos28/Vida_en_orden/pull/9) | #8; 130 pruebas; 0010 |
 | 7: integración/cierre | chore/mcp-phase7-integration / 33a6a53, docs 12f6bde | [#10](https://github.com/JorgeTonos28/Vida_en_orden/pull/10) | #9; 137 pruebas y verificaciones locales/CI/clon aprobadas |
-| Seguridad de dependencias | fix/mcp-runtime-dependencies / en curso | Por publicar | #10; no publicar el artefacto previo |
+| Seguridad de dependencias | fix/mcp-runtime-dependencies / a067ef7 | [#11](https://github.com/JorgeTonos28/Vida_en_orden/pull/11) | #10; CI/clon completos, 138 pruebas y 0 alertas |
+| Compatibilidad Sites / bootstrap | fix/mcp-schema-only-bootstrap / en curso | Por publicar | #11 a067ef7; 0011 aditiva y proyección sin cambiar SQL originales |
 
 Los PR #4–#10 están abiertos, sin revisión humana, con verify satisfactorio al último control. No se han fusionado. Tienen base main por permisos del oficial; revisar primero el delta desde el commit de dependencia indicado. Main sigue en PR #3 integrado, 317cfd8. No usar force-push, merge directo o bypass para resolver el apilado. El mantenedor revisa/integra y debe repetir CI frente a la base resultante.
 
@@ -52,6 +53,10 @@ Las 31 herramientas de la instalación independiente existente fueron comprobada
 - Historia/PR/forks/cachés anteriores siguen potencialmente accesibles. Auditoría de fuente actual no equivale a purga histórica.
 
 ## Cómo reanudar
+
+Verificación local de la entrega de bootstrap: 14 finanzas +125 MCP +4 auditoría =143 aprobadas; TypeScript y lint sin errores/cuatro advertencias previas; schema sin cambios, build, D1 0000–0011 y los dos modos Worker aprobados, cada uno con 27 checks API/UI. El ajuste positivo/anulación tiene regresión adicional. Falta auditoría final/commit, exportación real con prepare:sites, PR/CI y publicación nativa del Site privado existente. La cadena SQL original no se ha editado. La adaptación no depende de que el propietario obtenga información técnica de soporte.
+
+Trabajo activo posterior: rama fix/mcp-schema-only-bootstrap. #11 a067ef7 pasó CI y toda la suite desde el clon GitHub (logs runtime-* en work/phase7-github-verification-20261124/outputs). El propietario no conoce el mecanismo de Sites: no pedirle investigación técnica. Se implementa SITES_METADATA_BOOTSTRAP: proyección DDL para la fuente privada de un Site nuevo, con hashes y 0000–0007 idénticos; SQL originales 0000–0010 intactos; nueva 0011 metadata_version. Bootstrap fijo/atómico desde prepare, sin DDL/business DML, payload metadataVersion y guardas; lecturas/salud no inicializan. Nuevas cuatro pruebas de proyección/concurrencia/rollback/versiones pasan; suite MCP actual 124/124. TypeScript, schema sin cambios y lint sin errores (corregida una advertencia nueva) pasan. Pendientes: build, verify:independent, verify:worker y verify:sites, auditoría; commit/export desde HEAD limpio; actualizar fuente privada existente conservando su ID, instalar dependencias nuevas y usar helper oficial para verificar gate/publicar. No crear otro Site. No publicar el tar basal c6881fa. Consultar la procedencia privada ya registrada; pedir nueva credencial del mismo proyecto si expiró. La interacción real del autenticador sigue reservada al propietario.
 
 1. Leer AGENTS, este documento, CURRENT_STATE, ROADMAP, plan maestro/paridad, HUMAN_APPROVAL_SETUP, MCP_HARDENING y UPGRADE_AND_ROLLBACK. Inspeccionar git status y preservar cambios; no resetear ni integrar en main.
 2. Revisar estado real de PR/CI y obtener la rama fix/mcp-runtime-dependencies del fork actual, o el último commit integrado cuando el mantenedor complete la cadena. Verificar los commits antes de copiar código. No publicar el lockfile previo a la corrección.

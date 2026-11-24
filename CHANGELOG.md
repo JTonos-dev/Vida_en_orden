@@ -1,5 +1,12 @@
 # Historial de cambios
 
+## Compatibilidad Sites: proyección y bootstrap · 2026-11-24
+
+- Se conserva el SQL original 0000–0010 y se añade 0011, una columna de versión de metadatos. La exportación de un commit limpio genera un candidato Sites de solo esquema con hashes y sin Git/identidad ajenos; 0000–0007 permanecen idénticos.
+- La primera preparación autenticada inicializa metadatos en batch atómico, conserva negocio/revisión/recibos y registra una única transición. Lecturas/salud no inicializan; payloads anteriores y metadatos futuros fallan cerrados.
+- Las guardas de aprobación/commit verifican la versión. No se habilita negocio ni existe bootstrap SQL elegible por el modelo.
+- 143 pruebas, schema/build/D1 y dos integraciones Worker (cadena completa y proyección Sites) aprobados localmente; 27 comprobaciones API/UI en cada modo. Publicación y aprobación humana reales todavía pendientes.
+
 ## Corrección de dependencias y gate de publicación · 2026-11-24
 
 - Se resuelven 33 entradas de auditoría (dos críticas) del lockfile basal: React/RSC, Next, Vinext/Vite, Cloudflare y transitivas compatibles. Auditoría actual: cero vulnerabilidades, sin force ni degradación de Drizzle. Ver DEPENDENCY_SECURITY.md.

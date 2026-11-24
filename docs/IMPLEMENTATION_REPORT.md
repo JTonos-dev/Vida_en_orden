@@ -2,6 +2,8 @@
 
 Fecha: 24 de noviembre de 2026. Implementación técnica preparada en PR dependientes; aceptación alojada/humana **pendiente**. No hubo merges, cambios de protecciones, publicaciones o migraciones sobre instalaciones personales. Oficial y fork actual siguen siendo las fuentes de desarrollo; no se creó un repositorio público alternativo ni se sustituyó historia.
 
+Actualización de compatibilidad: SITES_METADATA_BOOTSTRAP.md resuelve el bloqueo técnico de metadatos para un candidato nuevo de Sites mediante proyección DDL verificable y bootstrap autenticado, conservando originales. Nueva 0011, 143 pruebas locales aprobadas y ambos modos del Worker (completo/proyectado), con 27 comprobaciones API/UI cada uno. El PR #11 a067ef7 ya pasó CI y toda la suite desde GitHub; la publicación nativa del candidato siguiente y la aceptación humana siguen separadas y pendientes.
+
 ## Inventario y estado exacto
 
 | Fase | Implementado y probado en aislamiento | Pendiente / límite |

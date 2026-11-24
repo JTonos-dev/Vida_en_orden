@@ -4,6 +4,7 @@ import { createMcpReadService, type McpReadDatabase } from "../read-service.ts";
 import { dateInTimeZone } from "../../finance-math.ts";
 import { inspectAttachment, attachmentInput } from "./attachments.ts";
 import { PlanError } from "./types.ts";
+import { requireRuntimeMetadata } from "./metadata.ts";
 const reportSchema=z.object({month:z.string().regex(/^[1-9]\d{3}-(0[1-9]|1[0-2])$/)}).strict();
 const tool=(name:string,description:string,properties:Record<string,unknown>,required:string[])=>({name,description,inputSchema:{type:"object",properties,required,additionalProperties:false},annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:true,openWorldHint:false}});
 export const EXTENDED_TOOL_DEFINITIONS=[
@@ -21,6 +22,7 @@ export async function callExtendedTool(name:string,input:Record<string,unknown>,
  const parsed=reportSchema.safeParse(input);if(!parsed.success)throw new PlanError("invalid_input","Argumentos inválidos para la lectura ampliada.",400);
  const month=parsed.data.month,service=createMcpReadService(database,actor);
  const revision=()=>database.prepare("SELECT business_revision FROM mcp_installation WHERE id=1").first<{business_revision:number}>();
+ await requireRuntimeMetadata(database);
  const before=await revision();if(!before)throw new PlanError("migration_required","Falta migrar la base.",503);
  const asOf=dateInTimeZone(new Date(),"America/Santo_Domingo");const accounts:Account[]=[];let cursor:string|undefined;
  for(let page=0;page<10;page++){const result=await service.listAccounts({include_archived:false,as_of:asOf,limit:50,...(cursor?{cursor}:{})}) as AccountPage;accounts.push(...result.items);cursor=result.page.nextCursor||undefined;if(!cursor)break;}

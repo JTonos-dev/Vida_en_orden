@@ -4,6 +4,20 @@ import { domainFixture, planAction as a, localReference as ref } from "./helpers
 import { createMcpReadService } from "../lib/mcp/read-service.ts";
 const actor={userId:"synthetic-owner",email:"owner@example.test",fullName:"Synthetic owner"};
 const date="2026-11-24";
+
+test("ajuste positivo usa centavos, queda separado de ingresos/gastos y su anulación restituye saldo",async()=>{
+ const f=domainFixture();try{
+  const [account]=await setup(f);
+  const made=await f.run([a("adjust","finance.transaction.create",{type:"adjustment",accountId:account,amountMinor:501,occurredOn:date,description:"Synthetic balance adjustment"})]);
+  const reads=createMcpReadService(f.database,actor);
+  const adjusted=await reads.getAccount({account_id:account,as_of:date}) as {account:{balanceMinor:number}};assert.equal(adjusted.account.balanceMinor,100501);
+  const report=await reads.getFinanceReport({group_by:"type",date_from:date,date_to:date}) as {items:{key:string}[];summary:{netCashImpactMinor:number}};
+  assert.deepEqual(report.items.map(row=>row.key),["adjustment"]);assert.equal(report.summary.netCashImpactMinor,501);
+  await f.run([a("void","finance.transaction.void",{id:made.receipt.results[0].entityId!,reason:"Synthetic adjustment reversal"})]);
+  assert.equal((await reads.getAccount({account_id:account,as_of:date}) as {account:{balanceMinor:number}}).account.balanceMinor,100000);
+  assert.equal((await reads.getFinanceReport({group_by:"type",date_from:date,date_to:date}) as {summary:{netCashImpactMinor:number}}).summary.netCashImpactMinor,0);
+ }finally{f.close();}
+});
 async function setup(f:ReturnType<typeof domainFixture>) {
  const made=await f.run([a("a","finance.account.create",{name:"Synthetic bank A",type:"bank",bankName:"Synthetic Bank",openingBalanceMinor:100000,openingBalanceDate:date}),a("b","finance.account.create",{name:"Synthetic bank B",type:"bank",bankName:"Synthetic Bank",openingBalanceMinor:0,openingBalanceDate:date}),a("c","finance.category.create",{name:"Synthetic category",kind:"expense"})]);
  return made.receipt.results.map(r=>r.entityId!);

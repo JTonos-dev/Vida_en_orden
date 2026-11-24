@@ -16,10 +16,10 @@ Se implementa el canal alternativo del plan maestro: página autenticada del Sit
 
 No actualizar la instalación personal ni el Site original para probar esto. Usar una instancia de desarrollo privada, con D1 ficticia propia y acceso solo del propietario.
 
-**Gate alojado pendiente:** seguir primero SITES_MIGRATION_COMPATIBILITY.md. El flujo documentado de Sites exige migraciones de esquema; 0008/0010 incluyen inicialización/mantenimiento de metadatos que requieren un procedimiento oficial fuera de ese flujo. La aplicación local de todos los SQL está probada, pero no autoriza publicarlos a ciegas. La prueba humana permanece bloqueada hasta resolverlo.
+Seguir primero SITES_METADATA_BOOTSTRAP.md: para Sites se exporta una proyección de esquema sin modificar los SQL originales. El primer prepare autenticado inicializa metadatos de forma atómica, sin negocio; ninguna lectura lo hace. verify:hosting debe pasar en el checkout privado proyectado. La prueba humana permanece pendiente hasta confirmar un deployment real de ese candidato.
 
 1. Integrar/revisar las dependencias de PR en orden, o instalar la rama exacta de desarrollo indicada en DEVELOPMENT_PROGRESS. Ejecutar suite y build.
-2. Aplicar las migraciones SQL 0000–0010 en orden en la D1 de desarrollo. El esquema ORM por sí solo no reemplaza migraciones, triggers y datos de instalación de 0008.
+2. Validar 0000–0011 en D1 local. Para Sites publicar la proyección de esquema preparada desde el commit limpio según SITES_METADATA_BOOTSTRAP; no aplicar la cadena mixta original a ciegas ni sustituirla por ORM sin triggers. La primera preparación inicializa metadata_version=1 e invalida planes anteriores; conserva negocio, identidad/revisión existentes y recibos.
 3. Configurar privadamente `MCP_OWNER_USER_ID` y/o `MCP_OWNER_EMAIL` de esta instalación. Configurar `MCP_PROPOSALS_ENABLED=true` y `MCP_APPROVAL_ORIGIN` con el origen HTTPS exacto de **este** Site (sin slash/ruta). No ponerlo en el manifiesto público.
 4. Dejar `MCP_APPROVAL_CREDENTIALS` ausente o `[]`. Esto permite probar preparación/denegaciones, pero no aprobar con una clave sin fijar.
 5. Publicar únicamente la versión de desarrollo autorizada. Abrir `/approvals/enroll` directamente, iniciar sesión como propietario y pulsar «Crear credencial con mi autenticador». Completar el control del sistema personalmente.

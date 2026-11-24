@@ -10,7 +10,10 @@ import { getPlatformProxy, unstable_dev, unstable_splitSqlQuery } from "wrangler
 import { credential } from "../tests/helpers/webauthn.ts";
 import { MCP_TOOL_DEFINITIONS } from "../lib/mcp/server.ts";
 import { MCP_PROTOCOL_VERSION } from "../lib/mcp/protocol.ts";
+import { sitesMigrationProjection } from "./sites-migration-projection.mjs";
 const root=resolve(dirname(fileURLToPath(import.meta.url)),".."),build=join(root,"dist/server/wrangler.json");
+const sitesMode=process.argv.slice(2).includes("--sites");
+if(process.argv.slice(2).some(value=>value!=="--sites"))throw Error("Unsupported integration option");
 if(!existsSync(build))throw Error("Run npm run build before verify:worker.");
 process.env.WRANGLER_SEND_METRICS="false";process.env.CLOUDFLARE_CF_FETCH_ENABLED="false";
 const temp=mkdtempSync(join(tmpdir(),"veo-worker-verification-")),persist=join(temp,"state"),config=join(temp,"wrangler.json");let proxy,worker,certificate;
@@ -35,15 +38,18 @@ try{
  const built=JSON.parse(readFileSync(build,"utf8"));
  writeFileSync(config,JSON.stringify({name:"veo-isolated-worker-check",main:resolve(root,"dist/server",built.main),no_bundle:true,rules:built.rules,compatibility_date:built.compatibility_date,compatibility_flags:built.compatibility_flags,assets:{directory:resolve(root,"dist/server",built.assets.directory)},vars:{MCP_OWNER_USER_ID:actor.userId,MCP_OWNER_EMAIL:actor.email,MCP_PROPOSALS_ENABLED:"true",MCP_EXTENDED_READS_ENABLED:"true",MCP_APPROVAL_ORIGIN:base,MCP_APPROVAL_CREDENTIALS:JSON.stringify([key.pin])},d1_databases:[{binding:"DB",database_name:"synthetic-worker-db",database_id:"00000000-0000-4000-8000-000000000000"}],dev:{ip:"127.0.0.1",local_protocol:"https"}}));
  proxy=await getPlatformProxy({configPath:config,envFiles:[],persist:{path:join(persist,"v3")},remoteBindings:false});
- const files=readdirSync(join(root,"drizzle")).filter(file=>/^\d{4}.*\.sql$/.test(file)).sort();for(const file of files)await proxy.env.DB.batch(unstable_splitSqlQuery(readFileSync(join(root,"drizzle",file),"utf8")).map(sql=>proxy.env.DB.prepare(sql)));
+ const files=sitesMode?sitesMigrationProjection(join(root,"drizzle")):readdirSync(join(root,"drizzle")).filter(file=>/^\d{4}.*\.sql$/.test(file)).sort().map(file=>({file,sql:readFileSync(join(root,"drizzle",file),"utf8")}));for(const file of files)await proxy.env.DB.batch(unstable_splitSqlQuery(file.sql).map(sql=>proxy.env.DB.prepare(sql)));
  await proxy.dispose();proxy=undefined;
  worker=await unstable_dev(resolve(root,"dist/server",built.main),{config,envFiles:[],moduleRoot:join(root,"dist/server"),local:true,ip:"127.0.0.1",port,inspectorPort:0,localProtocol:"https",bundle:false,persistTo:persist,logLevel:"error",experimental:{forceLocal:true,watch:false,disableDevRegistry:true,disableExperimentalWarning:true,enableContainers:false,showInteractiveDevSession:false}});
  const capabilities=await tool("get_capabilities");assert.equal(capabilities.businessWritesEnabled,false);assert.equal(capabilities.tools.length,44);
  let successful=0,notFound=0;for(const definition of MCP_TOOL_DEFINITIONS){assert.equal(definition.annotations.readOnlyHint,true);const result=await tool(definition.name,missingArgs[definition.name]||{});if(result.error){assert.equal(result.error,"not_found",definition.name);notFound++;}else successful++;}assert.equal(successful+notFound,31);
  const references=await tool("validate_references");assert.equal(references.valid,true);assert.ok(Object.values(references.checked).every(value=>value===0));
  const home=await tool("get_configuration",{section:"home"});assert.equal(home.home,null);
+ const preSetupHealth=await tool("get_change_plan_health");assert.equal(preSetupHealth.metadataReady,false);
  console.log(`PASS · 31 read tools through the built Worker (${successful} valid, ${notFound} expected not_found); no business rows.`);
  const plan=await tool("prepare_change_plan",{actions:[{actionId:"t",kind:"task.create",input:{title:"Synthetic Worker approval"}}],idempotency_key:"worker-prepare"});assert.ok(plan.proposalId);
+ assert.equal((await tool("get_change_plan_health")).metadataReady,true);
+ assert.equal((await tool("get_financial_integrity_report",{month:new Date().toISOString().slice(0,7)})).status,"consistent");
  assert.equal((await tool("prepare_change_plan",{actions:[{actionId:"t",kind:"task.create",input:{title:"Synthetic Worker approval"}}],idempotency_key:"worker-prepare"})).proposalId,plan.proposalId);
  const path="/api/mcp/proposals/"+plan.proposalId,bootstrap=await request(path);assert.equal(bootstrap.status,200,bootstrap.text);assert.equal(bootstrap.json.credentialConfigured,true,"Synthetic test credential was not configured");const cookie=bootstrap.headers["set-cookie"][0].split(";")[0],csrf=bootstrap.json.csrfToken;
  const headers={origin:base,cookie,"x-veo-csrf":csrf};
@@ -58,5 +64,5 @@ try{
  console.log("PASS · Worker WebAuthn cryptography, CSRF, candidate-only enrollment, anti-framing and closed MCP execution gate.");
  const ca=join(temp,"localhost-ca.pem");writeFileSync(ca,certificate);
  await new Promise((resolveChild,reject)=>{const child=spawn(process.execPath,["--dns-result-order=ipv4first",join(root,"scripts/qa-v2.mjs")],{cwd:root,env:{...process.env,QA_BASE_URL:base,NODE_EXTRA_CA_CERTS:ca},stdio:["ignore","pipe","pipe"]});child.stdout.on("data",chunk=>process.stdout.write(chunk));child.stderr.on("data",chunk=>process.stderr.write(chunk));child.once("error",reject);child.once("exit",code=>code===0?resolveChild():reject(Error("Local UI QA failed")));});
- console.log("Worker integration verified with synthetic data and a self-signed loopback certificate; no remote database or Site contacted. Human/platform approval remains unverified.");
+ console.log(`Worker integration verified (${sitesMode?"Sites schema projection":"full migration chain"}) with synthetic data and a self-signed loopback certificate; no remote database or Site contacted. Human/platform approval remains unverified.`);
 }finally{agent.destroy();await worker?.stop();await proxy?.dispose();const target=resolve(temp);assert.ok(target.startsWith(resolve(tmpdir())+sep)&&target.includes("veo-worker-verification-"));rmSync(target,{recursive:true,force:true,maxRetries:8,retryDelay:150});}

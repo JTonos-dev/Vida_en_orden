@@ -1,0 +1,1 @@
+ALTER TABLE `mcp_installation` ADD `metadata_version` integer DEFAULT 0 NOT NULL;
