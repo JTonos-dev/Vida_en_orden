@@ -1,5 +1,13 @@
 # Historial de cambios
 
+## Fase 7: integración reproducible y cierre técnico · 2026-11-24
+
+- Verificación del Worker compilado por HTTPS loopback con D1 nueva, las 31 lecturas, WebAuthn sintético, CSRF, anti-framing, inscripción sin confianza y ejecución cerrada; 27 comprobaciones de la interfaz.
+- Pruebas de D1/workerd con rollback forzado, equivalencia ORM/SQL/defaults y upgrade 0009→0010. verify:schema exige que Drizzle no genere cambios.
+- Se corrigen recálculo de padres al mover subtareas, rechazo de ciclos anteriores y fechas de completado cerca de medianoche, con regresiones. Las denegaciones consumen cuerpos pequeños de forma acotada para conservar conexiones del Worker.
+- Corrección de codificación en snapshots nuevos 0008–0010, sin cambiar/aplicar SQL destructivo. QA rechaza destinos remotos y redirects.
+- Guías de actualización/rollback, aceptación y continuidad. No se habilitan escrituras, fusionan PR ni modifican instalaciones personales; aceptación humana real y exposición histórica siguen pendientes.
+
 ## Fase 6: límites, evidencia y recuperación · 2026-11-24
 
 - JSON acotado por stream, UTF-8, profundidad, nodos y claves; fechas reales y búsquedas literales de 200 caracteres sin LIKE largo.

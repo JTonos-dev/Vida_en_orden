@@ -19,7 +19,9 @@
     "db:generate": "drizzle-kit generate",
     "audit:public": "node scripts/public-source-audit.mjs",
     "test:audit": "node --experimental-strip-types --test tests/public-source-audit.test.ts",
-    "prepare:clean": "node scripts/prepare-clean-distribution.mjs"
+    "prepare:clean": "node scripts/prepare-clean-distribution.mjs",
+    "verify:schema": "node scripts/verify-schema.mjs",
+    "verify:worker": "node --experimental-strip-types scripts/verify-worker-integration.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

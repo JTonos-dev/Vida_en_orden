@@ -360,7 +360,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'Asignaci\u00c3\u00b3n base'"
+          "default": "'Asignaci\u00f3n base'"
         },
         "allocation_type": {
           "name": "allocation_type",
@@ -2662,7 +2662,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'Asignaci\u00c3\u00b3n base'"
+          "default": "'Asignaci\u00f3n base'"
         },
         "allocation_type": {
           "name": "allocation_type",

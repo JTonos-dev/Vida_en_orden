@@ -1,3 +1,4 @@
+import { finishDeniedRequest } from "./limits.ts";
 import { z } from "zod";
 import type { DomainDatabase } from "../../domain/context.ts";
 import type { McpOwnerPolicy } from "../auth.ts";
@@ -13,5 +14,5 @@ export async function handleEnrollmentRequest(request:Request,dependencies:{data
   const parsed=schema.safeParse(await approvalBody(request));if(!parsed.success)throw new PlanError("invalid_input","Solicitud de credencial inválida.",400);
   const enrollment=credentialEnrollment(dependencies.database,actor,dependencies.origin);
   return approvalJson(parsed.data.action==="options"?{publicKey:await enrollment.options()}:await enrollment.candidate(parsed.data.challenge,parsed.data.proof));
- }catch(error){return approvalError(error);}
+ }catch(error){await finishDeniedRequest(request);return approvalError(error);}
 }

@@ -1,6 +1,5 @@
 import { createHash, generateKeyPairSync, randomBytes, sign } from "node:crypto";
-const origin = "https://approval.example.test";
-export function credential(ownerId = "test-owner") {
+export function credential(ownerId = "test-owner", origin = "https://approval.example.test") {
   const keys = generateKeyPairSync("ec", { namedCurve: "prime256v1" });
   const jwk = keys.publicKey.export({ format: "jwk" });
   const id = randomBytes(24).toString("base64url");

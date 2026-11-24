@@ -1,9 +1,9 @@
 import { DatabaseSync, type SQLInputValue } from "node:sqlite";
 import { readFileSync, readdirSync } from "node:fs";
 
-export function testDatabase() {
+export function testDatabase(through = Number.POSITIVE_INFINITY) {
   const sqlite = new DatabaseSync(":memory:");
-  const migrations = readdirSync(new URL("../../drizzle/", import.meta.url)).filter((file) => /^\d{4}_.+\.sql$/.test(file)).sort();
+  const migrations = readdirSync(new URL("../../drizzle/", import.meta.url)).filter((file) => /^\d{4}_.+\.sql$/.test(file) && Number(file.slice(0,4))<=through).sort();
   for (const file of migrations) sqlite.exec(readFileSync(new URL(`../../drizzle/${file}`, import.meta.url), "utf8"));
   const sync = Symbol("synchronous-test-execution");
   let fail: ((sql: string) => boolean) | undefined;

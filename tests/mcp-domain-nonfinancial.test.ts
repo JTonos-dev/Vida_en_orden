@@ -106,3 +106,22 @@ test("actualiza área/proyecto/evento/contexto y configuración sin omitir el di
     assert.equal(f.sqlite.prepare("SELECT title FROM calendar_events WHERE id=?").get(event)?.title,"E2");
   } finally { f.close(); }
 });
+
+test("mover subtarea recalcula ambos ancestros y un ciclo previo falla antes de escribir",async()=>{
+ const f=domainFixture();try{
+  const made=await f.run([a("one","task.create",{title:"Synthetic parent A"}),a("two","task.create",{title:"Synthetic parent B"}),a("child","task.create",{title:"Synthetic child",parentId:{$ref:"one"}})]);const [one,two,child]=made.receipt.results.map(r=>r.entityId!);
+  await f.run([a("done","task.complete",{id:child,done:true})]);assert.equal(f.sqlite.prepare("SELECT done FROM home_tasks WHERE id=?").get(one)?.done,1);
+  await f.run([a("move","task.update",{id:child,parentId:two})]);assert.equal(f.sqlite.prepare("SELECT done FROM home_tasks WHERE id=?").get(one)?.done,0);assert.equal(f.sqlite.prepare("SELECT done FROM home_tasks WHERE id=?").get(two)?.done,1);
+  f.sqlite.prepare("UPDATE home_tasks SET parent_id=? WHERE id=?").run(child,two);
+  const before=JSON.stringify(f.sqlite.prepare("SELECT * FROM home_tasks ORDER BY id").all());await assert.rejects(()=>f.engine.prepare([a("bad","task.update",{id:child,title:"Should not persist"})]));assert.equal(JSON.stringify(f.sqlite.prepare("SELECT * FROM home_tasks ORDER BY id").all()),before);
+ }finally{f.close();}
+});
+
+test("completado usa fecha de dominio y no rechaza el mismo día entre UTC/local",async()=>{
+ const f=domainFixture();try{
+  const {runWithDomainDatabase}=await import("../lib/domain/context.ts"),{action}=await import("../lib/domain/home-service.ts");
+  const clock=()=>new Date("2026-11-25T02:00:00Z"),created=await runWithDomainDatabase(f.database,()=>action("synthetic-owner","Synthetic",{action:"createTask",title:"Synthetic midnight task"}),clock) as {id:string};
+  await assert.rejects(()=>runWithDomainDatabase(f.database,()=>action("synthetic-owner","Synthetic",{action:"setDone",id:created.id,done:true,completedAt:"2026-11-25"}),clock));
+  await runWithDomainDatabase(f.database,()=>action("synthetic-owner","Synthetic",{action:"setDone",id:created.id,done:true,completedAt:"2026-11-24"}),clock);assert.equal(f.sqlite.prepare("SELECT done FROM home_tasks WHERE id=?").get(created.id)?.done,1);
+ }finally{f.close();}
+});

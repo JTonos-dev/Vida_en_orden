@@ -1,12 +1,14 @@
 const base = process.env.QA_BASE_URL || "http://127.0.0.1:4173";
+const target = new URL(base);
+if (!["http:","https:"].includes(target.protocol) || !["127.0.0.1","localhost","[::1]"].includes(target.hostname)) throw new Error("QA V2 solo permite loopback; nunca producción.");
 const get = async () => {
-  const response = await fetch(`${base}/api/state`);
+  const response = await fetch(`${base}/api/state`, { redirect: "error" });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || `GET ${response.status}`);
   return data;
 };
 const post = async (action, payload = {}, expected = 200) => {
-  const response = await fetch(`${base}/api/action`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action, ...payload }) });
+  const response = await fetch(`${base}/api/action`, { method: "POST", redirect: "error", headers: { "content-type": "application/json" }, body: JSON.stringify({ action, ...payload }) });
   const data = await response.json();
   if (response.status !== expected) throw new Error(`${action}: esperaba ${expected}, recibió ${response.status}: ${data.error || ""}`);
   return data;
@@ -17,7 +19,8 @@ const pesos = (value) => Math.round(value * 100);
 const original = await get();
 const backup = { version: 2, exportedAt: new Date().toISOString(), ...original };
 const stamp = Date.now().toString(36);
-const qaToday = new Date().toISOString().slice(0, 10);
+const dateParts = Object.fromEntries(new Intl.DateTimeFormat("en", { timeZone: "America/Santo_Domingo", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date()).map(part => [part.type, part.value]));
+const qaToday = `${dateParts.year}-${dateParts.month}-${dateParts.day}`;
 const qaMonth = qaToday.slice(0, 7);
 const qaDate = (days) => new Date(Date.parse(qaToday + "T12:00:00Z") + days * 86400000).toISOString().slice(0, 10);
 

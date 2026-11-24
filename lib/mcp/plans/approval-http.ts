@@ -1,4 +1,4 @@
-import { readBoundedJson } from "./limits.ts";
+import { readBoundedJson, finishDeniedRequest } from "./limits.ts";
 import { z } from "zod";
 import { authenticateMcpRequest, McpAuthenticationError, type McpIdentity, type McpOwnerPolicy } from "../auth.ts";
 import { randomChallenge } from "./canonical.ts";
@@ -42,5 +42,5 @@ export async function handleApprovalRequest(request:Request,proposalId:string,de
   }
   const proposal=await engine.approve(proposalId,parsed.data.challenge,parsed.data.proof);
   return approvalJson({proposal,businessWritesEnabled:false});
- }catch(error){return approvalError(error);}
+ }catch(error){await finishDeniedRequest(request);return approvalError(error);}
 }

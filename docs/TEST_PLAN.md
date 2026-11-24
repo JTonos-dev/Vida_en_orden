@@ -32,9 +32,17 @@
 - Restauración que recalcula saldos y conserva jerarquía/vínculos.
 - Rechazo de referencias a registros ajenos o inexistentes.
 
-El script `scripts/qa-v2.mjs` implementa el contrato de API y restaura el estado previo al finalizar. Se ejecuta contra una vista previa accesible mediante `QA_BASE_URL`.
+El script `scripts/qa-v2.mjs` modifica datos y restaura el estado previo al finalizar. Solo admite una vista loopback aislada mediante `QA_BASE_URL` y rechaza redirecciones. `verify:worker` lo ejecuta automáticamente sobre una D1 temporal; nunca apuntarlo a una instalación personal o remota.
 
-## QA visual realizado
+## Integración de fases 3–7
+
+`test:mcp` incluye motor/staging, verificación WebAuthn, catálogo de 43 acciones, carreras, idempotencia, evidencias, atomicidad/rollback, denegaciones, límites, migraciones y aislamiento. `mcp-d1-runtime.test.ts` comprueba un batch real de D1 local mediante workerd. `verify:schema` exige equivalencia Drizzle sin generar SQL en el repositorio.
+
+`verify:worker` usa el build real y HTTPS loopback: ejecuta las 31 lecturas, prepara y aprueba mediante criptografía sintética dentro del Worker, deniega CSRF, comprueba que la siguiente solicitud por conexión persistente funciona, verifica alta no confiable/anti-framing y ejecución MCP cerrada. Continúa con 27 verificaciones de API/UI en la misma D1 ficticia. Todo se elimina al acabar. No prueba el control físico del autenticador, navegación visual ni la identidad del host: esos casos están en USER_ACCEPTANCE_TESTS.md.
+
+## QA visual histórico de la aplicación transferida
+
+La lista siguiente conserva evidencia de la aplicación original. No certifica la nueva pantalla de aprobación ni una revisión visual nueva en esta sesión.
 
 - Escritorio: resumen, tareas, planificación, proyectos, finanzas y configuración.
 - Buscador letra por letra con foco persistente.

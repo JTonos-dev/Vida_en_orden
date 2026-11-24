@@ -59,8 +59,10 @@ npm run test:audit
 npm run audit:public
 npx tsc --noEmit
 npm run lint
+npm run verify:schema
 npm run build
 npm run verify:independent
+npm run verify:worker
 ```
 
 Añade pruebas proporcionales para:
@@ -77,6 +79,8 @@ Añade pruebas proporcionales para:
 No declares aprobada una comprobación que no pudiste ejecutar. El script `scripts/qa-v2.mjs` modifica su entorno de prueba: nunca lo apuntes a producción.
 
 `npm run verify:independent` debe ejecutarse después del build. Crea una base D1 local temporal, aplica todas las migraciones SQL contiguas desde `drizzle/0000` en orden y la elimina al terminar; no acepta ni necesita credenciales productivas.
+
+`verify:schema` ejecuta Drizzle en una copia temporal y exige cero migraciones nuevas: detecta divergencia ORM/snapshot sin aplicar SQL. `verify:worker`, después del build, arranca el Worker compilado sobre HTTPS loopback y D1 temporal, prueba las 31 lecturas, aprobación criptográfica sintética, denegaciones y QA de la interfaz. Nunca usa un Site, D1 remota ni credencial real. `qa-v2.mjs` rechaza destinos que no sean loopback y redirecciones; conserva esa restricción.
 
 `npm run audit:public` inspecciona la fuente versionada, sin imprimir valores detectados. Su modo `-- --history` inspecciona todos los objetos locales, también los inalcanzables; no demuestra por sí solo la retirada de refs o cachés del servidor. Mientras el saneamiento remoto esté pendiente, CI verde no equivale a historial limpio. El mandato del responsable del 24 de noviembre de 2026 autoriza implementar secuencialmente las fases 3–7 en ramas dependientes. El riesgo histórico no bloquea ese desarrollo y no se continúa la sustitución del repositorio. Las escrituras reales MCP siguen deshabilitadas hasta demostrar aprobación humana en la plataforma.
 

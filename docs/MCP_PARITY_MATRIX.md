@@ -1,4 +1,4 @@
-# Matriz de paridad MCP — estado transferido
+# Matriz de paridad MCP — rama de fases 3–7
 
 Esta matriz describe el código del repositorio, no datos ni permisos de una instalación concreta. `Implementado` significa que existe código y prueba correspondiente. Cada instalación debe repetir la validación de conexión con sus propios datos.
 
@@ -42,11 +42,11 @@ Las ampliaciones de Fase 2 agregan filtros o relaciones sin convertirlas en herr
 
 ## Fuera de paridad deliberadamente
 
-No están implementados como herramientas MCP: `create`, `update`, `delete`, `void`, `restore`, `prepare_change_plan`, `request_approval`, `commit_approved_change_plan` ni `execute_sql`. Las escrituras de la interfaz no implican que el MCP pueda escribir.
+No hay CRUD directo, `restore` ni `execute_sql`. Las operaciones de dominio descritas abajo se preparan mediante propuestas opt-in; `commit_approved_change_plan` existe y siempre devuelve `writes_disabled` en el transporte real. Las escrituras de la interfaz no implican que el MCP pueda escribir.
 
 ## Desarrollo aislado de fase 3
 
-`lib/mcp/plans/engine.ts` implementa preparación, revisión, cancelación, aprobación, ejecución atómica y consulta de recibos. Aún no hay herramientas nuevas expuestas ni adaptadores de negocio publicados. La verificación WebAuthn usa claves administrativas fijadas, sin inscripción desde el modelo. Producción conserva 31 lecturas.
+`lib/mcp/plans/engine.ts` implementa preparación, revisión, cancelación, aprobación, ejecución atómica y consulta de recibos. El transporte opcional y los 43 adaptadores están en ramas/PR dependientes; no están integrados ni desplegados por abrir un PR. La verificación WebAuthn usa claves administrativas fijadas, sin inscripción de confianza desde el modelo. La instalación personal conserva 31 lecturas.
 
 ## Catálogo no financiero en desarrollo (fase 4)
 
