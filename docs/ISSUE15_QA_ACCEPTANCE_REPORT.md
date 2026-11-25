@@ -2,6 +2,8 @@
 
 Corte: 25 de noviembre de 2026. Fuente oficial seleccionada: `d1935627fc5c4821d795d6c9c993771780bd9cc4`, con PR #4–#12 y #14 integrados. [CI posterior al merge aprobado](https://github.com/JorgeTonos28/Vida_en_orden/actions/runs/45531409462). Seguimiento: [issue #15](https://github.com/JorgeTonos28/Vida_en_orden/issues/15). Este documento no sustituye ni cierra la [issue #13](https://github.com/JorgeTonos28/Vida_en_orden/issues/13).
 
+Entrega de evidencia/regresiones: [PR #16](https://github.com/JorgeTonos28/Vida_en_orden/pull/16), commit66202e8 y trazabilidad posterior; [CI del HEAD publicado](https://github.com/JorgeTonos28/Vida_en_orden/pull/16/checks). Auditoría de fuente de la entrega:269archivos/cero hallazgos; el clon basal tenía268. No atribuir CI de otro commit a un HEAD posterior ni confundir aprobación de tests/docs con autorización de ejecución.
+
 ## Candidato preparado y autorización
 
 Se obtuvo un clon limpio del oficial y una exportación nueva con `prepare:sites`, marcada `freshInstallationOnly`. El candidato conserva el código integrado y todas las migraciones originales; la proyección elimina únicamente las 21 instrucciones conocidas de metadatos de 0008/0010. Incluye 13 SQL (0000–0012). No deriva de un checkout privado de publicación, D1, respaldo, credencial, variable ni identidad de instalaciones anteriores. El template auditado conserva `project_id=null`, binding `DB`, capacidad `mcp` y sin R2; únicamente el checkout privado nuevo recibió la identidad nativa recién creada.
