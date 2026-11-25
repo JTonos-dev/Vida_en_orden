@@ -36,6 +36,7 @@ npm run audit:dependencies
 npm run test:finance
 npm run test:mcp
 npm run test:audit
+npm run test:recovery
 npm run audit:public
 npx tsc --noEmit
 npm run lint
@@ -44,16 +45,17 @@ npm run build
 npm run verify:independent
 npm run verify:worker
 npm run verify:sites
-npm run verify:sites
 ```
 
-`verify:independent` crea una D1 local temporal con Wrangler, aplica todas las migraciones SQL contiguas desde `drizzle/0000`, ejecuta una consulta de humo y elimina el directorio temporal. En la rama de fases 3–7 llega hasta `0012` (13 SQL/48 tablas); `main` conserva la versión integrada. No ejecuta `--remote`, no necesita un token y no importa datos. `verify:schema` comprueba que Drizzle no genere cambios en una copia temporal. `verify:worker` ejecuta el Worker compilado con la cadena original y `verify:sites` con la proyección de esquema; ambos usan D1 y credenciales exclusivamente sintéticas en HTTPS loopback, incluyendo las 31 lecturas y 27 comprobaciones de la interfaz. No certifican aprobación humana en ChatGPT.
+`verify:independent` crea una D1 local temporal con Wrangler, aplica todas las migraciones SQL contiguas desde `drizzle/0000`, ejecuta una consulta de humo y elimina el directorio temporal. El main integrado llega hasta `0012` (13 SQL/48 tablas/54 triggers e índice de contexto de auditoría). No ejecuta `--remote`, no necesita un token y no importa datos. `verify:schema` comprueba que Drizzle no genere cambios en una copia temporal. `verify:worker` ejecuta el Worker compilado con la cadena original y `verify:sites` con la proyección de esquema; ambos usan D1 y credenciales exclusivamente sintéticas en HTTPS loopback, incluyendo las 31 lecturas y 27 comprobaciones de la interfaz. No certifican aprobación humana en ChatGPT.
 
 `test:mcp` también invoca individualmente las 31 herramientas con el esquema SQL real y datos ficticios, prueba una base vacía y compara dos bases independientes. Las lecturas no deben insertar valores predeterminados. La primera escritura de la interfaz tampoco debe cargar tareas ni proyectos de la instalación original; `scripts/qa-v2.mjs` comprueba esta condición únicamente contra una vista local aislada.
 
 Conserva el marcador del manifiesto en la rama pública. Para publicar, prepara un checkout separado, por ejemplo dentro del directorio ignorado `work/instance/`, y configura allí el manifiesto propio. `verify:independent` audita la copia pública y rechaza por diseño un manifiesto con identidad real: ejecútalo en el checkout público después del build. No publiques la configuración privada mediante el PR.
 
 ## 4. Crear el Site y la D1
+
+Para una QA nueva de fases 3–7 seguir el precedente de issue #15 y ISSUE15_QA_ACCEPTANCE_REPORT: autorización explícita de creación/publicación y opt-in de metadatos, source oficial verificado y recursos nuevos owner-only. No copiar D1, identidad, secretos ni WebAuthn de otra instalación. La proyección freshInstallationOnly no actualiza instalaciones existentes ni resuelve issue #13. La versión integrada puede exponer42/44 herramientas con flags autorizados, pero las 31 originales y la ejecución de negocio cerrada se conservan.
 
 Para la entrega de bootstrap usa SITES_METADATA_BOOTSTRAP.md: exportar desde HEAD limpio con prepare:sites, usar esa fuente como plantilla y verificar el gate en el checkout proyectado. No modificar originales ni aplicar su DML de metadatos a ciegas en Sites. La versión completa local llega a 0012 (13 SQL/48 tablas); el bootstrap de metadatos ocurre en la primera preparación autenticada y no en lecturas.
 
@@ -76,7 +78,7 @@ El MCP falla cerrado si faltan los headers de identidad o si no existe una polí
 
 - `MCP_OWNER_EMAIL`: correo del propietario de esta instalación;
 - `MCP_OWNER_USER_ID`: identificador autenticado del propietario, si la plataforma lo proporciona y se desea exigir la coincidencia adicional;
-- `MCP_BUSINESS_WRITES_ENABLED`: debe permanecer `false` y no se usa para habilitar escrituras.
+- `MCP_BUSINESS_WRITES_ENABLED` es una constante fijada en `false` en el código: no es un secreto ni una variable para habilitar escrituras.
 
 El Site debe conservar acceso privado/custom y autorizar únicamente al propietario que corresponda a esa instancia. Una persona autorizada en otro Site no obtiene acceso a esta base. No pongas el correo en el código ni en un archivo versionado.
 

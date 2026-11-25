@@ -1,5 +1,7 @@
 # Instalación Sites con esquema y bootstrap separados
 
+Actualización de aceptación: main d193562 integra #4–#12/#14. La issue #15 publicó bajo autorización una QA completamente nueva hasta 0012, versión 1/entorno 1,31 lecturas y propuestas sin negocio comprobadas. No se reutilizó D1/identidad/configuración/WebAuthn ni se migró la instalación anterior. Ver ISSUE15_QA_ACCEPTANCE_REPORT; la evidencia histórica que sigue corresponde al desarrollo hasta 0011. La aceptación fresca no resuelve ledger/backups/upgrade de issue #13 ni habilita escrituras.
+
 Entrega dependiente de #11, rama fix/mcp-schema-only-bootstrap, PR #12. El candidato a05433d y la corrección 5359d43 se publicaron en un Site privado nuevo; 146 pruebas/CI/clon aprobados. Registro personal completado y clave pública propia fijada en entorno 2 de la misma versión 2. Plugin autenticado/44 herramientas/31 lecturas/health verificados; 48 tablas y 54 triggers presentes, hashes de migraciones sin cambios. Firma personal de propuesta ya verificada con APPROVED, evidencia durable y ejecución denegada sin negocio. Publicación/registro por sí solos no sustituyen esa firma; integración y habilitación revisadas siguen pendientes.
 
 ## Conservación de migraciones
