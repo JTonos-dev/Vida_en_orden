@@ -68,3 +68,7 @@ La instalación independiente de validación también ejecutó las 31 herramient
 ## Entrega financiera aislada
 
 24 adaptadores R2 implementados; pruebas específicas de contabilidad, reservas, reversión, concurrencia y rollback. El reporte financiero neto incluye ahora comisiones de transferencias propias. No se cambia la política de ejecución MCP ni se toca una base personal. Ver seguimiento para verificaciones y PR.
+
+## Propuestas opcionales y canal humano en desarrollo
+
+La nueva rama incorpora opt-in MCP_PROPOSALS_ENABLED de diez herramientas de metadatos (41 con las lecturas), página de revisión, API owner-only/origen/CSRF y verificación WebAuthn. El alta solo devuelve candidatos; la confianza se configura por administración fuera del modelo. Requiere 0009 además de 0008. La compuerta real permanece cerrada en dos capas y falta prueba humana alojada. Ver HUMAN_APPROVAL_SETUP.md.

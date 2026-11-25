@@ -54,3 +54,13 @@ Requisitos de todos los casos: instancia de desarrollo privada y vacía de datos
 | UAT-5-LEGACY-TASK-SPEND | Crear gasto legado de tarea por 123 centavos y eliminarlo. | Bitácora/gasto de tarea muestra 1,23 unidades; no se confunde con movimiento del libro V2. | Bloqueada |
 
 Precaución especial: ante timeout no repetir un movimiento suponiendo fallo; pedir get_execution_result y conservar propuesta/revisión/clave idempotente. Ante resultado incierto o diferente, detener ese caso, registrar el código y reportar sin datos reales. No habilitar SQL, importaciones o restauraciones para corregirlo.
+
+## UAT-3-HUMAN — canal real de aprobación (prioridad máxima)
+
+Fase: 3B. Estado: **bloqueada hasta desplegar instancia de desarrollo con 0008/0009 y configuración propia**. No depende de habilitar escrituras. Esta prueba sí requiere una persona y no puede sustituirse por los tests de firmas sintéticas.
+
+- Requisitos/datos: seguir HUMAN_APPROVAL_SETUP.md; propietario con autenticador y credencial personalmente fijada. Única propuesta: crear `UAT Synthetic approval` sin datos reales.
+- Pasos exactos: registrar candidato en `/approvals/enroll`, fijarlo administrativamente, preparar cambio desde ChatGPT, pedir enlace request_approval, abrirlo autenticado, comprobar diff/versión/huella y aprobar con el control del sistema.
+- Esperado: get_approval_status indica APPROVED para esa huella; Site y search_tasks no muestran una tarea nueva. Pedir commit devuelve writes_disabled. La base solo contiene metadatos de aprobación.
+- Denegación: cancelar el control del autenticador debe dejar la propuesta sin aprobar; sesión equivocada se deniega. No compartir credenciales/identificadores privados al reportar; no copiar claves del modelo. Las variantes criptográficas, CSRF, replay y versión están cubiertas automáticamente.
+- Reportar: versión de desarrollo, navegador, tipo de autenticador (sin identificadores), estado/fecha y resultado aprobado/fallido. La aceptación se registrará sin fingir que ya ocurrió.

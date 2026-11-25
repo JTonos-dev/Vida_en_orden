@@ -1,4 +1,4 @@
-// Additive MCP infrastructure. Keep aligned with migration 0008 and tables.ts.
+// Additive MCP infrastructure. Keep aligned with migrations 0008–0009 and tables.ts.
 import { sqliteTable, text, integer, primaryKey, index, uniqueIndex, check } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
@@ -354,3 +354,9 @@ export const mcp_stage_home_workspaces = sqliteTable("mcp_stage_home_workspaces"
   created_at: text("created_at").notNull(),
   updated_at: text("updated_at").notNull()
 }, (table) => [primaryKey({ columns: [table.proposal_id,table.user_id] }),index("mcp_stage_home_workspaces_partition").on(table.proposal_id)]);
+export const mcp_registration_challenges = sqliteTable("mcp_registration_challenges", {
+  challenge: text("challenge").notNull().primaryKey(),
+  owner_id: text("owner_id").notNull(),
+  expires_at: integer("expires_at").notNull(),
+  used: integer("used").notNull().default(sql.raw("0"))
+}, (table) => [check("mcp_registration_used",sql.raw("used IN (0,1)")),index("mcp_registration_owner_expiry").on(table.owner_id,table.expires_at)]);

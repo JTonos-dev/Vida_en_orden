@@ -95,7 +95,7 @@ No declares aprobada una comprobación que no pudiste ejecutar. El script `scrip
 - La identidad llega de Sites por headers autenticados; los argumentos de una herramienta nunca pueden elegir `userId`, propietario o scope.
 - El servidor debe fallar cerrado sin identidad o sin política de propietario.
 - Las consultas MCP deben permanecer tipadas, acotadas, paginadas y de solo lectura.
-- Mantén `readOnlyHint=true`, `destructiveHint=false` y `businessWritesEnabled=false` mientras la fase actual sea lectura.
+- Las 31 lecturas conservan `readOnlyHint=true` y `destructiveHint=false`. Las herramientas opt-in de propuestas declaran sus efectos de metadatos con anotaciones correctas; no equivalen a escritura de negocio. Mantén `businessWritesEnabled=false` en fábrica y transporte hasta demostrar aprobación humana real en plataforma y revisión autorizada.
 - Reutiliza los servicios y cálculos de dominio existentes; no crees un segundo motor financiero.
 - No expongas secretos, SQL dinámico, datos de otros propietarios ni referencias cruzadas fuera del alcance autorizado.
 
