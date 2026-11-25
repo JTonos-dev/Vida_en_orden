@@ -14,7 +14,7 @@ El endurecimiento de GitHub, la guía de portabilidad y la prueba de instalació
 | 4 | Escrituras no financieras: tareas, áreas, proyectos, planificación y bitácora | 19 adaptadores y reversión probados en aislamiento; transporte preparado, ejecución real cerrada. | Aceptación funcional después del canal humano y de una habilitación revisada. |
 | 5 | Escrituras financieras y relaciones cruzadas | 24 adaptadores R2 y pruebas contables implementados en aislamiento; aceptación/ejecución real pendientes. | Pruebas contables, no doble conteo, concurrencia, reversión y reconciliación. |
 | 6 | Adjuntos interpretados, informes ampliados y endurecimiento operativo | Texto/CSV/JSON, informe interno, límites, evidencia y recuperación implementados; binarios/OCR no disponibles, carga y cuotas alojadas pendientes. | Aceptación de los informes/adjuntos en ChatGPT y validación operativa del host. |
-| 7 | Cierre documental, publicación, conexión y pruebas end-to-end | Main integra #4–#12; 166 pruebas locales, Worker/D1, ORM, instalación y guías aprobados. Site versión 2/entorno 2 hasta0011:44 herramientas/31 lecturas y firma real. Copia lógica cifrada/restaurada y ensayo0012 en memoria sin pérdida; ver ISSUE13_ACCEPTANCE_REPORT. | Respaldo nativo/ledger, autorización y actualización alojada, aceptación de ejecución futura y carga/cuotas pendientes. No se declara completada. |
+| 7 | Cierre documental, publicación, conexión y pruebas end-to-end | Main d193562 integra #4–#12/#14;166 pruebas y suite completa aprobadas. QA nueva autorizada versión 1/entorno 1 hasta 0012,31 lecturas y propuestas ficticias alojadas sin negocio. La firma anterior no se porta. Ver ISSUE15_QA_ACCEPTANCE_REPORT. | Recarga/reconexión visual, canal humano propio para activación futura, cuotas/carga y aceptación de ejecución pendientes. Issue #13 conserva respaldo/upgrade de la instalación anterior. No completada. |
 
 ## Dependencias
 
@@ -23,6 +23,8 @@ El saneamiento del historial fue preparado y ensayado localmente; el responsable
 La fase 3 depende de una aprobación humana demostrable en la plataforma. Las fases 4 y 5 dependen de la fase 3 y de servicios de dominio transaccionales. La fase 6 depende de límites de archivos y permisos verificables del host. La fase 7 no convierte ninguna fase pendiente en terminada.
 
 ## Ejecución vigente
+
+Prioridad issue #15: nueva QA privada publicada desde d193562 bajo autorización específica, D1 vacía propia hasta 0012 y44 herramientas invocadas. Idempotencia/revisión/cancelación/cierre de ejecución aprobados en plataforma; ninguna fila de negocio persistida. No se modifica ni migra la instalación anterior de issue #13. Fuente y límites: ISSUE15_QA_ACCEPTANCE_REPORT; continuidad y pendientes: DEVELOPMENT_PROGRESS. La aceptación alojada permite preparar una entrega posterior de habilitación condicionada; no recomienda activar negocio sin canal humano propio, revisión, recuperación y autorización separados.
 
 La corrección de auditoría del PR #12 fue aprobada e integrada en main767f71f; CI posterior45526085881 verde. Lote CAS único y auditoría indexada/append-only; 0012 añade solo índice. La issue #13 ensaya la recuperación propia y 0012 sin publicar ni habilitar negocio. Las otras 17 tablas siguen limitadas a 2.000 filas fuente: escalabilidad por conjuntos de lectura y cuotas del host pendientes. Ver ISSUE13_ACCEPTANCE_REPORT y PR12_AUDIT_FOLLOWUP.
 

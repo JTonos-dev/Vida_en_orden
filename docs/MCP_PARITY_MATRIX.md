@@ -2,7 +2,9 @@
 
 Esta matriz describe el código del repositorio, no datos ni permisos de una instalación concreta. `Implementado` significa que existe código y prueba correspondiente. Cada instalación debe repetir la validación de conexión con sus propios datos.
 
-Main767f71f integra #4–#12. Issue #13 revalidó las31lecturas alojadas y ensayó restauración lógica/0012 local, sin negocio ni despliegue.166 pruebas aprobadas; ver ISSUE13_ACCEPTANCE_REPORT. Respaldo nativo/ledger, actualización administrativa y aceptación funcional de escrituras siguen pendientes. La restauración offline de prueba no agrega una herramienta de importación/restauración MCP.
+Main767f71f integra #4–#12. Issue #13 revalidó las 31 lecturas alojadas y ensayó restauración lógica/0012 local, sin negocio ni despliegue.166 pruebas aprobadas; ver ISSUE13_ACCEPTANCE_REPORT. Respaldo nativo/ledger, actualización administrativa y aceptación funcional de escrituras siguen pendientes. La restauración offline de prueba no agrega una herramienta de importación/restauración MCP.
+
+Actualización 25 nov 2026: main d193562 integra también #14. QA nueva autorizada de issue #15, versión 1/entorno 1 hasta 0012,44 herramientas invocadas incluidas31 lecturas. Propuestas con tarea/cuenta ficticias solo staging, revisión/idempotencia/cancelación y commit denegado aprobados alojados, cero negocio. No equivale a aceptar ejecución financiera ni a portar la firma de otra instancia. Ver ISSUE15_QA_ACCEPTANCE_REPORT y UAT-15-RELOAD para interacción real pendiente.
 
 | Módulo | Herramientas | Estado | Evidencia principal |
 |---|---|---|---|

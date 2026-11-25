@@ -1,9 +1,16 @@
 # Historial de cambios
 
+## Issue #15: QA nueva privada hasta 0012 · 2026-11-25
+
+- Validado main d193562/CI y clon nuevo:166 pruebas/suite completa aprobadas. Proyección freshInstallationOnly auditada,13 SQL/48 tablas/54 triggers/índice0012, sin copiar datos ni configuración de otras instalaciones.
+- Propietario autorizó crear/publicar/configurar únicamente QA nueva. Versión1/entorno 1 owner-only, plugin nuevo/44 herramientas/31 lecturas, health y preparación/revisión/cancelación/idempotencia aprobados alojados. Cero negocio/staging/ejecuciones; commit writes_disabled. Sin credencial WebAuthn transferida ni firma nueva.
+- Worker local ampliado con regresiones de revisión fallida/conservación de aprobación, cancelación obsoleta, reload HTTP e idempotencia original. Guías/aceptación/continuidad corregidas, sin cambios funcionales de aplicación ni SQL; aclarada etiqueta horaria documental del informe anterior sin cambiar registros.
+- Pendientes: recarga/reconexión visual, cuotas/carga, diagnóstico de referencia inexistente genérico y canal humano propio antes de activación futura. Issue #13 sigue abierta; no se modificaron instalaciones existentes ni se habilitó negocio MCP. Ver docs/ISSUE15_QA_ACCEPTANCE_REPORT.md.
+
 ## Issue #13: recuperación y ensayo aislado de0012 · 2026-11-24
 
-- Main767f71f contiene #4–#12 con aprobación/CI.31lecturas del desarrollo verificadas otra vez, identidad exclusiva y ejecución MCP denegada; no se modificó ningún Site ni la instalación personal.
-- Copia lógica propia de48tablas/18filas cifrada fuera de Git, dos pasadas iguales/descifrado verificado. Restauración local con54triggers, identidad/evidencia/firma archivada conservadas;0012 crea índice sin cambiar filas. No sustituye snapshot nativo/ledger/copia separada ni prueba cuotas del host.
+- Main767f71f contiene #4–#12 con aprobación/CI.31 lecturas del desarrollo verificadas otra vez, identidad exclusiva y ejecución MCP denegada; no se modificó ningún Site ni la instalación personal.
+- Copia lógica propia de48 tablas/18filas cifrada fuera de Git, dos pasadas iguales/descifrado verificado. Restauración local con54 triggers, identidad/evidencia/firma archivada conservadas;0012 crea índice sin cambiar filas. No sustituye snapshot nativo/ledger/copia separada ni prueba cuotas del host.
 - Arnés solo SQLite en memoria, cuatro regresiones ficticias y test:recovery obligatorio en CI/AGENTS.166 pruebas, suite completa aprobada; documentación de aceptación, continuidad y rollback actualizada.
 - Actualización de desarrollo bloqueada por respaldo nativo/ledger y pendiente de autorización administrativa. Negocio MCP cerrado y exposición histórica sin resolver. Detalles y resultados: docs/ISSUE13_ACCEPTANCE_REPORT.md.
 

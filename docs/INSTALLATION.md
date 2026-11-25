@@ -32,7 +32,7 @@ node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js \
   --persist-to .wrangler/state --file drizzle/0000_chunky_hellion.sql
 ```
 
-Repite el comando en orden para las migraciones restantes de la versión (main fase 2: hasta 0007; rama fases 3–7: hasta 0012), sustituyendo el archivo. El estado `.wrangler/` es local e ignorado. Nunca omitas --local para una prueba. Para publicar una instalación Sites nueva sigue SITES_METADATA_BOOTSTRAP.md: exportación de esquema, gate verify:hosting en el checkout privado y bootstrap atómico de metadatos desde el primer registro o preparación explícitos y autenticados. Ese flujo ya se publicó en desarrollo; el visor de lectura no aplica migraciones. Las actualizaciones existentes requieren inspección y autorización separadas.
+Repite el comando en orden para las migraciones restantes del main integrado (hasta 0012, 13 SQL), sustituyendo el archivo. El estado `.wrangler/` es local e ignorado. Nunca omitas --local para una prueba. Para publicar una instalación Sites nueva sigue SITES_METADATA_BOOTSTRAP.md: exportación de esquema, gate verify:hosting en el checkout privado y bootstrap atómico de metadatos desde el primer registro o preparación explícitos y autenticados. El flujo hasta 0011 ya se publicó en desarrollo; la issue #15 separa la validación alojada completa hasta 0012. El visor de lectura no aplica migraciones. Las actualizaciones existentes requieren inspección y autorización separadas.
 
 ## Datos de demostración
 

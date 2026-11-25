@@ -1,6 +1,6 @@
 # Issue #13 — respaldo, restauración y ensayo de 0012
 
-Corte: 24 de noviembre de 2026 (America/La_Paz). Base oficial: `767f71fcd220e8e5c5b1214ca92248e34ba958d3`, PR #4–#12 integrados. El mantenedor aprobó la corrección del PR #12 sobre `d2f48c9`; CI posterior a main [45526085881](https://github.com/JorgeTonos28/Vida_en_orden/actions/runs/45526085881) satisfactorio. La aprobación del código no autoriza despliegues ni ejecución MCP. Seguimiento: [issue #13](https://github.com/JorgeTonos28/Vida_en_orden/issues/13).
+Corte: 24 de noviembre de 2026 (convención documental del proyecto: America/Santo_Domingo; etiqueta aclarada tras revisión del PR #14, sin modificar fechas ni registros). Base oficial: `767f71fcd220e8e5c5b1214ca92248e34ba958d3`, PR #4–#12 integrados. El mantenedor aprobó la corrección del PR #12 sobre `d2f48c9`; CI posterior a main [45526085881](https://github.com/JorgeTonos28/Vida_en_orden/actions/runs/45526085881) satisfactorio. La aprobación del código no autoriza despliegues ni ejecución MCP. Seguimiento: [issue #13](https://github.com/JorgeTonos28/Vida_en_orden/issues/13).
 
 ## Resultado y alcance
 

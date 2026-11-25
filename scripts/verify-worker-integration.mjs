@@ -68,6 +68,30 @@ try{
  assert.equal((await tool("search_tasks",{query:"Synthetic Worker approval",status:"all"})).items.length,0);
  const page=await request("/approvals/"+plan.proposalId);assert.equal(page.status,200);assert.equal(page.headers["x-frame-options"],"DENY");assert.ok(String(page.headers["content-security-policy"]).includes("frame-ancestors 'none'"));
  console.log("PASS · Worker WebAuthn cryptography, CSRF, candidate-only enrollment, anti-framing and closed MCP execution gate.");
+ // Fresh QA acceptance through the transport: revision/cancellation must survive
+ // independent requests without turning staging into persisted business rows.
+ const invalidRevision=await tool("revise_change_plan",{proposal_id:plan.proposalId,expected_revision:1,actions:[{actionId:"t",kind:"task.create",input:{title:""}}]});
+ assert.equal(invalidRevision.error,"invalid_input");
+ assert.equal((await tool("get_approval_status",{proposal_id:plan.proposalId})).state,"APPROVED");
+ const missingReference=await tool("revise_change_plan",{proposal_id:plan.proposalId,expected_revision:1,actions:[{actionId:"t",kind:"task.update",input:{id:"synthetic-missing",title:"Synthetic missing reference"}}]});
+ // The legacy domain reports a generic error; transport must still preserve the
+ // approved head. A clearer typed diagnostic is separate from authorization.
+ assert.equal(missingReference.error,"internal_error");
+ const preserved=await tool("get_pending_proposal",{proposal_id:plan.proposalId});assert.equal(preserved.revision,1);assert.equal(preserved.digest,plan.digest);assert.equal(preserved.state,"APPROVED");
+ const revised=await tool("revise_change_plan",{proposal_id:plan.proposalId,expected_revision:1,actions:[{actionId:"t",kind:"task.create",input:{title:"Synthetic Worker revised preview"}}]});
+ assert.equal(revised.revision,2);assert.notEqual(revised.digest,plan.digest);
+ assert.equal((await tool("get_pending_proposal",{proposal_id:plan.proposalId,revision:1})).state,"INVALIDATED");
+ assert.equal((await tool("cancel_change_plan",{proposal_id:plan.proposalId,expected_revision:1})).error,"stale_proposal");
+ const reloaded=await request(path);assert.equal(reloaded.status,200);assert.equal(reloaded.json.proposal.revision,2);assert.equal(reloaded.json.proposal.digest,revised.digest);
+ const originalRetry=await tool("prepare_change_plan",{actions:[{actionId:"t",kind:"task.create",input:{title:"Synthetic Worker approval"}}],idempotency_key:"worker-prepare"});
+ assert.equal(originalRetry.proposalId,plan.proposalId);assert.equal(originalRetry.revision,1);assert.equal(originalRetry.digest,plan.digest);
+ assert.equal((await tool("cancel_change_plan",{proposal_id:plan.proposalId,expected_revision:2})).state,"CANCELLED");
+ assert.equal((await tool("get_approval_status",{proposal_id:plan.proposalId})).state,"CANCELLED");
+ assert.equal((await tool("commit_approved_change_plan",{proposal_id:plan.proposalId,revision:2,digest:revised.digest,idempotency_key:"cancelled-worker-commit"})).error,"writes_disabled");
+ const afterPreview=await tool("validate_references");assert.equal(afterPreview.valid,true);assert.ok(Object.values(afterPreview.checked).every(value=>value===0));
+ assert.equal((await tool("get_configuration",{section:"home"})).home,null);
+ assert.equal((await tool("get_change_plan_health")).staging.total,0);
+ console.log("PASS · Worker revision, stale cancellation, request reload, original idempotency, cancellation and zero business effects.");
  const ca=join(temp,"localhost-ca.pem");writeFileSync(ca,certificate);
  await new Promise((resolveChild,reject)=>{const child=spawn(process.execPath,["--dns-result-order=ipv4first",join(root,"scripts/qa-v2.mjs")],{cwd:root,env:{...process.env,QA_BASE_URL:base,NODE_EXTRA_CA_CERTS:ca},stdio:["ignore","pipe","pipe"]});child.stdout.on("data",chunk=>process.stdout.write(chunk));child.stderr.on("data",chunk=>process.stderr.write(chunk));child.once("error",reject);child.once("exit",code=>code===0?resolveChild():reject(Error("Local UI QA failed")));});
  console.log(`Worker integration verified (${sitesMode?"Sites schema projection":"full migration chain"}) with synthetic data and a self-signed loopback certificate; no remote database or Site contacted. Human/platform approval remains unverified.`);
