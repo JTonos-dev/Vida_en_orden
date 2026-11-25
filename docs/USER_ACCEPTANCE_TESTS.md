@@ -9,6 +9,8 @@
 
 Procedimiento reproducible y rollback: [PHASE2_UPGRADE_REHEARSAL](PHASE2_UPGRADE_REHEARSAL.md). Estos ensayos no dan por aprobadas una firma humana nueva, ejecución alojada o recuperación de producción.
 
+UAT-UPGRADE-LOCAL incluye fallo deliberado después del DDL de 0012: rollback de índice y ledger comprobados, sin cambiar filas/vistas; reintento aplica una pendiente. El agente ya lo ejecutó, no requiere repetición manual. Reconsulta nativa de QA: owner único, versión 1/entorno 1/deployment satisfactorio, 48 tablas y 18 de negocio vacías; no hubo actualización.
+
 ## Candidato de ejecución QA — sin desplegar ni activar (25 noviembre)
 
 No pedir al propietario repetir las 43 pruebas automatizadas: pasan en SQLite/D1 con firmas sintéticas, persistencia exacta, auditoría e idempotencia; ver [matriz](OPERATION_ACCEPTANCE_MATRIX.md). Las siguientes acciones humanas solo se realizan después de revisión y autorización administrativa específicas. No usar una instalación personal ni credenciales de otro Site.

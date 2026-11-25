@@ -85,9 +85,34 @@ try {
     assert.equal(canonicalize(await views(live.env.DB)), canonicalize(beforeViews));
     await live.dispose();
     live = undefined;
-    for (const m of migrations)
+    for (const m of migrations.filter(m => Number(m.file.slice(0, 4)) <= 11))
         writeFileSync(join(restored.migrationDir, m.file), m.sql);
     const upgradeStart = performance.now();
+    cli(restored, ['migrations', 'apply', 'DB', '--local', '--persist-to', restored.state]);
+    live = await proxy(restored);
+    const intermediateLedger = await ledger(live.env.DB);
+    assert.equal(intermediateLedger.length, 12);
+    assert.equal(canonicalize(await business(live.env.DB)), canonicalize(beforeBusiness));
+    await live.dispose();
+    live = undefined;
+    const finalMigration = migrations.find(m => m.file.startsWith('0012_'));
+    assert.ok(finalMigration, 'Expected the reviewed 0012 migration');
+    // Inject a failure AFTER the index DDL, only in this temporary fixture.
+    // Native migration atomicity must roll back both DDL and ledger insertion.
+    writeFileSync(join(restored.migrationDir, finalMigration.file), finalMigration.sql + "\nINSERT INTO synthetic_missing_table(id) VALUES('synthetic-failure');\n");
+    assert.throws(() => cli(restored, ['migrations', 'apply', 'DB', '--local', '--persist-to', restored.state]), error => {
+        assert.notEqual(error.status, 0);
+        assert.match(String(error.stdout) + String(error.stderr), /synthetic_missing_table/);
+        return true;
+    });
+    live = await proxy(restored);
+    assert.deepEqual(await ledger(live.env.DB), intermediateLedger);
+    assert.equal(await live.env.DB.prepare("SELECT name FROM sqlite_master WHERE type='index' AND name='audit_log_seed_context_idx'").first(), null, 'Failed migration left partial DDL');
+    assert.equal(canonicalize(await business(live.env.DB)), canonicalize(beforeBusiness));
+    assert.equal(canonicalize(await views(live.env.DB)), canonicalize(beforeViews));
+    await live.dispose();
+    live = undefined;
+    writeFileSync(join(restored.migrationDir, finalMigration.file), finalMigration.sql);
     cli(restored, ['migrations', 'apply', 'DB', '--local', '--persist-to', restored.state]);
     const upgradeMs = performance.now() - upgradeStart;
     live = await proxy(restored);
@@ -128,7 +153,7 @@ try {
     live = await proxy(restored);
     assert.deepEqual(await ledger(live.env.DB), afterLedger);
     assert.equal(canonicalize(await business(live.env.DB)), canonicalize(beforeBusiness));
-    console.log(JSON.stringify({ status: 'passed', localOnly: true, synthetic: true, nativeWranglerExport: true, ledgerRestored: true, migrationsBefore: 8, migrationsAfter: 13, onlyPendingApplied: 5, repeatApplyNoChange: true, businessPreserved: true, viewsPreserved: true, historicalTransactions: 2100, historicalAudits: 5000, tables: userTables.length, triggers: 54, indexVerified: true, over2000FailsClosed: true, backupBytes: backupBytes.length, backupSha256: hash(backupBytes), backupMs, restoreMs, upgradeMs, d1IntegrityPragmaAvailable, exportedSqliteIntegrityVerified: true, sitesLedgerVerified: false, sitesUpgradeVerified: false }));
+    console.log(JSON.stringify({ status: 'passed', localOnly: true, synthetic: true, nativeWranglerExport: true, ledgerRestored: true, migrationsBefore: 8, migrationsAfter: 13, onlyPendingApplied: 5, failedMigrationRolledBack: true, upgradeIncludesFailureRehearsal: true, repeatApplyNoChange: true, businessPreserved: true, viewsPreserved: true, historicalTransactions: 2100, historicalAudits: 5000, tables: userTables.length, triggers: 54, indexVerified: true, over2000FailsClosed: true, backupBytes: backupBytes.length, backupSha256: hash(backupBytes), backupMs, restoreMs, upgradeMs, d1IntegrityPragmaAvailable, exportedSqliteIntegrityVerified: true, sitesLedgerVerified: false, sitesUpgradeVerified: false }));
 }
 finally {
     await live?.dispose();

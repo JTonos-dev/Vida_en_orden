@@ -4,6 +4,7 @@
 
 - Nuevo verify:upgrade en CI/AGENTS: export/restore con Wrangler LOCAL en dos D1 ficticias, ledger 8→13 con solo cinco pendientes y repetición sin cambios, todas las filas/vistas preservadas, 48 tablas/54 triggers/índice0012. Incluye historia de 2.100 movimientos y 5.000 eventos de auditoría; sin purga para sortear límites.
 - D1 foreign_key_check y comprobación SQLite del SQL exportado; documentada denegación nativa de integrity_check. No se certifican integridad física ni backup/ledger de Sites.
+- Regresión nativa de fallo tras CREATE INDEX de 0012 en un fixture temporal: revierte DDL/ledger, preserva filas/vistas y permite reintentar solo la pendiente. Migraciones compartidas intactas. Reconsulta nativa de QA confirma owner exclusivo, versión 1 y 18 tablas de negocio vacías.
 - Runbook de fase2, rollback conservador y solicitud administrativa de soporte preparados. Sin SQL nuevo, despliegue, cambio de instalación, envío a soporte o activación. Actualización productiva pendiente de respaldo recuperable/ledger/ensayo soportados y autorización.
 
 ## Control QA preparado, sin activación · 2026-11-25

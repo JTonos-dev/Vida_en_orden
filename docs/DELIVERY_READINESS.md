@@ -30,6 +30,8 @@ Ensayo implementado y aprobado: npm run verify:upgrade, en CI/AGENTS, dos D1 loc
 
 Reconsulta real del plugin QA (25 noviembre, fuente d193562): catálogo de 44 herramientas, health listo, metadata1, staging vacío, propuesta cancelada en revisión 2 y huella idéntica a la consulta anterior. get_approval_status coincide; commit vuelve a denegar writes_disabled. Esto verifica persistencia y conexión MCP actual, **no** una desconexión/reconexión visual ni los cambios de estas ramas todavía sin publicar.
 
+Lectura nativa actual confirma owner-only (un owner, cero editores/grupos/visitantes), versión 1/entorno 1, deployment satisfactorio y fuente sin cambios; 48 tablas y las 18 de negocio vacías. El ensayo LOCAL incorpora además fallo tras DDL de 0012: índice/ledger revierten, filas/vistas se conservan y el reintento aplica una pendiente. No sustituye la recuperación de Sites.
+
 - Automatización visual de Chrome: el helper oficial de Windows inicializa/lista apps, pero falla al seleccionar/capturar con GetCursorPos failed: Access is denied (0x80070005). No se cambian permisos/seguridad del sistema ni se fabrican sesiones/headers. No atribuir a HTTP una recarga visual o desconexión/reconexión del plugin.
 - Las herramientas Sites disponibles exponen overview/filas, no snapshot/export/restore, ledger/DDL completo ni métricas de CPU/memoria/cuota. No se inventan endpoints ni se modifica D1 remota/ledger para eludirlo. Preparar solicitud de soporte con datos privados solo en canal administrativo autorizado.
 - Habilitación real, registro/acción humana propios de QA y43ejecuciones alojadas: pendientes de revisión/autorización/canal humano, sin simular aprobaciones. Se continúa con toda implementación/prueba aislada viable.
