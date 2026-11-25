@@ -1,5 +1,12 @@
 # Historial de cambios
 
+## Auditoría PR #12: revisión atómica y crecimiento de auditoría · 2026-11-24
+
+- revise prepara sin revocar la vigente; publica nueva revisión, invalidación, autorización/desafíos, auditoría y head en un batch CAS. Fallos de preparación/publicación conservan la anterior; carreras no sobrescriben commit/cancel/approve/otra revisión. Evidencia histórica preservada; limpieza fallida conserva lease sin ocultar éxito/error.
+- audit_log histórico deja de contarse/copiarse al snapshot. Solo un marcador de contexto por owner, con índice cubriente nuevo 0012; eventos nuevos siguen firmados/append-only. No se borra historial ni se recorta estado financiero. Las otras 17 tablas mantienen límite fuente 2.000; escalabilidad completa sigue pendiente.
+- 16 regresiones nuevas y D1/workerd ampliado; 162 pruebas locales aprobadas. ORM/snapshot/journal actualizados sin editar SQL 0000–0011. Health aclara el alcance del presupuesto; lecturas MCP originales y ejecución deshabilitada se conservan.
+- Corrección propuesta en la misma rama/PR, sin despliegue ni merge. Conformidad de auditoría pendiente. Ver PR12_AUDIT_FOLLOWUP para migración, rollback, pruebas y límites; no se declara paridad lista para producción.
+
 ## Firma humana real verificada · 2026-11-24
 
 - El propietario firmó personalmente una propuesta ficticia vigente mediante su autenticador. MCP mostró APPROVED para la misma revisión/huella; D1 conserva aprobación/evidencia WebAuthn ligadas a owner, clave fijada, origen y desafío. Nonce consumido y firma dentro del TTL.

@@ -15,6 +15,8 @@ Los casos siguientes detallan datos, pasos y verificación persistida. Una prueb
 
 ## Aceptación no financiera (fase 4)
 
+Auditoría del PR #12: las regresiones de revisión atómica, carreras, límites2.000/2.001,5.000 auditorías e índice/upgrade son automáticas y ya aprobadas localmente. No repetir a mano ni volver a registrar/firmar la credencial existente. La nueva corrección aún no se despliega: aceptación de instalación/ejecución posterior bloqueada por conformidad/revisión/habilitación. Ver PR12_AUDIT_FOLLOWUP; la aprobación humana anterior corresponde al código5359d43.
+
 Estos casos se ejecutarán únicamente cuando la versión de desarrollo esté instalada y el canal humano validado. Ahora están **bloqueados por habilitación segura**; no se debe cambiar la compuerta para adelantarlos. Las regresiones de reglas, atomicidad, referencias y permisos se ejecutan automáticamente: no requieren repetirlas a mano.
 
 Preparación común: Site privado de pruebas con D1 ficticia, plugin de desarrollo y credencial WebAuthn fijada por administración. Usar solo nombres `UAT Synthetic …`, fecha de mañana y los IDs obtenidos al crear entidades. Antes de cada operación pedir a ChatGPT preparar una propuesta, revisar el diff en el Site y aprobar mediante el autenticador; pedir ejecución solo si una entrega posterior autorizada la habilita. Verificar persistencia recargando el módulo correspondiente del Site y consultando su herramienta de lectura. Ante denegación/caducidad/error no debe haber cambios de negocio; se consulta el recibo antes de reintentar. Evitar datos reales y borrar/archivar solo entidades UAT.

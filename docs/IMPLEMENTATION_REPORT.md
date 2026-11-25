@@ -4,6 +4,8 @@
 
 ## Inventario y estado por fase
 
+**Auditoría posterior a 10a0f83:** el candidato del PR #12 publica revisiones atómicamente y no copia/cuenta historial audit_log salvo un marcador indexado. Migración aditiva 0012 y16 regresiones nuevas; 162 pruebas locales aprobadas; además, D1 independiente/Worker completo/proyectado. No está desplegado ni integrado: el Site y firma acreditados abajo corresponden a 5359d43/SQL hasta 0011. Conformidad pendiente. Sigue límite fuente 2.000 en las otras 17 tablas; no se declara listo para producción. Detalles y rollback: [seguimiento de auditoría](PR12_AUDIT_FOLLOWUP.md).
+
 | Fase | Implementación | Estado restante |
 |---|---|---|
 | 3 | Propuestas/revisiones inmutables, diff/impacto, propietario/huella, TTL, replay/idempotencia, concurrencia, WebAuthn, batch atómico, auditoría/recibo/verificación y bootstrap autenticado | Registro/plugin/firma humana verificados; APPROVED con evidencia y ejecución denegada. Revisión/integración pendientes |
@@ -27,11 +29,11 @@ Cierre 33a6a53/docs12f6bde; dependencias a067ef7; compatibilidad Sites a05433d; 
 | Comprobación | Resultado observado |
 |---|---|
 | Instalación | npm ci, 709 paquetes del lock corregido; CI hizo checkout/instalación nuevos |
-| Finanzas / MCP / auditoría | 14 +128 +4 =146 aprobadas, cero omitidas |
+| Finanzas / MCP / auditoría |14 +144 +4 =162 aprobadas en el candidato de auditoría, cero omitidas; versión publicada anterior 146 |
 | TypeScript / lint | Aprobados; cero errores/cuatro advertencias previas |
 | Schema / build | Drizzle no genera cambios en copia temporal; build aprobado con avisos upstream no bloqueantes |
 | Auditorías | Fuente: 261 archivos sin hallazgos; npm: cero vulnerabilidades, desarrollo incluido/umbral low |
-| D1 independiente | 12 SQL 0000–0011 /48 tablas en D1 temporal, sin remoto |
+| D1 independiente |Candidato:13 SQL 0000–0012 / 48 tablas, índice y 54 triggers en D1 local; publicación anterior hasta 0011 |
 | Worker completo / proyectado | 31 lecturas, registro antes de preparar, WebAuthn sintético, CSRF/anti-framing y compuerta cerrada; 27 QA API/UI en cada modo |
 | Exportación Sites | HEAD limpio, sin Git/configuración ajenos; 12 SQL, 21 DML conocidos diferidos, gate sin hallazgos y hashes trazables |
 | CI / GitHub | Código 5359d43: run 45504851134 verde; docs b376ae4: run 45505805497 verde. Clon repite146 pruebas/auditoría con lock idéntico y árbol limpio |

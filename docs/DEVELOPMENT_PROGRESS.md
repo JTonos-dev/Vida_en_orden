@@ -4,7 +4,19 @@ Corte: 24 de noviembre de 2026. Mandato: desarrollar todas las fases técnicamen
 
 ## Situación para continuar
 
-Rama activa fix/mcp-schema-only-bootstrap, PR #12. Código corregido **5359d432b7a912b248b680d9baae1b5307710ff0**: 146 pruebas, instalación limpia, TypeScript/lint/schema/build, ambas auditorías, D1 independiente y los dos modos Worker aprobados. CI run 45504851134 verde; 146 pruebas repetidas desde el clon GitHub con lock idéntico. Se publicó en la versión 2 del mismo Site privado de desarrollo. Los commits posteriores solo documentan estos resultados; consultar el HEAD/check del PR antes de integrar.
+**Auditoría vigente del PR #12:** [revisión sobre 10a0f83](https://github.com/JorgeTonos28/Vida_en_orden/pull/12#pullrequestreview-6049614005), estado COMMENTED, sin conformidad ni autorización de despliegue. El candidato local corrige revise atómicamente y separa historial de auditoría del snapshot. Base revisada 10a0f83, misma rama fix/mcp-schema-only-bootstrap y mismo PR. Fuente/contratos/limitaciones y rollback: PR12_AUDIT_FOLLOWUP. No fusionar la cadena ni desplegar esta corrección por cuenta del agente.
+
+- Revisión: prepara primero, mantiene vigente/autorizada la anterior, publica sucesora/invalidación/autorización/nonces/head/auditoría en un batch CAS. Errores conservan estado; carreras con commit/cancel/approve/otra revisión devuelven stale_proposal. Evidencia histórica conservada. Limpieza fallida no oculta éxito/error; lease recuperable.
+- Auditoría: solo 0/1 marcador seed del owner en staging, búsqueda indexada; historia completa permanece en D1/lecturas paginadas. Nuevos eventos firmados/append-only. UPDATE/DELETE y nuevas lecturas históricas de dominio se deniegan. No se truncan finanzas para ajustar el snapshot.
+- Límite restante:2.000 filas fuente de las otras 17 tablas (también archivados y movimientos históricos),2MiB iniciales y presupuestos de diff/consultas vigentes. Health explicita alcance/contexto. Preparación por conjuntos de lectura y cuotas alojadas pendientes; no declarar listo para producción.
+- 0012_mcp_audit_context_index.sql añade un índice, con ORM/snapshot/journal. SQL 0000–0011 intactos; 48 tablas/54 triggers. Si falta 0012, propuestas/registro/health fallan cerrados; las31 lecturas no requieren el índice. Upgrade ficticio conserva historia/identidad/revisión. No se ha aplicado al Site (sigue5359d43/0011); la prueba humana anterior no se repite ni se atribuye al código nuevo.
+- Pruebas: npm ci709 paquetes (advertencia de limpieza EPERM en Windows, salida0);14 financieras+144 MCP+4 auditoría=162 aprobadas, cero omitidas. TypeScript/lint (0 errores/4 advertencias previas), schema sin cambios, build y dependencias sin alertas aprobados.16 regresiones nuevas; D1/workerd existente ampliado. D1 independiente con 13 SQL/48 tablas y ambos Workers aprobados (31 lecturas, criptografía sintética/denegaciones y27 QA API/UI por modo). Auditoría final/CI del HEAD se consultan en el PR; no inferir conformidad de CI. Logs outputs/review12-*.log.
+
+**Paso siguiente:** conformidad explícita del revisor sobre el commit corregido del PR #12 y CI del HEAD satisfactorio. La corrección se propone en la misma rama; no marcarla aceptada por CI verde ni fusionar/desplegar. Antes de habilitación futura: revisión y ensayo de migraciones en copia restaurada autorizada y UAT de ejecución segura. El cuerpo/respuesta del PR identifica commit, resultados y solicitud de revisión.
+
+### Evidencia de la publicación anterior a esta auditoría
+
+Código publicado5359d432b7a912b248b680d9baae1b5307710ff0:146 pruebas, instalación limpia, TypeScript/lint/schema/build, auditorías, D1 independiente y ambos Workers aprobados. CI 45504851134 verde y 146 pruebas desde clon GitHub. Site privado versión 2/entorno 2. Evidencia de esa versión, no del candidato actual: consultar el HEAD/check del PR antes de integrar. Documentación de firma 10a0f83 también pasó CI 45516822994.
 
 **Incidencia de aceptación y corrección:** el propietario reportó «Falta migrar la base MCP» al registrar antes de la primera propuesta. Se reprodujo el 503: enrollment esperaba metadatos que solo prepare inicializaba. La corrección comparte comprobación de esquema/triggers y bootstrap atómico entre preparación y POST de registro autenticado/CSRF válido. GET, lecturas y denegaciones no inicializan; el candidato no fija confianza automáticamente. Tres regresiones elevan la suite a **146 aprobadas (14 +128 +4)**. El propietario reintentó, confirmó registro personal y entregó su candidato; D1 muestra desafío consumido para ese propietario y metadata_version=1, sin negocio. **El registro humano alojado ya está verificado.** Esto todavía no equivale a firmar una propuesta.
 
@@ -66,7 +78,7 @@ La matriz MCP_PARITY_MATRIX enumera alcance exacto y capacidades ausentes del pr
 
 Logs ignorados: outputs/bootstrap-*.log (a05433d) y outputs/enrollment-*.log (corrección); clones en work/phase7-github-verification-20261124/outputs (phase7, runtime y sites). La cadena original conserva 21 DML de metadatos y su gate falla deliberadamente; publicar únicamente la proyección que supera el gate, sin editar SQL aplicado ni falsear ledger. 0011 no cambia negocio. Bootstrap invalida planes antiguos una vez y conserva recibos/evidencia.
 
-Se comprobó nuevamente la instalación existente mediante su plugin: fase 2,31 lecturas, businessWritesEnabled=false, referencias válidas/cero incidencias. No se le aplicaron código ni migraciones ni se reutilizó su configuración/datos.
+Se comprobó nuevamente la instalación existente mediante su plugin: fase 2, 31 lecturas, businessWritesEnabled=false, referencias válidas/cero incidencias. No se le aplicaron código ni migraciones ni se reutilizó su configuración/datos.
 
 ## Próximos pasos y riesgos
 

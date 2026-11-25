@@ -1,0 +1,1 @@
+CREATE INDEX `audit_log_seed_context_idx` ON `audit_log` (`owner_id`,`entity_type`,`entity_id`,`action`,`id`);

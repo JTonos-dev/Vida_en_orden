@@ -4,6 +4,10 @@ Corte: 24 de noviembre de 2026. Main oficial sigue 317cfd8 (PR #3, fase 2). Las 
 
 ## Código propuesto
 
+Seguimiento de auditoría del PR #12 sobre 10a0f83: nueva corrección en la misma rama, **sin desplegar ni fusionar**. Revisión prepara sin revocar la vigente y publica sucesora/head/invalidación/autorización/nonces/auditoría en un lote CAS; errores conservan la anterior y carreras no sobrescriben al ganador. Historial audit_log ya no consume el snapshot: se copia solo un marcador indexado por owner y eventos nuevos append-only. Migración aditiva 0012, sin editar SQL anteriores. Hay162 pruebas locales aprobadas; conformidad del revisor pendiente. Ver [seguimiento técnico](PR12_AUDIT_FOLLOWUP.md).
+
+La mitigación no elimina el límite conjunto de 2.000 filas fuente de las otras 17 tablas, incluidos archivados/movimientos históricos. No se recortan ni borran datos para aceptar propuestas. Se necesita preparación por conjuntos de lectura para mayor escala; no se declara capacidad productiva completa. El Site descrito abajo conserva 5359d43/SQL hasta 0011: la firma humana previa no prueba este candidato nuevo alojado.
+
 React/Vinext sobre Workers/D1 DB, con servicios de dominio únicos en lib/domain y facades para la UI. MCP nunca llama a /api/action. Tareas/áreas/proyectos mantienen el scope compartido original; finanzas/eventos el propietario autenticado. No se incluyen datos, secretos o configuración de una instalación real.
 
 Motor inmutable de propuestas con staging, diff por acción/impacto, identidad/huella, TTL, replay/idempotencia, concurrencia, WebAuthn, evidencia, batch atómico, auditoría y recibos. 19 acciones no financieras y 24 financieras reutilizan servicios existentes. Se incluyen validación/límites, adjuntos texto/CSV/JSON, informe interno, leases, recuperación y endurecimiento. Ver MCP_PARITY_MATRIX para acciones y excepciones.
@@ -29,7 +33,7 @@ El primer registro humano reportó un 503 «Falta migrar la base MCP», reproduc
 
 El plugin de desarrollo está conectado:44 herramientas, perfil coincidente con el registro y schemaReady/metadataReady verdaderos (54 triggers). Las 31 lecturas se invocaron en plataforma: 22 válidas/nueve not_found esperados, cero fallos/entidades. Informe consistente, texto no confiable sin aprobación/efectos e idempotencia verificados. El propietario firmó una propuesta ficticia: APPROVED para la misma revisión/huella, evidencia WebAuthn persistida ligada al propietario/clave/origen/desafío y nonce consumido dentro del TTL. Commit devolvió writes_disabled; cero tarea/workspace/ejecuciones y revisión de negocio 0. Esta prueba positiva no habilita ejecución. platformHumanApprovalVerified sigue conservador en false: una prueba de una instalación no cambia la política global. La expiración posterior del plan no borra esta evidencia histórica.
 
-La instalación independiente existente se comprobó sin cambios: fase 2,31 lecturas, ejecución deshabilitada y cero incidencias referenciales. No se usaron sus datos/configuración para desarrollar.
+La instalación independiente existente se comprobó sin cambios: fase 2, 31 lecturas, ejecución deshabilitada y cero incidencias referenciales. No se usaron sus datos/configuración para desarrollar.
 
 ## Límites vigentes
 

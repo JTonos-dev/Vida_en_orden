@@ -13,10 +13,10 @@ export async function runtimeMetadata(database:McpReadDatabase):Promise<RuntimeM
 
 /** Read-only schema check shared by proposal preparation and explicit credential registration. */
 export async function requireRuntimeSchema(database:McpReadDatabase){
- const entries=await database.prepare("SELECT name FROM sqlite_master WHERE type IN ('table','trigger')").all<{name:string}>();
+ const entries=await database.prepare("SELECT name FROM sqlite_master WHERE type IN ('table','trigger','index')").all<{name:string}>();
  const names=new Set(entries.results.map(row=>row.name));
  const expected=["mcp_installation","mcp_proposal_heads","mcp_proposals","mcp_approval_challenges","mcp_approvals","mcp_executions","mcp_execution_guards","mcp_plan_audit","mcp_registration_challenges","mcp_prepare_requests","mcp_stage_leases","mcp_approval_evidence",...BUSINESS_TABLES.flatMap(table=>[table.name,`mcp_stage_${table.name}`,...["insert","update","delete"].map(event=>`mcp_revision_${table.name}_${event}`)])];
- if(expected.some(name=>!names.has(name)))throw new PlanError("migration_required","Faltan tablas o triggers del motor; aplicar todas las migraciones.",503);
+ if([...expected,"audit_log_seed_context_idx"].some(name=>!names.has(name)))throw new PlanError("migration_required","Faltan tablas, triggers o índice de contexto de auditoría; aplicar todas las migraciones.",503);
  await runtimeMetadata(database);
 }
 

@@ -26,6 +26,22 @@ test("D1 local de workerd: migraciones, aprobación, idempotencia y rollback rea
   await assert.rejects(()=>engine.commit(next.proposalId,1,next.digest,"two"));assert.equal((await db.prepare("SELECT COUNT(*) n FROM home_tasks").first<{n:number}>())?.n,1);assert.equal((await engine.get(next.proposalId)).state,"APPROVED");
   await db.exec("DROP TRIGGER synthetic_receipt_failure;");await engine.commit(next.proposalId,1,next.digest,"two");assert.equal((await db.prepare("SELECT COUNT(*) n FROM home_tasks").first<{n:number}>())?.n,2);
   assert.equal((await engine.verifyExecution(next.proposalId,1)).stillMatches,true);
+  // Real D1 rollback, including a failure after the new revision and revocation.
+  const reviewed=await engine.prepare(actions);await approve(reviewed.proposalId);
+  await assert.rejects(()=>engine.revise(reviewed.proposalId,[{...actions[0],input:{title:""}}],1),{code:"invalid_input"});
+  assert.equal((await engine.get(reviewed.proposalId)).state,"APPROVED");
+  await db.exec("CREATE TRIGGER synthetic_revision_failure BEFORE DELETE ON mcp_execution_guards WHEN EXISTS(SELECT 1 FROM mcp_proposal_heads WHERE revision=2) BEGIN SELECT RAISE(ABORT,'synthetic revision failure after head update'); END;");
+  await assert.rejects(()=>engine.revise(reviewed.proposalId,actions,1));
+  assert.equal((await engine.get(reviewed.proposalId)).state,"APPROVED");
+  assert.equal((await db.prepare("SELECT COUNT(*) n FROM mcp_approvals WHERE proposal_id=?").bind(reviewed.proposalId).first<{n:number}>())?.n,1);
+  assert.equal((await db.prepare("SELECT COUNT(*) n FROM mcp_proposals WHERE proposal_id=?").bind(reviewed.proposalId).first<{n:number}>())?.n,1);
+  await db.exec("DROP TRIGGER synthetic_revision_failure;");
+  assert.equal((await engine.revise(reviewed.proposalId,actions,1)).revision,2);
+  assert.equal((await engine.get(reviewed.proposalId,1)).state,"INVALIDATED");
+  // A large, fictitious audit history remains in D1; only seed context is staged.
+  await db.exec("WITH RECURSIVE n(x) AS (SELECT 1 UNION ALL SELECT x+1 FROM n WHERE x<5000) INSERT INTO audit_log(id,owner_id,entity_type,entity_id,action,metadata,occurred_at) SELECT 'synthetic-history-'||x,'synthetic-runtime-owner','task','synthetic','updated','{}','2020-01-01' FROM n;");
+  await engine.prepare([{actionId:"a",kind:"finance.account.create",input:{name:"Synthetic history account",type:"cash",openingBalanceMinor:0,openingBalanceDate:"2026-11-24"}}]);
+  assert.equal((await db.prepare("SELECT COUNT(*) n FROM audit_log WHERE id LIKE 'synthetic-history-%'").first<{n:number}>())?.n,5000);
  }finally{
   await proxy?.dispose();const target=resolve(root);assert.ok(target.startsWith(resolve(tmpdir())+sep)&&target.includes("veo-d1-runtime-"));rmSync(target,{recursive:true,force:true,maxRetries:5,retryDelay:100});
  }

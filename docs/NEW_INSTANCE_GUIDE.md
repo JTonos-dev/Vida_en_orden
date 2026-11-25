@@ -47,7 +47,7 @@ npm run verify:sites
 npm run verify:sites
 ```
 
-`verify:independent` crea una D1 local temporal con Wrangler, aplica todas las migraciones SQL contiguas desde `drizzle/0000`, ejecuta una consulta de humo y elimina el directorio temporal. En la rama de fases 3–7 llega hasta `0011` (48 tablas); `main` conserva la versión integrada. No ejecuta `--remote`, no necesita un token y no importa datos. `verify:schema` comprueba que Drizzle no genere cambios en una copia temporal. `verify:worker` ejecuta el Worker compilado con la cadena original y `verify:sites` con la proyección de esquema; ambos usan D1 y credenciales exclusivamente sintéticas en HTTPS loopback, incluyendo las 31 lecturas y 27 comprobaciones de la interfaz. No certifican aprobación humana en ChatGPT.
+`verify:independent` crea una D1 local temporal con Wrangler, aplica todas las migraciones SQL contiguas desde `drizzle/0000`, ejecuta una consulta de humo y elimina el directorio temporal. En la rama de fases 3–7 llega hasta `0012` (13 SQL/48 tablas); `main` conserva la versión integrada. No ejecuta `--remote`, no necesita un token y no importa datos. `verify:schema` comprueba que Drizzle no genere cambios en una copia temporal. `verify:worker` ejecuta el Worker compilado con la cadena original y `verify:sites` con la proyección de esquema; ambos usan D1 y credenciales exclusivamente sintéticas en HTTPS loopback, incluyendo las 31 lecturas y 27 comprobaciones de la interfaz. No certifican aprobación humana en ChatGPT.
 
 `test:mcp` también invoca individualmente las 31 herramientas con el esquema SQL real y datos ficticios, prueba una base vacía y compara dos bases independientes. Las lecturas no deben insertar valores predeterminados. La primera escritura de la interfaz tampoco debe cargar tareas ni proyectos de la instalación original; `scripts/qa-v2.mjs` comprueba esta condición únicamente contra una vista local aislada.
 
@@ -55,7 +55,7 @@ Conserva el marcador del manifiesto en la rama pública. Para publicar, prepara 
 
 ## 4. Crear el Site y la D1
 
-Para la entrega de bootstrap usa SITES_METADATA_BOOTSTRAP.md: exportar desde HEAD limpio con prepare:sites, usar esa fuente como plantilla y verificar el gate en el checkout proyectado. No modificar originales ni aplicar su DML de metadatos a ciegas en Sites. La versión completa local llega a 0011 (12 SQL/48 tablas); el bootstrap de metadatos ocurre en la primera preparación autenticada y no en lecturas.
+Para la entrega de bootstrap usa SITES_METADATA_BOOTSTRAP.md: exportar desde HEAD limpio con prepare:sites, usar esa fuente como plantilla y verificar el gate en el checkout proyectado. No modificar originales ni aplicar su DML de metadatos a ciegas en Sites. La versión completa local llega a 0012 (13 SQL/48 tablas); el bootstrap de metadatos ocurre en la primera preparación autenticada y no en lecturas.
 
 La creación de un ChatGPT Site y la vinculación de una base D1 dependen de las capacidades disponibles en la cuenta y requieren intervención dentro de ChatGPT Sites. El repositorio no puede importar automáticamente el Site de otra cuenta.
 

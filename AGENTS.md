@@ -103,6 +103,8 @@ No declares aprobada una comprobación que no pudiste ejecutar. El script `scrip
 - Las consultas MCP deben permanecer tipadas, acotadas, paginadas y de solo lectura.
 - Las 31 lecturas conservan `readOnlyHint=true` y `destructiveHint=false`. Las herramientas opt-in de propuestas declaran sus efectos de metadatos con anotaciones correctas; no equivalen a escritura de negocio. Mantén `businessWritesEnabled=false` en fábrica y transporte hasta demostrar aprobación humana real en plataforma y revisión autorizada.
 - Reutiliza los servicios y cálculos de dominio existentes; no crees un segundo motor financiero.
+- Una revisión prepara el reemplazo sin revocar la vigente y publica head/invalidación/autorización/desafíos/auditoría en un solo lote CAS. Si falla, conserva la anterior; ante carrera consulta estado. Una revisión en curso no equivale a cancelar.
+- El presupuesto de preparación de 2.000 filas excluye el historial audit_log, pero no recorta ninguna de las otras 17 tablas. Su staging usa solo un marcador de contexto y eventos nuevos append-only; lecturas históricas nuevas requieren un conjunto explícito y revisión. Ver docs/PR12_AUDIT_FOLLOWUP.md; no borrar historia para eludir límites.
 - No expongas secretos, SQL dinámico, datos de otros propietarios ni referencias cruzadas fuera del alcance autorizado.
 
 ## Publicación y Sites

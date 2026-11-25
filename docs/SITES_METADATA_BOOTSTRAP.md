@@ -4,6 +4,8 @@ Entrega dependiente de #11, rama fix/mcp-schema-only-bootstrap, PR #12. El candi
 
 ## Conservación de migraciones
 
+Auditoría posterior del PR #12: 0012 añade solo índice cubriente de contexto de auditoría, sin tocar SQL 0000–0011 ni datos. El candidato no está desplegado; instalación/firma de la cabecera siguen en 5359d43/0011. Nuevas propuestas/registro/health requieren el índice; snapshot excluye historial salvo 0/1 marcador, otras 17 tablas mantienen2.000 filas fuente. Ver PR12_AUDIT_FOLLOWUP y UPGRADE_AND_ROLLBACK antes de cualquier actualización autorizada.
+
 Los SQL originales 0000–0010 permanecen intactos. 0011 añade únicamente metadata_version INTEGER NOT NULL DEFAULT 0 a mcp_installation; snapshot/journal nuevos describen esa columna. No se reescribe historia ni se modifica el ledger de una instalación existente.
 
 Para Sites se genera una **proyección de publicación**, derivada del commit público verificado: conserva todo el DDL y los 54 triggers; difiere únicamente al retirar las 21 instrucciones de metadatos conocidas de 0008/0010. No es otra fuente de código ni otra copia mantenida de las migraciones. La proyección exige que esas instrucciones coincidan con la inicialización/invalidación conocidas; rechaza DML de negocio, cambios de payload, tablas desconocidas y operaciones no admitidas. Los archivos 0000–0007 y todo archivo ya de esquema se copian byte a byte.

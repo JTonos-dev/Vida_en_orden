@@ -15,6 +15,8 @@ No publicar el lockfile basal del cierre: la auditoría detectó dependencias cr
 
 ## Matriz de compatibilidad
 
+Corrección de auditoría del PR #12: 0012 añade solo audit_log_seed_context_idx; no cambia filas, identidad ni business_revision. Se ensaya upgrade 0011→0012 con historial ficticio y D1 local; no se desplegó. Código nuevo de propuestas/registro/health exige ese índice. Para un historial real, medir construcción/espacio en la copia restaurada autorizada y obtener conformidad antes de actualizar. No borrar auditoría para ajustar límites. Rollback de código con propuestas apagadas conserva el índice y el historial. Detalles: PR12_AUDIT_FOLLOWUP.
+
 | Código | Base mínima | Propuestas | Observación |
 |---|---|---|---|
 | Main fase 2 | 0000–0007 | No | 31 lecturas, sin nueva infraestructura |
@@ -22,6 +24,7 @@ No publicar el lockfile basal del cierre: la auditoría detectó dependencias cr
 | Canal #8 | Hasta 0009 | Desarrollo opt-in | Sin evidencia durable del endurecimiento |
 | Endurecimiento/cierre #9+ | Hasta 0010 | Desarrollo opt-in | Falla cerrado si falta instalación, tablas o cualquiera de los 54 triggers |
 | Bootstrap Sites #12 | Hasta 0011; proyección DDL para Sites | Desarrollo opt-in, negocio cerrado | Falla si falta esquema/triggers; primer POST de registro o preparación autenticados inicializa metadatos versión 1 |
+| Auditoría posterior #12 | Hasta 0012; mismo bootstrap/proyección | Negocio cerrado, sin despliegue autorizado | Índice obligatorio para propuestas/registro/health; historial excluido de snapshot salvo 0/1 marcador; otras 17 tablas≤2.000 filas fuente |
 
 El código nuevo con flags ausentes conserva las 31 lecturas. Una base sin infraestructura completa no habilita propuestas; no se crean tablas/triggers en un request para ocultar una migración omitida.
 
