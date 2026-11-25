@@ -74,9 +74,8 @@ try{
  assert.equal(invalidRevision.error,"invalid_input");
  assert.equal((await tool("get_approval_status",{proposal_id:plan.proposalId})).state,"APPROVED");
  const missingReference=await tool("revise_change_plan",{proposal_id:plan.proposalId,expected_revision:1,actions:[{actionId:"t",kind:"task.update",input:{id:"synthetic-missing",title:"Synthetic missing reference"}}]});
- // The legacy domain reports a generic error; transport must still preserve the
- // approved head. A clearer typed diagnostic is separate from authorization.
- assert.equal(missingReference.error,"internal_error");
+ // Typed domain failure must retain the approved head and its authorization.
+ assert.equal(missingReference.error,"reference_not_found");
  const preserved=await tool("get_pending_proposal",{proposal_id:plan.proposalId});assert.equal(preserved.revision,1);assert.equal(preserved.digest,plan.digest);assert.equal(preserved.state,"APPROVED");
  const revised=await tool("revise_change_plan",{proposal_id:plan.proposalId,expected_revision:1,actions:[{actionId:"t",kind:"task.create",input:{title:"Synthetic Worker revised preview"}}]});
  assert.equal(revised.revision,2);assert.notEqual(revised.digest,plan.digest);
