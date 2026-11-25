@@ -25,7 +25,11 @@ La configuración objetivo para este repositorio pequeño es:
 - impedir el merge mientras haya checks pendientes o fallidos;
 - permitir al responsable del repositorio resolver un bloqueo excepcional de administración, pero no usarlo para eludir una revisión ordinaria.
 
-La nueva consulta pública del 24 de noviembre de 2026 encontró el ruleset activo `Protect main`, aplicado a la rama por defecto. Exige PR y bloquea borrado y force-push, pero no declara checks requeridos y permite cero aprobaciones. La protección clásica no pudo leerse con la sesión disponible; no se afirma que carezca de reglas adicionales. El propietario debe abrir `Settings → Rules → Rulesets` (o `Settings → Branches → Branch protection rules`), completar la configuración anterior y verificar que un PR nuevo muestre `CI / verify` como required check. No se debe hacer push directo a `main` para probarlo.
+La consulta actual del 24 de noviembre de 2026 encontró el ruleset activo `Protect main`, aplicado a la rama por defecto: exige PR, check `verify` de GitHub Actions y bloqueo de borrado/force-push. Permite cero aprobaciones y no exige actualizar el check contra la base. La protección clásica no pudo leerse con la cuenta ejecutora; no se afirman reglas adicionales. El PR #3 tuvo revisión aprobatoria del dueño y CI verde antes del merge. El propietario debe completar la aprobación humana requerida cuando ambos colaboradores estén habilitados y decidir el requisito de base actualizada. No hacer push directo a `main` para probarlo.
+
+## Retirada de historia contaminada
+
+El procedimiento excepcional está en `HISTORY_SANITIZATION_PLAN.md`. Los cambios ordinarios del auditor y la documentación pasan por PR/CI; no eliminan antecesores. La opción propuesta prepara una distribución standalone de una sola raíz sin force-push. No publicar el candidato, retirar repositorios/forks ni cambiar visibilidad sin autorización específica. No recuperar ramas antiguas mediante merge, mirror o sincronización del fork después del corte; recrear los clones y trasladar solo parches revisados.
 
 Con dos colaboradores, el primer PR de cada persona debe ser revisado por la otra. Mientras exista un solo colaborador efectivo, la revisión obligatoria de una persona distinta al autor puede bloquear el flujo; por eso debe activarse cuando el segundo colaborador tenga acceso de escritura.
 

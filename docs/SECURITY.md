@@ -6,6 +6,8 @@ El repositorio no debe contener datos reales, secretos, respaldos productivos, c
 
 El historial inicial se crea desde un árbol saneado; no se importa el historial interno de Sites. Esto evita transportar autores, metadatos o material antiguo que no fue auditado para distribución pública.
 
+La revisión posterior encontró exposición en los commits públicos previos y en valores incrustados en el verificador. Saneamiento de HEAD y eliminación histórica son controles distintos. El estado y el procedimiento de retirada se documentan en `HISTORY_SANITIZATION_PLAN.md`; no se declara una purga remota completada. Los patrones genéricos y sus regresiones se ejecutan en CI mediante `audit:public` y `test:audit` sin imprimir valores sensibles.
+
 ## Aislamiento por instalación
 
 Cada instalación debe tener:

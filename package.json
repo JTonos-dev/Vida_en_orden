@@ -1,10 +1,9 @@
 {
   "name": "vida-en-orden",
   "version": "0.1.0",
-  "private": false,
+  "private": true,
   "description": "Aplicación personal de tareas, planificación, finanzas y bitácora con servidor MCP de solo lectura.",
   "license": "MIT",
-  "private": true,
   "engines": {
     "node": ">=22.13.0"
   },
@@ -17,7 +16,10 @@
     "test:finance": "node --experimental-strip-types --test tests/finance-math.test.ts",
     "test:mcp": "node --experimental-strip-types --test tests/mcp-*.test.ts",
     "verify:independent": "node scripts/verify-independent-installation.mjs",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "audit:public": "node scripts/public-source-audit.mjs",
+    "test:audit": "node --experimental-strip-types --test tests/public-source-audit.test.ts",
+    "prepare:clean": "node scripts/prepare-clean-distribution.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

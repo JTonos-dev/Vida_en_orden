@@ -3,6 +3,7 @@ import { existsSync, readFileSync, readdirSync, rmSync, mkdtempSync } from "node
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { auditPublicSource } from "./public-source-audit.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const migrationsDir = join(root, "drizzle");
@@ -29,18 +30,11 @@ try {
   );
   if (forbiddenFiles.length) fail(`tracked private file(s): ${forbiddenFiles.join(", ")}`);
 
-  const source = tracked
-    .filter((file) => !file.endsWith("package-lock.json"))
-    .map((file) => readFileSync(join(root, file), "utf8"))
-    .join("\n");
-  const privateMarkers = [
-    /jorgetonos@gmail\.com/i,
-    /chatgpt-tic@infotep\.gob\.do/i,
-    /casa-en-orden-cj\.jorgetonos\.chatgpt\.site/i,
-    /appgprj_[a-z0-9]{20,}/i,
-    /appgdep_[a-z0-9]{20,}/i,
-  ];
-  if (privateMarkers.some((marker) => marker.test(source))) fail("a known personal Site identifier or email is present");
+  const publicAudit = auditPublicSource(root);
+  if (publicAudit.findings.length) {
+    console.error(JSON.stringify(publicAudit.findings));
+    fail("public source contains private configuration, identity or credential patterns");
+  }
 
   const runtimeSource = tracked
     .filter((file) => file.startsWith("lib/") && /\.[cm]?tsx?$/.test(file))

@@ -1,7 +1,7 @@
 # Estado actual reproducible
 
 **Corte del código transferido:** 24 de noviembre de 2026  
-**Estado de este repositorio:** snapshot público saneado; la punta de `main` de GitHub es la referencia exacta del árbol publicado.
+**Estado de este repositorio:** fuente de fase 2 operativa; historial público con exposición pendiente de retirada. La punta de `main` de GitHub es la referencia exacta del código integrado; una rama o candidato local no es una sustitución remota aplicada.
 
 ## Aplicación
 
@@ -50,9 +50,13 @@ La instalación independiente de validación también ejecutó las 31 herramient
 
 ## Límites conocidos
 
+- PR #3 aprobado y fusionado, con CI satisfactorio del PR y del merge. La fuente posterior elimina el bootstrap particular; el historial, los diffs y las copias de la red anterior no están purgados.
+- La auditoría encontró también valores particulares dentro del verificador. Esta propuesta los sustituye por reglas genéricas y pruebas de regresión. El candidato local y el ensayo de filtrado no se han publicado como historia nueva. Ver `HISTORY_SANITIZATION_PLAN.md`.
+- La fase 3 tiene un plan técnico para revisión en `PHASE3_TECHNICAL_PLAN.md`; sigue sin implementación ni herramientas habilitadas. Su inicio depende del cierre del saneamiento y de aprobar el plan.
+
 - La configuración de audiencia y los secretos de Sites no son portables por Git y deben recrearse manualmente en cada instalación.
 - El Site no ofrece una importación automática de una instalación de otra cuenta.
 - Las herramientas nuevas deben validarse individualmente después de conectar el plugin de una nueva instalación; el catálogo por sí solo no prueba una integración end-to-end.
 - La fase de escrituras MCP no está implementada. Los contratos futuros en `lib/mcp/future-contracts.ts` no habilitan herramientas.
 - El esquema SQL no usa claves foráneas para todas las relaciones; el código valida referencias y `validate_references` informa inconsistencias sin repararlas.
-- La consulta pública de rulesets del 24 de noviembre de 2026 mostró una regla activa que exige PR y bloquea borrado y force-push. No incluye un required status check ni una revisión humana obligatoria. La protección clásica no pudo consultarse con la sesión disponible. Ver `docs/COLLABORATION.md`.
+- La consulta actual de rulesets muestra PR obligatorio, bloqueo de borrado/force-push y check `verify` requerido. Permite cero aprobaciones y no exige que el check esté actualizado con la base. La cuenta ejecutora tiene lectura sobre el oficial, sin administración ni push. Ver `docs/COLLABORATION.md`.
