@@ -38,7 +38,7 @@ El arnés exige el inventario completo del esquema suministrado, columnas y fila
 | `build`, `verify:independent` | Aprobados; D1 local temporal, 13 SQL consecutivos |
 | `verify:worker`, `verify:sites` | Aprobados sobre workerd/D1 local: 31 lecturas, WebAuthn sintético/denegaciones y 27 QA API/UI por modo |
 | `audit:public` | 268 archivos, cero hallazgos; no certifica retirada de exposición histórica |
-| CI del PR | Consultar evidencia final enlazada en DEVELOPMENT_PROGRESS; no inferir estado de un HEAD posterior |
+| CI del PR | [Checks del PR #14](https://github.com/JorgeTonos28/Vida_en_orden/pull/14/checks); ensayos/arnés en9d2d9af y trazabilidad documental posterior. Consultar HEAD exacto; no inferir aprobación humana ni resultado de otro commit |
 
 Las integraciones workerd/D1 usan exclusivamente datos ficticios; la restauración de la captura propia se ejecutó en SQLite en memoria. Son evidencias complementarias, no una restauración nativa alojada del respaldo. El aviso del harness sobre aprobación humana no verificada se refiere a su prueba sintética, no invalida la firma histórica de la instalación.
 
