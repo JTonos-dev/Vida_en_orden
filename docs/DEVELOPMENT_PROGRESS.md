@@ -4,6 +4,15 @@ Corte: 24 de noviembre de 2026. Mandato: desarrollar todas las fases técnicamen
 
 ## Situación para continuar
 
+### Recuperación y actualización incremental · 25 noviembre 2026
+
+- Cadena: [PR #17](https://github.com/JorgeTonos28/Vida_en_orden/pull/17) 0bcab1c → [PR #18](https://github.com/JorgeTonos28/Vida_en_orden/pull/18) b72081b → chore/phase2-upgrade-recovery. Ambos PR abiertos, CI aprobado; [CI #18](https://github.com/JorgeTonos28/Vida_en_orden/actions/runs/45674244133). No merge, armado o publicación. La rama actual acumula dependencias porque el fork no puede crear ramas base en el oficial; integrar en orden y volver a verificar diff/CI.
+- Implementado y ejecutado: verify:upgrade usa dos D1 ficticias, export/restore nativo LOCAL y ledger nativo sin editar; aplica solo cinco pendientes de 0008–0012, conserva ocho previas y todas las filas/vistas. Repetición sin cambios, 48 tablas, 54 triggers/índice; 2.100 movimientos históricos y 5.000 eventos de auditoría conservados. Comando añadido a CI/AGENTS, sin nuevos SQL ni dependencias. Ver PHASE2_UPGRADE_REHEARSAL.
+- Prueba complementaria: D1 permite foreign_key_check, no integrity_check; el SQL exportado pasa integrity_check en SQLite independiente. No afirmar integridad física de D1. Copias/hash locales temporales no equivalen a almacenamiento externo recuperable del host.
+- Alojado reconsultado con plugin auténtico: 44 herramientas, health/schema/metadata1, staging0, propuesta cancelada en revisión2/huella preservada, commit writes_disabled. No prueba recarga/reconexión visual ni ejecución del candidato, todavía sin publicar.
+- Pendiente externo: revisión independiente de #18, autorización para perfil QA y publicación, credencial/firma humanas propias, 43 ejecuciones alojadas; herramientas visuales deniegan acceso. Issue #13 conserva backup/restore nativo de Sites, ledger/DDL y upgrade del destino; borrador SITES_ADMIN_SUPPORT_REQUEST preparado, no enviado. No modificar el Site previo ni personal.
+- Escala: 2.000 filas de 17 tablas/2 MiB impiden preparar sobre datasets mayores; no impidieron conservar la historia al migrar cerrado. Cuotas/CPU/memoria/Workers en vuelo no certificados. Próximo paso tras CI/revisión: resolver canal administrativo de recuperación/bindings; solo después proponer la autorización específica de activación QA. Fase 7 pendiente, no recomendar producción.
+
 ### Control QA y cobertura completa aislada · 25 noviembre 2026
 
 - Base main ca336b7; PR #17 (0bcab1c) abierto, [CI aprobado](https://github.com/JorgeTonos28/Vida_en_orden/actions/runs/45667349422). No fusionado ni desplegado. Candidato dependiente: feature/qa-execution-authorization, con revisión independiente pendiente.

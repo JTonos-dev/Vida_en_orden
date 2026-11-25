@@ -22,6 +22,8 @@ Antes de activar hacen falta revisión independiente, perfil privado exclusivo d
 
 Ensayar únicamente con datos ficticios y copias propias. Conservar todas las filas/propietarios/configuración, aplicar solo migraciones pendientes, comparar totales/referencias/lecturas y mantener MCP cerrado. Un export/restore nativo local y ledger de Wrangler no certifican el ledger o la recuperación del servicio administrado de Sites. La issue #13 continúa abierta mientras no exista capacidad administrativa nativa probada y autorización para la instalación destino.
 
+Ensayo implementado y aprobado: npm run verify:upgrade, en CI/AGENTS, dos D1 locales distintas, export/restore nativo con copia/hash, ledger 8→13 (cinco pendientes), repetición sin efectos, 48 tablas/54 triggers/índice correcto, todas las filas y vistas idénticas; incluye 2.100 movimientos históricos anulados y 5.000 eventos de auditoría. No se crea identidad MCP durante migración/lectura ni se habilitan escrituras. D1 deniega integrity_check; se verifica el SQL exportado en SQLite y foreign_key_check en D1 sin eludir permisos. Ver PHASE2_UPGRADE_REHEARSAL. SITES_ADMIN_SUPPORT_REQUEST contiene la solicitud concreta pendiente de envío; no certifica backup/ledger/upgrade de Sites ni permite recomendar producción.
+
 ## Bloqueos externos confirmados
 
 Reconsulta real del plugin QA (25 noviembre, fuente d193562): catálogo de 44 herramientas, health listo, metadata1, staging vacío, propuesta cancelada en revisión 2 y huella idéntica a la consulta anterior. get_approval_status coincide; commit vuelve a denegar writes_disabled. Esto verifica persistencia y conexión MCP actual, **no** una desconexión/reconexión visual ni los cambios de estas ramas todavía sin publicar.
