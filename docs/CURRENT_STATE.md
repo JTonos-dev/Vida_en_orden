@@ -64,3 +64,7 @@ La instalación independiente de validación también ejecutó las 31 herramient
 ## Entrega no financiera en rama dependiente
 
 19 adaptadores cerrados reutilizan los servicios. Incluyen tareas/subtareas, bitácora, organización y eventos; reversión específica derivada de recibos con nueva aprobación. No hay herramientas públicas nuevas ni escrituras reales habilitadas. Ver paridad y seguimiento.
+
+## Entrega financiera aislada
+
+24 adaptadores R2 implementados; pruebas específicas de contabilidad, reservas, reversión, concurrencia y rollback. El reporte financiero neto incluye ahora comisiones de transferencias propias. No se cambia la política de ejecución MCP ni se toca una base personal. Ver seguimiento para verificaciones y PR.

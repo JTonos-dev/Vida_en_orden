@@ -507,7 +507,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
     await database.prepare("INSERT INTO finance_accounts (id,owner_id,name,type,bank_name,currency,opening_balance_minor,opening_balance_date,archived,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)")
       .bind(id, ownerId, text(body.name, "El nombre", true), type, bankName, "DOP", minor(body.openingBalanceMinor, "El saldo inicial"), openingBalanceDate, 0, stamp, stamp).run();
     await audit(ownerId, "account", id, "created", { openingBalanceMinor: body.openingBalanceMinor });
-    return;
+    return { id: id };
   }
   if (action === "finance.account.update") {
     const id = text(body.id, "La cuenta", true);
@@ -545,7 +545,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
     await database.prepare("INSERT INTO finance_categories (id,owner_id,name,kind,color,created_at,updated_at) VALUES (?,?,?,?,?,?,?)")
       .bind(id, ownerId, name, kind, color, stamp, stamp).run();
     await audit(ownerId, "category", id, "created", { name, kind });
-    return;
+    return { id: id };
   }
   if (action === "finance.category.update") {
     const id = text(body.id, "La categoría", true);
@@ -660,7 +660,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
     await database.batch(statements);
     await rememberConcept(ownerId, body.description);
     await audit(ownerId, "transaction", id, "created", { type, amountMinor, feeMinor, transferMode, paymentMethod, goalId, goalConsumed, taskId: body.taskId || null });
-    return;
+    return { id: id };
   }
   if (action === "finance.transaction.update_amount") {
     const id = text(body.id, "El movimiento", true);
@@ -822,13 +822,14 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
     const category = await database.prepare("SELECT id,kind FROM finance_categories WHERE id=? AND owner_id=?").bind(categoryId, ownerId).first<Row>();
     if (!category || String(category.kind) !== "expense") throw new Error("El presupuesto sólo admite categorías de gasto");
     const existing = await database.prepare("SELECT id FROM finance_budgets WHERE owner_id=? AND month=? AND category_id=? AND allocation_type='base' LIMIT 1").bind(ownerId, month, categoryId).first<{ id: string }>();
+    const budgetId = existing?.id || uid();
     const concept = text(body.concept || "Asignación base", "El concepto", true);
     const assigned = minor(body.assignedMinor, "La asignación");
     if (existing) await database.prepare("UPDATE finance_budgets SET assigned_minor=?,concept=?,allocation_type='base',updated_at=? WHERE id=? AND owner_id=?").bind(assigned, concept, stamp, existing.id, ownerId).run();
-    else await database.prepare("INSERT INTO finance_budgets (id,owner_id,month,category_id,assigned_minor,concept,allocation_type,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?)").bind(uid(), ownerId, month, categoryId, assigned, concept, "base", stamp, stamp).run();
+    else await database.prepare("INSERT INTO finance_budgets (id,owner_id,month,category_id,assigned_minor,concept,allocation_type,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?)").bind(budgetId, ownerId, month, categoryId, assigned, concept, "base", stamp, stamp).run();
     await rememberConcept(ownerId, concept);
     await audit(ownerId, "budget", `${month}:${categoryId}`, "set", { assignedMinor: body.assignedMinor });
-    return;
+    return { id: budgetId };
   }
   if (action === "finance.budget.update") {
     const id = text(body.id, "El presupuesto", true);
@@ -861,7 +862,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
       .bind(id, ownerId, month, categoryId, amount, concept, "additional", stamp, stamp).run();
     await rememberConcept(ownerId, concept);
     await audit(ownerId, "budget", id, "addition_created", { month, categoryId, concept, amount });
-    return;
+    return { id: id };
   }
   if (action === "finance.budget.delete") {
     const id = text(body.id, "El presupuesto", true);
@@ -901,7 +902,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
     ]);
     await rememberConcept(ownerId, concept);
     await audit(ownerId, "obligation", id, "created");
-    return;
+    return { id: id };
   }
   if (action === "finance.obligation.update") {
     const id = text(body.id, "La obligación", true);
@@ -1009,7 +1010,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
     await database.batch(statements);
     await rememberConcept(ownerId, description);
     await audit(ownerId, "obligation", String(obligation.id), full ? "paid" : "partially_paid", { paid, feeMinor, paymentMethod, taskId: body.taskId || null, projectId: body.projectId || null });
-    return;
+    return { id: transactionId };
   }
   if (action === "finance.goal.create") {
     const id = uid();
@@ -1022,7 +1023,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
     await database.prepare("INSERT INTO finance_goals (id,owner_id,title,target_minor,reserved_minor,used_minor,target_date,priority,account_id,category_id,covered_by_budget,linked_task_id,linked_project_id,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
       .bind(id, ownerId, text(body.title, "El nombre", true), minor(body.targetMinor, "La meta", false), 0, 0, date(body.targetDate, "La fecha objetivo"), text(body.priority, "La prioridad") || "media", body.accountId || null, categoryId, 1, body.linkedTaskId || null, body.linkedProjectId || null, "active", stamp, stamp).run();
     await audit(ownerId, "goal", id, "created");
-    return;
+    return { id: id };
   }
   if (action === "finance.goal.update") {
     const id = text(body.id, "La meta", true);
@@ -1062,7 +1063,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
         .bind(entryId, ownerId, goalId, amount, occurredOn, String(goal.title), text(body.note, "La nota"), null, stamp, stamp),
     ]);
     await audit(ownerId, "goal", goalId, "contribution", { amount });
-    return;
+    return { id: entryId };
   }
   if (action === "finance.goal.entry.update") {
     const entryId = text(body.id, "El aporte", true);
