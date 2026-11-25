@@ -42,11 +42,11 @@ export class McpProtocolError extends Error {
 
 const clientInfoSchema = z.object({ name: z.string().min(1), version: z.string().min(1) }).passthrough();
 const clientCapabilitiesSchema = z.object({
-  experimental: z.record(z.unknown()).optional(),
-  sampling: z.record(z.unknown()).optional(),
-  elicitation: z.record(z.unknown()).optional(),
-  roots: z.record(z.unknown()).optional(),
-  extensions: z.record(z.unknown()).optional(),
+  experimental: z.record(z.string(),z.unknown()).optional(),
+  sampling: z.record(z.string(),z.unknown()).optional(),
+  elicitation: z.record(z.string(),z.unknown()).optional(),
+  roots: z.record(z.string(),z.unknown()).optional(),
+  extensions: z.record(z.string(),z.unknown()).optional(),
 }).passthrough();
 
 export const requestMetaSchema = z.object({

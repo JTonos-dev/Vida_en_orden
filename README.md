@@ -23,6 +23,7 @@ Requisitos: Node.js `>=22.13.0`, Git y una base D1 para el despliegue. Para desa
 
 ```sh
 npm ci
+npm run audit:dependencies
 npm run test:finance
 npm run test:mcp
 npm run test:audit

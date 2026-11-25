@@ -13,7 +13,7 @@ import { stagingDatabase } from "./staging.ts";
 import { BUSINESS_TABLES } from "./tables.ts";
 import { PlanError, type ActionRegistry, type ActionResult, type ApprovalVerifier, type ExecutionReceipt, type PlanAction, type PreparedPayload, type Proposal, type ProposalState, type Row, type RowChange, type Snapshot } from "./types.ts";
 
-const actionsSchema = z.array(z.object({ actionId: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,63}$/), kind: z.string().min(1).max(80), input: z.record(z.unknown()) }).strict()).min(1).max(20);
+const actionsSchema = z.array(z.object({ actionId: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,63}$/), kind: z.string().min(1).max(80), input: z.record(z.string(),z.unknown()) }).strict()).min(1).max(20);
 const MAX_SNAPSHOT_ROWS = 2000;
 const MAX_SNAPSHOT_BYTES = 2 * 1024 * 1024;
 const MAX_DIFF_BYTES = 64 * 1024;

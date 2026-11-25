@@ -16,6 +16,8 @@ Se implementa el canal alternativo del plan maestro: página autenticada del Sit
 
 No actualizar la instalación personal ni el Site original para probar esto. Usar una instancia de desarrollo privada, con D1 ficticia propia y acceso solo del propietario.
 
+**Gate alojado pendiente:** seguir primero SITES_MIGRATION_COMPATIBILITY.md. El flujo documentado de Sites exige migraciones de esquema; 0008/0010 incluyen inicialización/mantenimiento de metadatos que requieren un procedimiento oficial fuera de ese flujo. La aplicación local de todos los SQL está probada, pero no autoriza publicarlos a ciegas. La prueba humana permanece bloqueada hasta resolverlo.
+
 1. Integrar/revisar las dependencias de PR en orden, o instalar la rama exacta de desarrollo indicada en DEVELOPMENT_PROGRESS. Ejecutar suite y build.
 2. Aplicar las migraciones SQL 0000–0010 en orden en la D1 de desarrollo. El esquema ORM por sí solo no reemplaza migraciones, triggers y datos de instalación de 0008.
 3. Configurar privadamente `MCP_OWNER_USER_ID` y/o `MCP_OWNER_EMAIL` de esta instalación. Configurar `MCP_PROPOSALS_ENABLED=true` y `MCP_APPROVAL_ORIGIN` con el origen HTTPS exacto de **este** Site (sin slash/ruta). No ponerlo en el manifiesto público.

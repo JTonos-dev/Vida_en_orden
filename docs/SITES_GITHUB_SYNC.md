@@ -6,6 +6,8 @@ GitHub y ChatGPT Sites son sistemas relacionados pero distintos. GitHub contiene
 
 No conectar el merge de `main` con el despliegue de un Site personal. No copiar a GitHub bases, respaldos, `.env`, logs, cookies, identificadores de Site ni datos reales. No usar un token de Sites como credencial permanente del repositorio.
 
+Antes de publicar, además de audit:dependencies y la suite, ejecutar verify:hosting. El gate de la rama de fases 3–7 está bloqueado por instrucciones de metadatos fuera del flujo de esquema documentado; ver SITES_MIGRATION_COMPATIBILITY.md. No transferir el historial GitHub al repositorio privado de publicación: preparar la fuente verificada con git archive, identidad propia y helper oficial. Esa copia es un artefacto de despliegue, no otra fuente pública de desarrollo.
+
 ## Flujo antes de modificar código
 
 1. Leer `AGENTS.md`, `docs/CURRENT_STATE.md`, `docs/ROADMAP.md` y la documentación del cambio.

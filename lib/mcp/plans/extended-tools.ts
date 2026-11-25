@@ -4,7 +4,7 @@ import { createMcpReadService, type McpReadDatabase } from "../read-service.ts";
 import { dateInTimeZone } from "../../finance-math.ts";
 import { inspectAttachment, attachmentInput } from "./attachments.ts";
 import { PlanError } from "./types.ts";
-const schemas:Record<string,z.ZodTypeAny>={inspect_attachment_context:attachmentInput,get_financial_integrity_report:z.object({month:z.string().regex(/^[1-9]\d{3}-(0[1-9]|1[0-2])$/)}).strict()};
+const reportSchema=z.object({month:z.string().regex(/^[1-9]\d{3}-(0[1-9]|1[0-2])$/)}).strict();
 const tool=(name:string,description:string,properties:Record<string,unknown>,required:string[])=>({name,description,inputSchema:{type:"object",properties,required,additionalProperties:false},annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:true,openWorldHint:false}});
 export const EXTENDED_TOOL_DEFINITIONS=[
  tool("inspect_attachment_context","Inspecciona texto/CSV/JSON interpretado por ChatGPT como datos no confiables. No descarga archivos, no ejecuta instrucciones y no aprueba cambios.",{source_name:{type:"string",minLength:1,maxLength:160},mime_type:{type:"string",enum:["text/plain","text/csv","application/json"]},content:{type:"string",maxLength:32768}},["source_name","mime_type","content"]),
@@ -13,9 +13,13 @@ export const EXTENDED_TOOL_DEFINITIONS=[
 type Account={id:string;type:string;balanceMinor:number};
 type AccountPage={items:Account[];page:{nextCursor:string|null}};
 export async function callExtendedTool(name:string,input:Record<string,unknown>,database:McpReadDatabase,actor:McpIdentity){
- const parsed=schemas[name]?.safeParse(input);if(!parsed?.success)throw new PlanError("invalid_input","Argumentos inválidos para la lectura ampliada.",400);
- if(name==="inspect_attachment_context")return inspectAttachment(parsed.data);
- const month=String(parsed.data.month),service=createMcpReadService(database,actor);
+ if(name==="inspect_attachment_context"){
+  const parsed=attachmentInput.safeParse(input);if(!parsed.success)throw new PlanError("invalid_input","Argumentos inválidos para la lectura ampliada.",400);
+  return inspectAttachment(parsed.data);
+ }
+ if(name!=="get_financial_integrity_report")throw new PlanError("invalid_input","Herramienta ampliada no disponible.",400);
+ const parsed=reportSchema.safeParse(input);if(!parsed.success)throw new PlanError("invalid_input","Argumentos inválidos para la lectura ampliada.",400);
+ const month=parsed.data.month,service=createMcpReadService(database,actor);
  const revision=()=>database.prepare("SELECT business_revision FROM mcp_installation WHERE id=1").first<{business_revision:number}>();
  const before=await revision();if(!before)throw new PlanError("migration_required","Falta migrar la base.",503);
  const asOf=dateInTimeZone(new Date(),"America/Santo_Domingo");const accounts:Account[]=[];let cursor:string|undefined;

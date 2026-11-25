@@ -4,6 +4,8 @@
 
 Antes de publicar una instalación:
 
+La rama de fases 3–7 requiere resolver primero el gate `npm run verify:hosting` descrito en SITES_MIGRATION_COMPATIBILITY.md. Actualmente bloquea 21 instrucciones de metadatos fuera del flujo de esquema documentado. Un build/CI verde o una D1 local migrada no autoriza ignorarlo. Incluir además la corrección de dependencias y ejecutar audit:dependencies; no publicar el artefacto basal afectado.
+
 1. Ejecuta la suite local completa.
 2. Verifica que el manifiesto use el `project_id` propio y el binding D1 propio.
 3. Crea y prueba un respaldo de esa base en un entorno aislado.

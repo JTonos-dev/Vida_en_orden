@@ -32,6 +32,8 @@ La confianza en los headers de identidad se limita al dispatcher autenticado de 
 
 Las versiones directas y transitivas están fijadas en `package-lock.json`. Antes de actualizar una dependencia revisa su changelog, licencia, avisos de seguridad, impacto en Workers/D1 y el resultado de la suite. Las licencias declaradas por los paquetes se conservan en el lockfile; el código propio se distribuye bajo MIT.
 
+Ejecutar audit:dependencies; el resultado del lockfile y la compatibilidad del build se registran por separado en DEPENDENCY_SECURITY.md. No publicar un artefacto afectado solo porque sus tests o auditoría de secretos estén verdes. No usar --force para forzar cambios de API o degradaciones sugeridas por el auditor.
+
 ## Reporte de vulnerabilidades
 
 No publiques secretos ni detalles explotables en issues públicos. Reporta de forma privada al responsable del repositorio, incluyendo versión afectada, reproducción mínima, impacto y mitigación propuesta.

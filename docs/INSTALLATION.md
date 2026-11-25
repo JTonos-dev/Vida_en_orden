@@ -32,7 +32,7 @@ node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js \
   --persist-to .wrangler/state --file drizzle/0000_chunky_hellion.sql
 ```
 
-Repite el comando en orden para `0001` hasta `0007`, sustituyendo el nombre de archivo. El estado `.wrangler/` es local e ignorado. Nunca uses el flag `--local` omitido contra una base que no sea de prueba sin revisar el comando y la autorización.
+Repite el comando en orden para las migraciones restantes de la versión (main fase2: hasta 0007; rama fases3–7: hasta 0010), sustituyendo el archivo. El estado `.wrangler/` es local e ignorado. Nunca omitas --local para una prueba. Antes de publicar en Sites sigue SITES_MIGRATION_COMPATIBILITY.md y verify:hosting; el flujo de metadatos alojados todavía no está verificado y el visor de lectura no aplica migraciones.
 
 ## Datos de demostración
 

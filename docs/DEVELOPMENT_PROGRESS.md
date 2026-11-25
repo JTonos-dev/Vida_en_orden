@@ -12,9 +12,10 @@ Mandato vigente: 24 de noviembre de 2026. El responsable autoriza desarrollar to
 | 5: catálogo financiero | feature/mcp-phase5-financial-catalog / eb6594d | [#7](https://github.com/JorgeTonos28/Vida_en_orden/pull/7) | #6; 110 pruebas; sin migración nueva |
 | 3B: transporte/canal web | feature/mcp-proposal-transport-approval / 20de2bf | [#8](https://github.com/JorgeTonos28/Vida_en_orden/pull/8) | #7; 115 pruebas; 0009 |
 | 6: endurecimiento | feature/mcp-phase6-hardening / bc453ec | [#9](https://github.com/JorgeTonos28/Vida_en_orden/pull/9) | #8; 130 pruebas; 0010 |
-| 7: integración/cierre | chore/mcp-phase7-integration / por publicar | En preparación | #9; 137 pruebas y verificaciones locales aprobadas |
+| 7: integración/cierre | chore/mcp-phase7-integration / 33a6a53, docs 12f6bde | [#10](https://github.com/JorgeTonos28/Vida_en_orden/pull/10) | #9; 137 pruebas y verificaciones locales/CI/clon aprobadas |
+| Seguridad de dependencias | fix/mcp-runtime-dependencies / en curso | Por publicar | #10; no publicar el artefacto previo |
 
-Los PR #4–#9 están abiertos, sin revisión humana, con verify satisfactorio al último control. No se han fusionado. Tienen base main por permisos del oficial; revisar primero el delta desde el commit de dependencia indicado. Main sigue en PR #3 integrado, 317cfd8. No usar force-push, merge directo o bypass para resolver el apilado. El mantenedor revisa/integra y debe repetir CI frente a la base resultante.
+Los PR #4–#10 están abiertos, sin revisión humana, con verify satisfactorio al último control. No se han fusionado. Tienen base main por permisos del oficial; revisar primero el delta desde el commit de dependencia indicado. Main sigue en PR #3 integrado, 317cfd8. No usar force-push, merge directo o bypass para resolver el apilado. El mantenedor revisa/integra y debe repetir CI frente a la base resultante.
 
 ## Implementación por fase
 
@@ -34,21 +35,27 @@ Las entregas 3A–6 ejecutaron npm ci, finanzas/MCP/auditoría, TypeScript, lint
 
 Verificación final local de fase 7: npm ci aprobado (710 paquetes); 14 financieras +119 MCP +4 auditoría =137 pruebas, todas aprobadas, sin omitidas. TypeScript, lint (cero errores/cuatro advertencias previas), verify:schema (cero cambios), build y audit:public (250 archivos, cero hallazgos) aprobados. verify:independent aplicó 0000–0010 y comprobó 48 tablas. verify:worker pasó las 31 lecturas (22 válidas/nueve not_found esperados), aprobación criptográfica dentro del Worker, CSRF/conexión persistente, alta no confiable, anti-framing, compuerta cerrada y 27 comprobaciones API/UI. Todo sobre D1 temporal y datos ficticios. Logs ignorados en outputs/phase7-*.log. Pendientes: CI del PR de cierre, clon nuevo GitHub y validación alojada/humana.
 
+Clon nuevo desde GitHub del commit 33a6a53: npm ci y toda la suite de AGENTS, incluidas las 137 pruebas, schema/build/independent/Worker y las 27 comprobaciones API/UI, aprobados; árbol sin cambios. CI de #10 aprobado también tras la actualización documental 12f6bde. Logs del clon ignorado: work/phase7-github-verification-20261124/outputs.
+
+La auditoría adicional de dependencias encontró 33 entradas (dos críticas) en esa base. El artefacto privado construido de ella no se publicó. La rama fix/mcp-runtime-dependencies corrige las versiones y obtiene cero hallazgos npm; npm ci (709 paquetes), 138 pruebas (14/120/4), TypeScript, lint (cero errores/cuatro advertencias previas), schema sin cambios, build, auditoría pública (254 archivos/cero hallazgos), D1 independiente y Worker/27 comprobaciones API/UI aprobados. Logs outputs/dependencies-*.log. CI/clon de esta corrección todavía pendientes. Ver DEPENDENCY_SECURITY.md. No confundir fuente sin secretos con dependencias seguras.
+
+Se creó únicamente un Site privado **nuevo** de desarrollo y se comprobó acceso exclusivo del propietario. D1 declarada DB en el manifiesto (aprovisionamiento alojado sin verificar), owner policy obtenida de ese nuevo recurso y flags de metadatos/lecturas; cero credenciales de confianza. Identidad/procedencia privadas en work/phase7-development-site-20261124/.openai/hosting.json y outputs/provenance.json. Fuente privada de publicación procede de git archive de 33a6a53, sin historial GitHub ni configuración personal. No es un repositorio público alternativo ni otra fuente de desarrollo. No desplegar su tar basal: reemplazarlo por un artefacto del commit corregido tras resolver el gate. No se ha aplicado ninguna migración alojada ni creado versión/deployment. Reutilizar el ID, nunca crear otro Site para reintentar.
+
 Las 31 herramientas de la instalación independiente existente fueron comprobadas antes por su plugin y ahora se consultaron solo capacidades/referencias: fase2, lectura, businessWritesEnabled=false, cero incidencias. No se le aplicó código ni migraciones. Pruebas con firmas sintéticas y D1 local no certifican WebAuthn físico, identidad alojada ni aceptación de ChatGPT.
 
 ## Bloqueos y riesgos vigentes
 
 - Revisión/merge del mantenedor. Reglas efectivas exigen PR/verify y bloquean force/delete de main, pero admiten cero aprobaciones. Mantener revisión humana por procedimiento.
 - Canal humano real y credencial personalmente fijada. Ningún modelo puede suplir ese acto o abrir ejecución por entorno.
-- Compatibilidad de migraciones del host: Sites documenta esquema solamente; 0008 inicializa instalación/triggers y 0010 invalida metadatos. Verificar en un Site privado nuevo; no omitir seguridad, editar SQL ya aplicado ni abrir SQL desde MCP.
+- Compatibilidad de migraciones del host: verify:hosting informa blocked_non_schema_migrations y salida 1, con 21 instrucciones de metadatos. El flujo documentado exige esquema solamente y no hay herramienta administrativa D1 disponible. No se intentó un deployment ignorando ese requisito; no se afirma un rechazo observado del backend. Diagnóstico y consulta no enviada en SITES_MIGRATION_COMPATIBILITY.md. No omitir seguridad, editar SQL ya aplicado ni abrir SQL desde MCP.
 - Cuota alojada/performance y política de retención de evidencia/propuestas. Limpieza automática solo de staging vencido propio.
 - Historia/PR/forks/cachés anteriores siguen potencialmente accesibles. Auditoría de fuente actual no equivale a purga histórica.
 
 ## Cómo reanudar
 
 1. Leer AGENTS, este documento, CURRENT_STATE, ROADMAP, plan maestro/paridad, HUMAN_APPROVAL_SETUP, MCP_HARDENING y UPGRADE_AND_ROLLBACK. Inspeccionar git status y preservar cambios; no resetear ni integrar en main.
-2. Revisar estado real de PR/CI y obtener la rama chore/mcp-phase7-integration del fork actual, o el último commit integrado cuando el mantenedor complete la cadena. Verificar los commits antes de copiar código.
-3. Si la entrega final sigue sin publicar, registrar SHA/PR, audit:public y diff --check, commit/push ordinario y PR que declare dependencia #9. Si ya existe, actualizar ese PR, sin force-push.
-4. Repetir instalación desde GitHub en clon nuevo sin configuración local; npm ci y suite de AGENTS. Registrar resultados exactos. Usar únicamente D1 temporal y datos ficticios.
-5. Evaluar/publicar solo un Site privado de desarrollo nuevo desde el commit verificado, con identidad/D1 propias, usando el flujo oficial de Sites. Nunca actualizar la instalación personal existente. Si hay un intento previo, reutilizar su project_id/versión/deployment privados bajo work; no crear duplicados ni repetir migraciones inciertas.
+2. Revisar estado real de PR/CI y obtener la rama fix/mcp-runtime-dependencies del fork actual, o el último commit integrado cuando el mantenedor complete la cadena. Verificar los commits antes de copiar código. No publicar el lockfile previo a la corrección.
+3. Si falta publicar la corrección de dependencias, terminar lint/auditoría, registrar SHA/PR, diff --check, commit/push ordinario y PR dependiente de #10. Si ya existe, actualizar ese PR, sin force-push. Observar su CI hasta resultado terminal.
+4. Verificar instalación desde GitHub de esa corrección sin configuración local; npm ci y suite de AGENTS. El clon basal 33a6a53 ya pasó, pero dependencias nuevas justifican repetir. Registrar resultados exactos. Usar únicamente D1 temporal y datos ficticios.
+5. Resolver el mecanismo oficial de metadatos fuera de migraciones de esquema según SITES_MIGRATION_COMPATIBILITY; no publicar mientras verify:hosting esté bloqueado. Cuando exista candidato admitido, usar exclusivamente el Site privado de desarrollo **ya creado**, con identidad/D1 propias y helper oficial. Nunca actualizar la instalación personal ni repetir create_site/migraciones inciertas.
 6. Preparar UAT-3-HUMAN; el propietario debe accionar su autenticador y fijar la credencial legítima por administración. Continuar tareas independientes mientras ese paso está pendiente. No declarar aprobada una prueba manual ni habilitar negocio por pasar tests locales.
