@@ -1,6 +1,6 @@
 # Ensayo nativo local: fase 2 → esquema 0012
 
-25 noviembre 2026. Entrega dependiente: PR #17 → PR #18 → rama chore/phase2-upgrade-recovery. No se publica en Sites ni se modifica ninguna instalación existente. Este ensayo avanza la issue #13; **no acredita un respaldo, ledger o actualización del servicio administrado de Sites**.
+25 noviembre 2026. Entrega dependiente: PR #17 → PR #18 → [PR #19](https://github.com/JorgeTonos28/Vida_en_orden/pull/19), implementación a7220a6 y trazabilidad documental. No se publica en Sites ni se modifica ninguna instalación existente. Este ensayo avanza la issue #13; **no acredita un respaldo, ledger o actualización del servicio administrado de Sites**.
 
 ## Reproducción y alcance
 

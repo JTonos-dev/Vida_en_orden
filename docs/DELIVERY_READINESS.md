@@ -20,6 +20,8 @@ Antes de activar hacen falta revisión independiente, perfil privado exclusivo d
 
 ## C — Actualización de fase2 con recuperación
 
+[PR #19](https://github.com/JorgeTonos28/Vida_en_orden/pull/19), implementación a7220a6, dependiente de #17 y #18. Tres entregas abiertas para revisión, sin auto-merge; [checks del candidato final](https://github.com/JorgeTonos28/Vida_en_orden/pull/19/checks).
+
 Ensayar únicamente con datos ficticios y copias propias. Conservar todas las filas/propietarios/configuración, aplicar solo migraciones pendientes, comparar totales/referencias/lecturas y mantener MCP cerrado. Un export/restore nativo local y ledger de Wrangler no certifican el ledger o la recuperación del servicio administrado de Sites. La issue #13 continúa abierta mientras no exista capacidad administrativa nativa probada y autorización para la instalación destino.
 
 Ensayo implementado y aprobado: npm run verify:upgrade, en CI/AGENTS, dos D1 locales distintas, export/restore nativo con copia/hash, ledger 8→13 (cinco pendientes), repetición sin efectos, 48 tablas/54 triggers/índice correcto, todas las filas y vistas idénticas; incluye 2.100 movimientos históricos anulados y 5.000 eventos de auditoría. No se crea identidad MCP durante migración/lectura ni se habilitan escrituras. D1 deniega integrity_check; se verifica el SQL exportado en SQLite y foreign_key_check en D1 sin eludir permisos. Ver PHASE2_UPGRADE_REHEARSAL. SITES_ADMIN_SUPPORT_REQUEST contiene la solicitud concreta pendiente de envío; no certifica backup/ledger/upgrade de Sites ni permite recomendar producción.
