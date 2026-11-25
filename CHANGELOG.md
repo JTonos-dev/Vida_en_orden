@@ -1,5 +1,11 @@
 # Historial de cambios
 
+## Control QA preparado, sin activación · 2026-11-25
+
+- Permiso administrativo WebAuthn temporal ligado a Site, origen, instalación, propietario, release y catálogo. Ceremonia humana separada que solo devuelve el artefacto; no instala permisos ni abre negocio. Cierres públicos false/null preservados, vencimiento SQL y huella de autorización auditados atómicamente.
+- 43 operaciones y 55 ejecuciones por motor SQLite/D1 con datos y firmas sintéticos, comprobación del delta completo, lectura posterior e idempotencia. Corregida entityId de task.duplicate para referencias a su copia. Regresión de límite de 2 MiB sin truncar datos.
+- 182 pruebas locales aprobadas; sin nuevas migraciones ni despliegue. Análisis de riesgos, matriz por operación y continuidad actualizados. Activación, firma humana propia y ejecución alojada siguen bloqueadas por revisión/autorización independientes.
+
 ## Diagnóstico tipado de referencias · 2026-11-25
 
 - Los servicios de dominio identifican referencias ausentes/no disponibles mediante DomainReferenceError, conservando mensajes UI. Propuestas devuelven reference_not_found/404 uniforme sin revelar existencia ajena. No se reclasifican errores de infraestructura por texto.

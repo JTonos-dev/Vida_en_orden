@@ -4,6 +4,15 @@ Corte: 24 de noviembre de 2026. Mandato: desarrollar todas las fases técnicamen
 
 ## Situación para continuar
 
+### Control QA y cobertura completa aislada · 25 noviembre 2026
+
+- Base main ca336b7; PR #17 (0bcab1c) abierto, [CI aprobado](https://github.com/JorgeTonos28/Vida_en_orden/actions/runs/45667349422). No fusionado ni desplegado. Candidato dependiente: feature/qa-execution-authorization, con revisión independiente pendiente.
+- Implementado: permiso administrativo WebAuthn ligado a Site/origen/D1/owner/release/catálogo, TTL máximo de 15 minutos, ceremonia humana que no instala permisos, vencimiento SQL y auditoría atómicos. Los dos cierres públicos permanecen false/null. MCP exige autorización del runtime; un motor de prueba sin ese control no abre el transporte.
+- Cobertura: 43 operaciones, 55 ejecuciones por motor SQLite/D1, firmas sintéticas, persistencia/delta exacto y auditoría obligatoria, lectura posterior e idempotencia. Corregida referencia a la copia de task.duplicate. Regresión de snapshot mayor de 2 MiB preserva filas y limpia staging. Ver OPERATION_ACCEPTANCE_MATRIX y QA_EXECUTION_SECURITY_REVIEW.
+- Pruebas ejecutadas: 182 (14 financieras + 160 MCP + 4 auditoría + 4 recuperación), sin omitidas; TypeScript, lint (4 advertencias previas), schema, build, D1 independiente, ambos Workers y auditorías. No ejecutado: firma humana propia de QA, permisos reales, ejecución alojada, recarga visual/reconexión y cuotas CPU/memoria. El helper visual oficial falla con Access is denied; no se elude.
+- Ningún SQL nuevo, despliegue, permiso instalado ni cambio de negocio en QA. La QA sigue versión 1 de d193562. Próximo paso: revisar el PR del gate; continuar el ensayo nativo LOCAL de upgrade y documentar soporte administrativo de Sites. No preparar un perfil armado ni pedir firmas antes de revisión/autorización específicas.
+
+
 **Mandato posterior a ca336b7 (25nov2026):** continuar diagnóstico tipado, mecanismo QA condicionado sin activar, cobertura43operaciones y ensayo de actualización fase2 con respaldo/restauración ficticios. No desplegar sin autorización ni modificar instalaciones personales. CI main45664520146 verde, #16 aprobado e integrado. Primera rama fix/mcp-typed-reference-errors: DomainReferenceError→reference_not_found/404,169 pruebas y regresiones de autorización conservada. DELIVERY_READINESS registra alcance, rollback y bloqueos; PR/CI se enlazan al publicar. Visor Windows oficial devuelve Access is denied al capturar; no se elude. La QA publicada sigue versión1 de d193562, no estos candidatos.
 
 **Issue #15, estado vigente al 25 nov 2026:** main oficial d193562 integra #4–#12/#14, CI45531409462 aprobado. Rama `chore/issue15-fresh-qa`, base directa de main, sin PR pendientes como dependencia. Propietario autorizó explícitamente una única QA nueva privada y configuración de propuestas/staging/lecturas ampliadas sin negocio. Creada/publicada versión 1/entorno 1; no se consultó ni modificó ninguna instalación existente ni se copiaron datos/credenciales/identidades anteriores. [Informe QA](ISSUE15_QA_ACCEPTANCE_REPORT.md).
