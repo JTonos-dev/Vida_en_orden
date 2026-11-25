@@ -4,9 +4,12 @@ Este documento define el procedimiento operativo. No contiene ni sustituye un re
 
 ## Estado actual
 
+Ensayo operativo de issue #13: dos capturas completas e iguales de las tablas de usuario del desarrollo propio se cifraron fuera de Git y restauraron en memoria, preservando identidad/evidencia;0012 no cambia filas. **No certifica snapshot nativo consistente, ledger, DDL alojado ni recuperación en D1 remoto.** Faltan exportación administrativa y copia separada: los dos archivos actuales comparten equipo y DPAPI depende del perfil Windows. Ver [informe](ISSUE13_ACCEPTANCE_REPORT.md); no cerrar el requisito de respaldo con esa copia lógica ni con el JSON de UI.
+
 - La interfaz descarga un JSON compuesto por el estado leído en el navegador.
 - La restauración valida versión, identificadores y algunas referencias, elimina datos existentes y vuelve a insertarlos mediante `database.batch`.
 - El respaldo no se almacena automáticamente en el servidor; el manifiesto no declara R2.
+- El JSON de UI excluye identidad de instalación, propuestas, autorizaciones, evidencias, nonces y ledger MCP: no permite reconstruir por sí solo la instalación completa. No usar su restore sobre D1 alojada durante estos ensayos.
 - No se observó snapshot automático previo a restaurar, dry-run, rollback de negocio ni procedimiento probado contra una copia productiva.
 - `scripts/qa-v2.mjs` toma un JSON, ejecuta cambios y restaura el estado anterior, pero está diseñado para una vista local aislada y no debe apuntar al Site publicado.
 

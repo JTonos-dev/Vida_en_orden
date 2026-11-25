@@ -57,6 +57,7 @@ npm run audit:dependencies
 npm run test:finance
 npm run test:mcp
 npm run test:audit
+npm run test:recovery
 npm run audit:public
 npx tsc --noEmit
 npm run lint
@@ -90,6 +91,7 @@ No declares aprobada una comprobación que no pudiste ejecutar. El script `scrip
 
 - Las migraciones de `drizzle/` se aplican en orden y son parte del contrato de instalación.
 - Prueba una migración en una base independiente antes de tocar una instalación existente.
+- Una copia lógica de tablas no certifica un snapshot nativo consistente ni el ledger del host. Rechaza proyecciones truncadas; cualquier recuperación tipada de payload exige verificar identidad/revisión/owner/huella y conservar el estado persistido. `test:recovery` ensaya únicamente SQLite en memoria con datos ficticios. Nunca publiques capturas privadas ni uses el JSON de UI como respaldo completo MCP.
 - Nunca ejecutes `migrate:fresh`, `DROP`, restauraciones o migraciones destructivas en producción sin autorización explícita.
 - Prepara y verifica un respaldo cuando el cambio pueda afectar datos.
 - No actives escrituras MCP al actualizar código, migraciones o el Site.

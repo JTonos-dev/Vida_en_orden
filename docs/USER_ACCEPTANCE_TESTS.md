@@ -4,6 +4,18 @@ Estado: Site privado nuevo, versión 2/entorno 2. Registro personal, clave públ
 
 Los casos cubiertos por tests automatizados se documentarán como evidencia técnica; el propietario solo debe comprobar interacción real de plataforma y aceptación funcional que esos tests no pueden demostrar.
 
+## Aceptación operativa de issue #13 (fase 7)
+
+Main767f71f integra #4–#12. La revisión de código está aprobada; el Site aún conserva5359d43/SQL hasta0011. Informe, medidas, límites y evidencia: [ISSUE13_ACCEPTANCE_REPORT](ISSUE13_ACCEPTANCE_REPORT.md). No repetir pruebas automáticas ni la firma humana histórica. **No actualizar el Site ni activar negocio con estos casos bloqueados.**
+
+| Caso y estado | Requisitos/datos | Pasos y verificación | Error/precaución |
+|---|---|---|---|
+| UAT-7-LOGICAL-RESTORE — Aprobada localmente | Captura propia de desarrollo, privada/cifrada; nunca instalación personal | Agente ejecutó dos capturas, recuperación tipada de payload/huella, descifrado, restauración48tablas/18filas/54triggers, identidad y firma archivada, integridad y0012 sin cambio de filas.166 pruebas automatizadas y Workers aprobados. No requiere repetición manual. | No es respaldo nativo ni snapshot atómico; dos archivos mismo equipo. |
+| UAT-7-NATIVE-BACKUP — Bloqueada por capacidad administrativa | Propietario/administración de Sites, canal soportado para snapshot D1/ledger/DDL y destino separado | Obtener exportación consistente sin mostrar datos al chat; guardar cifrada fuera de Git, registrar procedencia/hashes privadamente; restaurar en base desechable y comparar filas/identidad/evidencia/esquema. Agente automatizará validaciones cuando exista acceso al recurso. | No se ha verificado una opción de exportación UI. Si falta, escalar al soporte de Sites; no sustituir por JSON de UI ni pegar tokens/dumps en GitHub. |
+| UAT-7-UPGRADE-HOST — Bloqueada por respaldo/ledger y autorización administrativa | Copia nativa probada, mecanismo incremental soportado, origen/clave/versiones preservados y permiso explícito | Solo administración: ventana sin escrituras, seguir UPGRADE_AND_ROLLBACK, aplicar exclusivamente0012 y publicar commit aprobado. Después agente verifica31lecturas/health/índice/owner, preparación/revisión ficticias y writes_disabled. | No ejecutar SQL arbitrario, retirar triggers ni modificar ledger; detener actualización ante incompatibilidad. No nuevo registro/firma salvo cambio del canal. |
+| UAT-7-UI-ACCEPTANCE — Bloqueada hasta actualización autorizada | Mismo Site propio ya actualizado, entidad ficticia `UAT Synthetic preview`, sin negocio | Propietario abre un enlace de propuesta preparado entonces; compara título/acciones/diff/expiración con lectura MCP y cancela sin firmar. Recargar: cancelada, cero tarea/ejecuciones. Reportar caso/versión/error, sin IDs privados. | Caducidad/denegación no modifica negocio. No pedir ejecutar movimientos ni activar flags. Pruebas de atomicidad/firmas cubiertas automáticamente. |
+| UAT-7-HOST-LIMITS — Bloqueada por métricas/cuotas no disponibles | Canal administrativo para CPU/memoria/tamaño/espacio/latencia de desarrollo | Inspección sin carga del host, documentar cuotas y comparar con límites de health. Regresiones2000/2001/5000auditorías ya automáticas. | No purgar historial ni truncar finanzas. Cero negocio actual no certifica capacidad productiva. |
+
 | Caso | Fase | Estado | Requisitos y pasos | Resultado y persistencia | Denegaciones y precauciones |
 |---|---|---|---|---|---|
 | UAT-AUTH-01: propietario conectado | 3 | Aprobada por llamadas reales | Plugin de desarrollo y política propia; capacidades/perfil/31 lecturas/health ejecutados automáticamente, sin pedir repetición manual. | Identidad coincide con registro humano; 44 herramientas y negocio deshabilitado. | Denegaciones automáticas y servicio sin visitante 401; no compartir secretos/IDs privados. |
@@ -15,7 +27,7 @@ Los casos siguientes detallan datos, pasos y verificación persistida. Una prueb
 
 ## Aceptación no financiera (fase 4)
 
-Auditoría del PR #12: las regresiones de revisión atómica, carreras, límites2.000/2.001,5.000 auditorías e índice/upgrade son automáticas y ya aprobadas localmente. No repetir a mano ni volver a registrar/firmar la credencial existente. La nueva corrección aún no se despliega: aceptación de instalación/ejecución posterior bloqueada por conformidad/revisión/habilitación. Ver PR12_AUDIT_FOLLOWUP; la aprobación humana anterior corresponde al código5359d43.
+Auditoría del PR #12: las regresiones de revisión atómica, carreras, límites2.000/2.001,5.000 auditorías e índice/upgrade son automáticas y aprobadas; código revisado/integrado. No repetir a mano ni registrar/firmar otra credencial. La corrección aún no se despliega: aceptación de instalación/ejecución posterior bloqueada por respaldo/ledger/autorización/habilitación. Ver ISSUE13_ACCEPTANCE_REPORT y PR12_AUDIT_FOLLOWUP; la aprobación humana anterior corresponde al código5359d43.
 
 Estos casos se ejecutarán únicamente cuando la versión de desarrollo esté instalada y el canal humano validado. Ahora están **bloqueados por habilitación segura**; no se debe cambiar la compuerta para adelantarlos. Las regresiones de reglas, atomicidad, referencias y permisos se ejecutan automáticamente: no requieren repetirlas a mano.
 

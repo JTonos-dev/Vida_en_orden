@@ -23,6 +23,7 @@ jobs:
       - run: npm run test:finance
       - run: npm run test:mcp
       - run: npm run test:audit
+      - run: npm run test:recovery
       - run: npm run audit:public
       - run: npx tsc --noEmit
       - run: npm run lint

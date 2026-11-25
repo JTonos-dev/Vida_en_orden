@@ -1,5 +1,12 @@
 # Historial de cambios
 
+## Issue #13: recuperación y ensayo aislado de0012 · 2026-11-24
+
+- Main767f71f contiene #4–#12 con aprobación/CI.31lecturas del desarrollo verificadas otra vez, identidad exclusiva y ejecución MCP denegada; no se modificó ningún Site ni la instalación personal.
+- Copia lógica propia de48tablas/18filas cifrada fuera de Git, dos pasadas iguales/descifrado verificado. Restauración local con54triggers, identidad/evidencia/firma archivada conservadas;0012 crea índice sin cambiar filas. No sustituye snapshot nativo/ledger/copia separada ni prueba cuotas del host.
+- Arnés solo SQLite en memoria, cuatro regresiones ficticias y test:recovery obligatorio en CI/AGENTS.166 pruebas, suite completa aprobada; documentación de aceptación, continuidad y rollback actualizada.
+- Actualización de desarrollo bloqueada por respaldo nativo/ledger y pendiente de autorización administrativa. Negocio MCP cerrado y exposición histórica sin resolver. Detalles y resultados: docs/ISSUE13_ACCEPTANCE_REPORT.md.
+
 ## Auditoría PR #12: revisión atómica y crecimiento de auditoría · 2026-11-24
 
 - revise prepara sin revocar la vigente; publica nueva revisión, invalidación, autorización/desafíos, auditoría y head en un batch CAS. Fallos de preparación/publicación conservan la anterior; carreras no sobrescriben commit/cancel/approve/otra revisión. Evidencia histórica preservada; limpieza fallida conserva lease sin ocultar éxito/error.
