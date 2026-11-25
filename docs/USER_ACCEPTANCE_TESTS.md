@@ -1,5 +1,9 @@
 # Pruebas funcionales del propietario
 
+## Siguiente aceptación mínima después de #18 → #19
+
+#17 ya integrado; la corrección del motor de #18 requiere nueva revisión. Seguir [QA_HOSTED_EXECUTION_RUNBOOK](QA_HOSTED_EXECUTION_RUNBOOK.md), sin crear otra QA ni repetir las 43 operaciones manualmente. Caso alojado todavía **bloqueado por revisión/autorización y canal humano propio**: una tarea y una cuenta/gasto ficticios, saldo esperado 8750 centavos; el agente prepara/valida/ejecuta/compara filas, auditoría, idempotencia y cierre. El propietario solo registra su credencial si falta y firma personalmente permiso/propuestas; administración revisa/publica/configura el artefacto exacto bajo autorización específica. Al cierre, comprobar writes_disabled con una propuesta nueva sin ejecutar, no con un recibo ya confirmado. No hay prueba alojada nueva en esta revisión.
+
 ## Actualización y recuperación — evidencia del agente
 
 | Caso/fase/estado | Requisitos y datos | Pasos ejecutados o condición pendiente | Resultado persistido/error/precaución |

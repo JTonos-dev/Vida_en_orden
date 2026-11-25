@@ -1,5 +1,11 @@
 # Actualización y reversión de fases 3–7
 
+## Estado posterior a revisión #18
+
+Main0162720 ya integra #17. La corrección f5a0f81 exige autorización en todo commit nuevo y mantiene el cierre público false/null; #19 la incorpora por merge sin cambiar lib/tests/app ni el arnés nativo de recuperación. Orden pendiente #18 → #19, con nueva auditoría y CI de cada HEAD; no integrar o desplegar automáticamente. Para las primeras dos pruebas ficticias alojadas usar QA_HOSTED_EXECUTION_RUNBOOK, no otra instalación.
+
+El destino personal de fase 2 se actualizará **en su mismo Site y DB**, preservando origen, owner, permisos, variables propias y todas las filas, aplicando solo pendientes. Las copias y simulaciones de ensayo pertenecen al entorno del agente y ya están automatizadas. El respaldo recuperable del destino y su ledger/DDL requieren el mecanismo administrativo autorizado cuando llegue la ventana: SITES_ADMIN_SUPPORT_REQUEST documenta el bloqueo exacto, sin SQL/ledger remoto alternativo. No usar prepare:sites freshInstallationOnly para sustituir esa instalación. Las notas que siguen sobre #17 abierto y commits anteriores son registros históricos.
+
 ## Entrega posterior a ca336b7 (25 noviembre)
 
 PR #17 (0bcab1c, CI verde) y PR #18 (b72081b, CI verde) siguen abiertos; no fusionar automáticamente. #18 prepara un permiso QA sin activar: el árbol compartido continúa false/null. La rama dependiente chore/phase2-upgrade-recovery añade `npm run verify:upgrade` a CI/AGENTS y ensaya export/restore nativo **LOCAL**, ledger 8→13 con solo cinco pendientes, 48 tablas/54 triggers, filas/vistas idénticas y reaplicación sin cambios. Ver [ensayo reproducible](PHASE2_UPGRADE_REHEARSAL.md).

@@ -59,7 +59,7 @@ test("permit expiry is checked in the atomic SQL guard despite a stale applicati
  const db=testDatabase(),f=await fixture();try{
   const stale=new Date(Date.now()-10_000),engine=new ProposalEngine(db.database,{actor,registry:actionRegistry,verifier:webAuthnVerifier({origin,credentials:[f.key.pin]}),executionEnabled:true,now:()=>stale,authorizeExecution:async()=>({expiresAt:Date.now()-1000,permitDigest:"a".repeat(64),releaseId})});
   const plan=await engine.prepare([{actionId:"t",kind:"task.create",input:{title:"Synthetic expired grant"}}]),c=await engine.requestApproval(plan.proposalId);await engine.approve(plan.proposalId,c.challenge,f.key.assertion(c.challenge));
-  await assert.rejects(()=>engine.commit(plan.proposalId,1,plan.digest,"synthetic-expired-sql"));
+  await assert.rejects(()=>engine.commit(plan.proposalId,1,plan.digest,"synthetic-expired-sql"),{code:"commit_conflict"});
   assert.equal(db.sqlite.prepare("SELECT count(*) n FROM home_tasks").get()?.n,0);assert.equal(db.sqlite.prepare("SELECT count(*) n FROM mcp_executions").get()?.n,0);assert.equal(db.sqlite.prepare("SELECT count(*) n FROM mcp_plan_audit WHERE event='qa_execution_authorized'").get()?.n,0);assert.equal((await engine.get(plan.proposalId)).state,"APPROVED");
  }finally{db.close();}
 });

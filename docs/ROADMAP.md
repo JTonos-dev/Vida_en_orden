@@ -14,7 +14,7 @@ El endurecimiento de GitHub, la guía de portabilidad y la prueba de instalació
 | 4 | Escrituras no financieras: tareas, áreas, proyectos, planificación y bitácora | 19 adaptadores y reversión probados; recorrido completo de las 43 acciones combinadas en SQLite/D1 con firmas sintéticas y persistencia exacta. | Ejecución alojada por propuesta y firma humana propia, después de habilitación QA revisada/autorizada. |
 | 5 | Escrituras financieras y relaciones cruzadas | 24 adaptadores R2, integridad contable/reintentos/reversión y recorrido completo SQLite/D1 locales aprobados. Negocio alojado cerrado. | Aceptación alojada con datos ficticios y firma humana, persistencia/reconciliación; sin movimientos reales. |
 | 6 | Adjuntos interpretados, informes ampliados y endurecimiento operativo | Texto/CSV/JSON, informe interno, límites, evidencia y recuperación implementados; binarios/OCR no disponibles, carga y cuotas alojadas pendientes. | Aceptación de los informes/adjuntos en ChatGPT y validación operativa del host. |
-| 7 | Cierre documental, publicación, conexión y pruebas end-to-end | Main ca336b7 integra también #16. PR #17→#18→#19 abiertos; 182 pruebas locales y recuperación/upgrade nativo LOCAL con fallo/reintento aprobados. QA sigue d193562, versión 1/entorno 1, lecturas/propuestas sin negocio. | CI/revisión del candidato final, recarga/reconexión visual, canal humano propio y 43 ejecuciones alojadas, cuotas y respaldo/ledger/upgrade soportados de issue #13. No completada; no recomendar actualización productiva. |
+| 7 | Cierre documental, publicación, conexión y pruebas end-to-end | Main0162720 integra #17. Corrección f5a0f81 de #18 incorporada exactamente a #19; 199 pruebas locales/43 operaciones, recuperación/upgrade nativo LOCAL con fallo/reintento conservados. QA sigue d193562, versión 1/entorno 1, sin negocio. | CI y nueva conformidad de #18→#19; luego dos propuestas ficticias con firmas propias según QA_HOSTED_EXECUTION_RUNBOOK. Cuotas/escala, recarga visual y respaldo/ledger del destino personal siguen pendientes; fase 7 no completa. |
 
 ## Dependencias
 
@@ -23,6 +23,8 @@ El saneamiento del historial fue preparado y ensayado localmente; el responsable
 La fase 3 depende de una aprobación humana demostrable en la plataforma. Las fases 4 y 5 dependen de la fase 3 y de servicios de dominio transaccionales. La fase 6 depende de límites de archivos y permisos verificables del host. La fase 7 no convierte ninguna fase pendiente en terminada.
 
 ## Ejecución vigente
+
+Revisión posterior: #17 integrado en main0162720 con CI satisfactorio. #18 corrige la autorización opcional dentro del motor y se somete de nuevo a pruebas/revisión; #19 incorporará exactamente ese commit y conserva su ensayo de recuperación. La cadena pendiente es #18 → #19. No hay activación o publicación. Tras conformidad e integración, seguir QA_HOSTED_EXECUTION_RUNBOOK para solo dos propuestas ficticias con firmas humanas propias; no repetir manualmente las 43 regresiones.
 
 Recuperación: verify:upgrade ensaya export/restore nativo LOCAL, ledger conservado, aplicación incremental de cinco pendientes hasta 0012, preservación exacta y reaplicación sin efectos. Documentado en PHASE2_UPGRADE_REHEARSAL; solicitud SITES_ADMIN_SUPPORT_REQUEST no enviada. CI obligatorio ampliado. Esto no resuelve backup/ledger/upgrade del destino administrado de issue #13. No actualizar una base real hasta superar ese bloqueo.
 

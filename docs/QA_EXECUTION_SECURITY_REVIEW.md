@@ -2,6 +2,10 @@
 
 Dependencia: PR #17 (errores tipados), sobre main ca336b7. Este documento es el análisis técnico del autor, **no una revisión independiente ni autorización de activación**. El mantenedor debe revisar código/CI y el propietario debe autorizar cualquier publicación/armado. No se cambió ningún Site o variable alojada.
 
+Actualización de revisión: #17 ya integrado en main0162720. La revisión bloqueante de #18 exige cerrar el acceso directo al motor: commit ahora requiere un callback presente y valida explícitamente sus tres campos (deadline seguro/vigente/acotado, release y huella). Errores o resultados incompletos devuelven writes_disabled. SQL no acepta deadline nulo; autorización y negocio se auditan en el mismo lote. Ningún fixture legítimo ejecuta sin permiso sintético firmado por la política real. Los recibos confirmados se recuperan sin una nueva ejecución. La corrección requiere nueva conformidad del mantenedor.
+
+Procedimiento mínimo posterior a merges: [QA_HOSTED_EXECUTION_RUNBOOK](QA_HOSTED_EXECUTION_RUNBOOK.md). Se limita a la QA existente, dos propuestas ficticias y sus firmas propias; separa tareas automáticas, administración y acciones humanas, sin repetir las 43 pruebas manualmente.
+
 ## Dos cierres de código y permiso del propietario
 
 El árbol compartido mantiene MCP_BUSINESS_WRITES_ENABLED=false y QA_EXECUTION_RELEASE_ID=null. Transporte, fábrica y emisor administrativo permanecen cerrados. Incluso un permiso sintético válido no habilita el runtime compartido; las regresiones exigen esos valores. No hay variable genérica que abra negocio ni herramienta MCP para instalar permisos, confiar claves, ejecutar SQL o aprobar.
@@ -39,7 +43,7 @@ Se comprueban transferencias propias (solo comisión, sin ingresos/gastos fictic
 ### Procedimiento reservado para una autorización posterior
 
 1. Integrar por revisión los PR requeridos y fijar el commit aprobado. Verificar CI, catálogo y los dos cierres del árbol compartido. No activar desde una rama sin revisar.
-2. Inventariar privadamente el mismo Site QA, origen, D1 ficticia, identidad y clave registrada personalmente allí. Obtener autorización administrativa específica de publicación y activación; conservar versión/configuración cerradas y respaldo QA recuperable.
+2. Inventariar privadamente el mismo Site QA, origen, D1 ficticia, identidad y clave registrada personalmente allí. Obtener autorización administrativa específica de publicación/activación/cierre; conservar versión/configuración cerradas y evidencia QA. No exigir un respaldo nativo de producción para el ensayo mínimo de una QA solo ficticia; el respaldo recuperable del destino personal sigue siendo un gate separado.
 3. Preparar fuera de la distribución compartida un artefacto privado de esa QA: manifiesto propio, releaseId del candidato aprobado, y únicamente los dos cambios de armado revisados. Registrar hashes del artefacto y del overlay; la revisión debe cubrir ambos. No subir ese overlay a main ni a una instalación personal. No existe un comando público de armado automático.
 4. Comprobar que la identidad del proyecto compilado y request.url coinciden con el destino nativo. Publicar exclusivamente ese artefacto autorizado; todavía sin permiso válido debe responder writes_disabled. Si el host no permite verificar la vinculación, detener la activación.
 5. El propietario abre /approvals/qa-permit, revisa el destino y firma con UV. Un administrador instala el artefacto devuelto como secreto únicamente en ese Site. Comprobar health, expiración y bindings; no registrar el valor en logs/issues. El permiso no aprueba propuestas.

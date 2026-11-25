@@ -6,7 +6,7 @@ Estado: borrador, **no enviado**. Referencia pública: issue #13 y PHASE2_UPGRAD
 
 Necesitamos actualizar una instalación existente de Vida en Orden en ChatGPT Sites, preservando su mismo Site, binding D1, origen, identidad/propietario, permisos, configuración y todos los datos. No queremos crear otra instalación ni reiniciar/restaurar la base viva. MCP de negocio debe seguir deshabilitado.
 
-Código público candidato: commit integrado/revisado [por completar tras CI y revisión]. Base conocida del proyecto: main ca336b7; PR #17 y #18 y entrega de ensayo incremental. Instalación destino/versión/deployment/entorno: [completar privadamente por su administrador]. Nivel real de migraciones: [por determinar administrativamente; no inferirlo desde el código].
+Código público candidato: commit integrado/revisado [por completar tras los merges y CI finales]. Base conocida: main0162720 con #17 fusionado; pendientes #18 corregido y #19 de ensayo incremental. Instalación destino/versión/deployment/entorno: [completar privadamente por su administrador cuando autorice la ventana]. Nivel real de migraciones: [por determinar administrativamente; no inferirlo desde el código].
 
 Las herramientas Sites disponibles en esta sesión permiten versiones, despliegues, variables, acceso, overview y páginas acotadas de filas. No exponen export/snapshot/restore nativo, ledger y DDL completos ni métricas de CPU/memoria/cuotas. No disponemos de una operación soportada para comprobar estos requisitos; no hemos intentado SQL remoto, alteraciones del ledger ni endpoints alternativos.
 

@@ -1,5 +1,11 @@
 # Historial de cambios
 
+## Revisión de autorización obligatoria en el motor · 2026-11-25
+
+- commit exige autorizador y valida su resultado completo/vigente, release y huella antes de toda ejecución nueva; ausencia, excepción o datos inválidos deniegan writes_disabled sin efectos. El lote SQL no acepta un deadline nulo y audita la autorización atómicamente.
+- Regresiones directas y MCP, comparación de todas las tablas ante denegación, permiso firmado más aprobación independiente, tarea/gasto ficticios y recuperación idempotente de recibos tras cierre. Fixtures legítimos usan la política criptográfica real y reloj vigente; no hay bypass de tests.
+- Main0162720 incorpora #17; cadena pendiente #18 → #19, con nueva revisión/CI requeridos. Procedimiento mínimo de QA alojada documentado sin habilitar cierres, crear Sites, instalar permisos ni desplegar. Actualización personal mantiene su gate administrativo de respaldo/ledger.
+
 ## Ensayo nativo local de actualización y recuperación · 2026-11-25
 
 - Nuevo verify:upgrade en CI/AGENTS: export/restore con Wrangler LOCAL en dos D1 ficticias, ledger 8→13 con solo cinco pendientes y repetición sin cambios, todas las filas/vistas preservadas, 48 tablas/54 triggers/índice0012. Incluye historia de 2.100 movimientos y 5.000 eventos de auditoría; sin purga para sortear límites.

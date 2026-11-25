@@ -1,6 +1,6 @@
 # Ensayo nativo local: fase 2 → esquema 0012
 
-25 noviembre 2026. Entrega dependiente: PR #17 → PR #18 → [PR #19](https://github.com/JorgeTonos28/Vida_en_orden/pull/19), implementación a7220a6 y trazabilidad documental. No se publica en Sites ni se modifica ninguna instalación existente. Este ensayo avanza la issue #13; **no acredita un respaldo, ledger o actualización del servicio administrado de Sites**.
+25 noviembre 2026. #17 ya integrado en main0162720. Cadena pendiente: PR #18 → [PR #19](https://github.com/JorgeTonos28/Vida_en_orden/pull/19), con la corrección f5a0f81 del motor incorporada exactamente y este arnés preservado sin cambios. Implementación inicial a7220a6, fallo/reintento e329497. No se publica en Sites ni se modifica ninguna instalación existente. Este ensayo avanza la issue #13; **no acredita un respaldo, ledger o actualización del servicio administrado de Sites**.
 
 ## Reproducción y alcance
 
