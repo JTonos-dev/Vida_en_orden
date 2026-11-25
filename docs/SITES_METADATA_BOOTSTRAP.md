@@ -1,6 +1,6 @@
 # Instalación Sites con esquema y bootstrap separados
 
-Entrega dependiente de #11, rama fix/mcp-schema-only-bootstrap, PR #12. El candidato a05433d se publicó en un Site privado nuevo. La corrección posterior de registro inicial 5359d43 pasó 146 pruebas/CI/clon y se publicó como versión 2/entorno 1 del mismo Site, con MCP provisionado y 48 tablas observadas; hashes de migraciones sin cambios. La interacción humana del autenticador y las llamadas autenticadas del nuevo plugin siguen pendientes; no se certifican por esa publicación.
+Entrega dependiente de #11, rama fix/mcp-schema-only-bootstrap, PR #12. El candidato a05433d y la corrección 5359d43 se publicaron en un Site privado nuevo; 146 pruebas/CI/clon aprobados. Registro personal completado y clave pública propia fijada en entorno 2 de la misma versión 2. Plugin autenticado/44 herramientas/31 lecturas/health verificados; 48 tablas y 54 triggers presentes, hashes de migraciones sin cambios. Firma personal de propuesta todavía pendiente; la publicación y el registro no la sustituyen.
 
 ## Conservación de migraciones
 

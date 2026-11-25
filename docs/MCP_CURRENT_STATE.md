@@ -27,7 +27,7 @@ Cada instalación debe usar su propio binding D1 y sus propios secretos. Los dat
 ## Estado de desarrollo
 
 - Fases 0, 1, 1.1 y 2: código y documentación transferidos.
-- Fase 3: motor, transporte y verificación WebAuthn implementados/probados en aislamiento y publicados en desarrollo; registro humano y conexión autenticada del nuevo plugin pendientes. La incidencia de bootstrap inicial se sigue en DEVELOPMENT_PROGRESS.
+- Fase 3: motor/transporte publicados, registro personal y clave pública propia configurados, conexión autenticada/44 herramientas/31 lecturas/health/idempotencia verificados. Firma personal de propuesta pendiente; primer enlace expiró sin firma. La incidencia de bootstrap fue corregida y su reintento humano aprobado. Ver DEVELOPMENT_PROGRESS.
 - Fases 4/5: 19/24 adaptadores probados, sin ejecución MCP real habilitada.
 - Fase 6: adjuntos de texto/CSV/JSON, informes internos y endurecimiento implementados; binarios/OCR y carga alojada sin verificar.
 - Fase 7: integración, migraciones y documentación en PR dependientes; ver DEVELOPMENT_PROGRESS.md para evidencia exacta y bloqueos externos.

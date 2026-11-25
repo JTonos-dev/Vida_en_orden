@@ -1,5 +1,11 @@
 # Historial de cambios
 
+## Registro humano y conexión del MCP de desarrollo · 2026-11-24
+
+- El propietario completó el registro del autenticador tras la corrección 5359d43. Se comprobó nonce consumido/propietario y metadata_version=1. Solo su clave pública se fijó en una variable secreta del Site de desarrollo; redespliegue satisfactorio de la misma versión 2 con entorno 2, sin código/SQL nuevos.
+- Plugin autenticado conectado:44 herramientas; perfil coincide con el registro, salud confirma esquema/metadatos y 54 triggers. Las 31 lecturas retornan22 respuestas válidas y 9 not_found esperados, sin fallos ni entidades creadas. Reporte vacío consistente, texto no confiable sin aprobación/efectos y preparación idempotente verificados.
+- La primera propuesta ficticia caducó sin firma; requiere un enlace vigente y firma personal. Registrar una credencial no aprueba propuestas. Negocio MCP permanece deshabilitado; no se cambian instalaciones personales ni se publica la credencial/ownerId. Ver DEVELOPMENT_PROGRESS y USER_ACCEPTANCE_TESTS.
+
 ## Registro inicial del autenticador · 2026-11-24
 
 - El candidato de esquema del PR #12 se publicó en un Site privado nuevo: deployment satisfactorio, MCP provisionado y 48 tablas observadas. No se modificó una instalación personal.
