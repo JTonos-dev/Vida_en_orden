@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { HOUSEHOLD_SCOPE } from "../../data-scopes.ts";
 import { dateInTimeZone } from "../../finance-math.ts";
-import { runWithDomainDatabase, type DomainDatabase } from "../../domain/context.ts";
+import { domainDatabase, runWithDomainDatabase, type DomainDatabase } from "../../domain/context.ts";
 import { createMcpReadService } from "../read-service.ts";
 import type { McpIdentity } from "../auth.ts";
 import { canonicalize, digest, randomChallenge } from "./canonical.ts";
@@ -45,10 +45,12 @@ function resolveReferences(value: unknown, results: Map<string, string | null>):
 
 export class ProposalEngine {
   private database: DomainDatabase;
+  private originalDatabase: D1Database;
   private options: EngineOptions;
   constructor(database: D1Database, options: EngineOptions) {
     if (!options.actor.userId || !options.actor.email) throw new PlanError("missing_identity", "Se requiere identidad autenticada.", 401);
     this.database = database.withSession?.("first-primary") ?? database;
+    this.originalDatabase = database;
     this.options = options;
   }
   private now() { return this.options.now?.() ?? new Date(); }
@@ -82,7 +84,7 @@ export class ProposalEngine {
       this.database.prepare("DELETE FROM mcp_execution_guards WHERE execution_id=?").bind(stageId),
     ]);
   }
-  async prepare(input: unknown, prior?: { proposalId: string; revision: number }): Promise<Proposal> {
+  async prepare(input: unknown, prior?: { proposalId: string; revision: number }, requiredBaseRevision?: number): Promise<Proposal> {
     if (new TextEncoder().encode(JSON.stringify(input)).byteLength > 64 * 1024) throw new PlanError("input_limit", "El plan excede 64 KiB.", 413);
     const parsed = actionsSchema.safeParse(input);
     if (!parsed.success) throw new PlanError("invalid_input", "El plan requiere entre una y veinte acciones con esquema cerrado.", 400);
@@ -94,6 +96,7 @@ export class ProposalEngine {
     });
     const info = await this.database.prepare("SELECT installation_id,business_revision FROM mcp_installation WHERE id=1").first<{ installation_id: string; business_revision: number }>();
     if (!info) throw new PlanError("migration_required", "Falta la migración del motor MCP.", 503);
+    if (requiredBaseRevision !== undefined && info.business_revision !== requiredBaseRevision) throw new PlanError("stale_reversal", "Hubo cambios posteriores; prepara una corrección específica.");
     const stageId = crypto.randomUUID();
     const proposalId = prior?.proposalId ?? crypto.randomUUID(), revision = prior?.revision ?? 1;
     const now = this.now(), expiresAt = now.getTime() + Math.min(10 * 60_000, Math.max(1000, this.options.ttlMs ?? 10 * 60_000));
@@ -139,6 +142,29 @@ export class ProposalEngine {
       await this.audit(proposalId, revision, "prepared");
       return { proposalId, revision, state: "VALIDATED", digest: fingerprint, payload };
     } finally { await this.cleanupStage(stageId); }
+  }
+  /** Server-derived inverse only; no table, row or patch is accepted from the caller. */
+  async prepareReversal(proposalId: string, revision: number): Promise<Proposal> {
+    const original = await this.get(proposalId, revision);
+    const receipt = await this.executionResult(proposalId, revision);
+    if (!receipt || original.state !== "COMMITTED" || await digest({ domain: "vida-en-orden/proposal/v1", payload: original.payload }) !== original.digest) throw new PlanError("invalid_reversal", "Solo se revierte una ejecución íntegra y confirmada.");
+    const allowed = new Set(["home_tasks", "home_notes", "home_workspaces", "home_areas", "home_projects", "calendar_events"]);
+    if (original.payload.actions.some((action) => this.options.registry.get(action.kind)?.phase !== 4) || original.payload.changes.some((change) => !allowed.has(change.table) && change.table !== "audit_log" && !(!change.before && change.table.startsWith("finance_")))) throw new PlanError("invalid_reversal", "Las finanzas requieren anulación o compensación de dominio, no un rollback de filas.");
+    const delta = original.payload.changes.filter((change) => allowed.has(change.table));
+    const kind = "system.reverse_non_financial";
+    const registry = new Map(this.options.registry);
+    registry.set(kind, { kind, phase: 4, risk: "R2", targetTable: "home_tasks", schema: z.object({ sourceProposalId: z.literal(proposalId), sourceRevision: z.literal(revision) }).strict(),
+      async execute() {
+        const database = domainDatabase();
+        for (const change of [...delta].reverse()) {
+          const table = BUSINESS_TABLES.find((entry) => entry.name === change.table)!;
+          if (!change.before) await database.prepare(`DELETE FROM ${table.name} WHERE ${table.primaryKey}=?`).bind(change.id).run();
+          else if (change.after) await database.prepare(`UPDATE ${table.name} SET ${table.columns.filter((column) => column !== table.primaryKey).map((column) => `${column}=?`).join(",")} WHERE ${table.primaryKey}=?`).bind(...table.columns.filter((column) => column !== table.primaryKey).map((column) => change.before![column]),change.id).run();
+          else await database.prepare(`INSERT INTO ${table.name}(${table.columns.join(",")}) VALUES(${table.columns.map(() => "?").join(",")})`).bind(...table.columns.map((column) => change.before![column])).run();
+        }
+      },
+    });
+    return new ProposalEngine(this.originalDatabase, { ...this.options, registry }).prepare([{ actionId: "reverse", kind, input: { sourceProposalId: proposalId, sourceRevision: revision } }], undefined, receipt.revisionAfter);
   }
   async revise(proposalId: string, input: unknown) {
     const old = await this.stored(proposalId);

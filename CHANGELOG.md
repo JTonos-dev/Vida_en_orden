@@ -1,5 +1,12 @@
 # Historial de cambios
 
+## Fase 4: adaptadores no financieros · 2026-11-24
+
+- Catálogo cerrado de 19 acciones que usa los servicios compartidos y referencias locales entre operaciones.
+- Validación de dependencias y devolución inequívoca de IDs, con pruebas de regresión.
+- Reversión no financiera derivada de un recibo, con propuesta/aprobación nueva y sin cambios posteriores. Se conserva la auditoría.
+- Sin migraciones nuevas, despliegues ni cambios de las 31 herramientas públicas.
+
 ## Fase 3: fundamento aislado · 2026-11-24
 
 - Motor de propuestas inmutables con diff, SHA-256, caducidad, aislamiento, guardas de concurrencia, aprobación criptográfica y recibos idempotentes.

@@ -18,6 +18,7 @@ export type ExecutionReceipt = { executionId: string; proposalId: string; revisi
 export type ActionDefinition = {
   kind: string; phase: 4 | 5; risk: "R1" | "R2"; targetTable: BusinessTableName;
   schema: ZodType<Record<string, unknown>>;
+  inputSchema?: Record<string, unknown>;
   execute: (actor: McpIdentity, input: Record<string, unknown>) => Promise<unknown>;
 };
 export type ActionRegistry = ReadonlyMap<string, ActionDefinition>;

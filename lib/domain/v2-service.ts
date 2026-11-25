@@ -432,7 +432,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
     const count = await database.prepare("SELECT COUNT(*) total FROM home_areas WHERE scope_id=?").bind(HOUSEHOLD_SCOPE).first<{ total: number }>();
     await database.prepare("INSERT INTO home_areas (id,scope_id,name,color,order_index,created_at,updated_at) VALUES (?,?,?,?,?,?,?)")
       .bind(id, HOUSEHOLD_SCOPE, name, text(body.color, "El color") || "#2463eb", Number(count?.total || 0), stamp, stamp).run();
-    return;
+    return { id };
   }
   if (action === "area.update") {
     const id = text(body.id, "El área", true);
@@ -451,7 +451,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
     await shared("home_areas",body.areaId);
     await database.prepare("INSERT INTO home_projects (id,scope_id,area_id,name,description,status,start_date,target_date,budget_minor,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)")
       .bind(id, HOUSEHOLD_SCOPE, body.areaId || null, name, text(body.description, "La descripción"), "active", startDate, targetDate, body.budgetMinor == null ? null : minor(body.budgetMinor, "El presupuesto"), stamp, stamp).run();
-    return;
+    return { id };
   }
   if (action === "project.update") {
     const id = text(body.id, "El proyecto", true);
@@ -481,6 +481,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
       await database.prepare("INSERT INTO calendar_events (id,owner_id,title,description,location,start_date,end_date,start_time,end_time,all_day,timezone,status,recurrence,recurrence_until,area_id,project_id,linked_task_id,notes,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
         .bind(id, ownerId, text(body.title, "El título", true), text(body.description, "La descripción"), text(body.location, "La ubicación"), startDate, endDate, startTime, endTime, allDay ? 1 : 0, text(body.timezone, "La zona horaria") || "America/Santo_Domingo", "scheduled", recurrence, date(body.recurrenceUntil, "El fin de recurrencia"), body.areaId || null, body.projectId || null, body.linkedTaskId || null, text(body.notes, "Las notas"), stamp, stamp).run();
       await audit(ownerId, "event", id, "created");
+      return { id };
     } else {
       const id = text(body.id, "El evento", true);
       await owned("calendar_events", id, ownerId);
