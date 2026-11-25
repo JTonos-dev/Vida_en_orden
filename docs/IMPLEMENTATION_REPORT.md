@@ -1,43 +1,65 @@
 # Informe de desarrollo de fases 3–7
 
-Fecha: 24 de noviembre de 2026. Implementación técnica preparada en PR dependientes; aceptación alojada/humana **pendiente**. No hubo merges, cambios de protecciones, publicaciones o migraciones sobre instalaciones personales. Oficial y fork actual siguen siendo las fuentes de desarrollo; no se creó un repositorio público alternativo ni se sustituyó historia.
+24 de noviembre de 2026. Código implementado/probado, Site privado publicado, registro/firma personal y conexión auténtica del plugin verificados. APPROVED con evidencia durable y ejecución denegada, sin negocio. **Faltan revisión/integración, habilitación separada y aceptación de ejecución futura.** No hubo merges, force-push, cambios de protecciones ni modificaciones de instalaciones personales. No se creó otro repositorio público ni se sustituyó historia.
 
-## Inventario y estado exacto
+## Inventario y estado por fase
 
-| Fase | Implementado y probado en aislamiento | Pendiente / límite |
+**Auditoría posterior a 10a0f83:** el candidato del PR #12 publica revisiones atómicamente y no copia/cuenta historial audit_log salvo un marcador indexado. Migración aditiva 0012 y16 regresiones nuevas; 162 pruebas locales aprobadas; además, D1 independiente/Worker completo/proyectado. No está desplegado ni integrado: el Site y firma acreditados abajo corresponden a 5359d43/SQL hasta 0011. Conformidad pendiente. Sigue límite fuente 2.000 en las otras 17 tablas; no se declara listo para producción. Detalles y rollback: [seguimiento de auditoría](PR12_AUDIT_FOLLOWUP.md).
+
+| Fase | Implementación | Estado restante |
 |---|---|---|
-| 3 | Propuestas inmutables/revisiones, diff por acción/impacto, propietario/huella, TTL, replay/idempotencia, concurrencia, WebAuthn, batch atómico, auditoría/recibo/verificación | Canal humano y host reales. Ejecución MCP de negocio bloqueada en código |
-| 4 | 19 acciones de tareas/subtareas, contexto/orden/estados/fechas, áreas/proyectos, calendario y bitácora; reversión por recibo | Aceptación del plugin real tras habilitación segura futura |
-| 5 | 24 acciones financieras: cuentas, movimientos/comisiones, categorías/conceptos recordados, presupuesto, obligaciones/recurrencia/reservas, metas/aportes, preferencias y vínculos | Sin movimientos reales. Aceptación/ejecución humana pendientes; no hay conexión bancaria |
-| 6 | Texto/CSV/recibo JSON, informe interno, validación/límites, evidencia/revocación, salud/leases y recuperación | Binarios/OCR, cuotas/carga alojadas y política de retención sin verificar; sin servicios inventados |
-| 7 | Migraciones/ORM, integración Worker/D1, CI, clon independiente basal, documentación, paridad y UAT | Gate de publicación alojada, autenticador/ChatGPT real y revisión del mantenedor. No se declara fase completada |
+| 3 | Propuestas/revisiones inmutables, diff/impacto, propietario/huella, TTL, replay/idempotencia, concurrencia, WebAuthn, batch atómico, auditoría/recibo/verificación y bootstrap autenticado | Registro/plugin/firma humana verificados; APPROVED con evidencia y ejecución denegada. Revisión/integración pendientes |
+| 4 | 19 acciones de tareas/subtareas, contexto/orden/estados/fechas, áreas/proyectos, calendario/recurrencia y bitácora; reversión por recibo | Pruebas aisladas aprobadas; ejecución MCP real bloqueada hasta habilitación revisada |
+| 5 | 24 acciones financieras de cuentas, movimientos/comisiones, catálogos existentes, presupuesto, obligaciones/recurrencia/reservas, metas/aportes, preferencias y vínculos | Integridad contable probada con datos ficticios; misma compuerta pendiente, sin movimientos financieros reales |
+| 6 | Texto/CSV/recibo JSON no confiable, informes internos, validación/límites, evidencia/revocación, salud/leases y recuperación | Texto, reporte vacío y salud probados también en plataforma; binarios/OCR/bancos no disponibles, carga/cuotas/retención pendientes |
+| 7 | Worker/D1, migraciones/ORM, CI/clones, auditorías, exportación trazable, publicación privada y documentación/UAT |31 lecturas y firma reales verificadas; no completada: faltan aceptación de ejecución futura, carga/cuotas y revisión/integración |
 
-La [matriz de paridad](MCP_PARITY_MATRIX.md) enumera las 43 acciones exactas y sus excepciones. No se declara cobertura total del objetivo aspiracional: split/reconciliación, CRUD de conceptos, archivo de obligaciones/metas, reasignación genérica de reservas, importación/restauración MCP y otras operaciones ausentes de la aplicación no se inventan ni se cubren mediante SQL/CRUD genérico.
+MCP_PARITY_MATRIX enumera las 43 acciones y las excepciones: split/reconciliación, CRUD de conceptos, archivo de obligaciones/metas, reasignación genérica de reservas, importación/restauración MCP y otras capacidades que la aplicación no soporta. No se cubren con SQL/CRUD genérico.
 
-Las 31 lecturas anteriores conservan contrato/anotaciones y ausencia de escrituras. Hay 33/42/44 herramientas según flags privados de ampliaciones/propuestas. Solo metadatos/staging son mutables; incluso APPROVED devuelve writes_disabled en commit. El executor se prueba con una compuerta exclusiva del constructor aislado; fábrica/transporte productivos mantienen constante false. `confirmed`, adjuntos, texto del chat y argumentos de identidad no autorizan nada.
+Las 31 lecturas conservan contratos/anotaciones y ausencia de efectos. Catálogo 31 por defecto; 33/42/44 con opt-in. Solo metadatos/staging son mutables. Fábrica y transporte mantienen `MCP_BUSINESS_WRITES_ENABLED=false`; incluso APPROVED no habilita ejecución. El constructor del executor solo se habilita en pruebas aisladas. Texto, archivos y `confirmed` no sustituyen firma ni fijan confianza. El campo conservador `platformHumanApprovalVerified` sigue false en código: una prueba de una instalación no lo cambia globalmente.
 
-## PR, commits y pruebas
+## PR y commits
 
-La cadena #4 → #5 → #6 → #7 → #8 → #9 → #10 está abierta y con CI satisfactorio, sin revisiones humanas. Commits, enlaces, deltas y dependencia de la corrección del runtime están en [DEVELOPMENT_PROGRESS.md](DEVELOPMENT_PROGRESS.md). El mantenedor debe revisar/integrar en orden, sin force-push/bypass, y repetir CI tras conflictos o cambios de base. Abrir un PR no publica un Site.
+Orden de revisión/integración: [#4](https://github.com/JorgeTonos28/Vida_en_orden/pull/4) → [#5](https://github.com/JorgeTonos28/Vida_en_orden/pull/5) → [#6](https://github.com/JorgeTonos28/Vida_en_orden/pull/6) → [#7](https://github.com/JorgeTonos28/Vida_en_orden/pull/7) → [#8](https://github.com/JorgeTonos28/Vida_en_orden/pull/8) → [#9](https://github.com/JorgeTonos28/Vida_en_orden/pull/9) → [#10](https://github.com/JorgeTonos28/Vida_en_orden/pull/10) → [#11](https://github.com/JorgeTonos28/Vida_en_orden/pull/11) → [#12](https://github.com/JorgeTonos28/Vida_en_orden/pull/12). Abiertos, sin revisión humana al corte; comprobar el CI del HEAD antes de integrar. Main sigue 317cfd8.
 
-El cierre basal 33a6a53 pasó 137 pruebas y toda la suite también desde un clon nuevo de GitHub, cuyo árbol quedó sin cambios. #10 siguió verde en 12f6bde. La auditoría adicional encontró 33 entradas de dependencias (dos críticas); ese artefacto privado **no se publicó**. La corrección dependiente obtiene cero alertas npm con todas las dependencias incluidas y umbral low, sin --force ni degradaciones. Detalles/versiones/fuentes primarias en [DEPENDENCY_SECURITY.md](DEPENDENCY_SECURITY.md).
+Cierre 33a6a53/docs12f6bde; dependencias a067ef7; compatibilidad Sites a05433d; registro inicial **5359d43**; documentación de publicación b376ae4. DEVELOPMENT_PROGRESS registra ramas, commits y deltas. Los PR tienen base main por permisos del fork y diffs acumulativos: revisar cada delta desde su dependencia y repetir CI al integrar. No fusionar fuera de orden ni eludir protecciones.
 
-Resultado local de la corrección: npm ci (709 paquetes), 14 financieras +120 MCP +4 auditoría =138 pruebas aprobadas, cero omitidas; TypeScript, lint sin errores/cuatro advertencias previas, auditoría pública de 254 archivos sin hallazgos, schema sin cambios, build, D1 independiente 0000–0010/48 tablas y Worker compilado aprobados. El Worker ejecuta las 31 lecturas (22 válidas/nueve not_found esperados en vacío), WebAuthn criptográfico sintético, CSRF/conexión persistente, inscripción no confiable, anti-framing y ejecución cerrada; además 27 comprobaciones API/UI. Nada usa D1 remota ni datos/credenciales de otra instalación. Las advertencias upstream de sourcemaps no se presentan como errores ni como una revisión visual.
+## Pruebas ejecutadas
 
-El CI de la corrección y su instalación desde GitHub se actualizarán en seguimiento cuando terminen; no se deducen del clon basal ni de un lockfile sin alertas. Los comandos reproducibles están en AGENTS.md. verify:hosting **no está aprobado**: informa bloqueo por 21 instrucciones de metadatos fuera de esquema.
+| Comprobación | Resultado observado |
+|---|---|
+| Instalación | npm ci, 709 paquetes del lock corregido; CI hizo checkout/instalación nuevos |
+| Finanzas / MCP / auditoría |14 +144 +4 =162 aprobadas en el candidato de auditoría, cero omitidas; versión publicada anterior 146 |
+| TypeScript / lint | Aprobados; cero errores/cuatro advertencias previas |
+| Schema / build | Drizzle no genera cambios en copia temporal; build aprobado con avisos upstream no bloqueantes |
+| Auditorías | Fuente: 261 archivos sin hallazgos; npm: cero vulnerabilidades, desarrollo incluido/umbral low |
+| D1 independiente |Candidato:13 SQL 0000–0012 / 48 tablas, índice y 54 triggers en D1 local; publicación anterior hasta 0011 |
+| Worker completo / proyectado | 31 lecturas, registro antes de preparar, WebAuthn sintético, CSRF/anti-framing y compuerta cerrada; 27 QA API/UI en cada modo |
+| Exportación Sites | HEAD limpio, sin Git/configuración ajenos; 12 SQL, 21 DML conocidos diferidos, gate sin hallazgos y hashes trazables |
+| CI / GitHub | Código 5359d43: run 45504851134 verde; docs b376ae4: run 45505805497 verde. Clon repite146 pruebas/auditoría con lock idéntico y árbol limpio |
+| Backend Sites | Deployment satisfactorio de la misma versión 2/entorno 2; clave pública propia configurada privadamente, MCP y 48 tablas |
+| Registro/identidad reales | Propietario confirmó creación personal, nonce consumido y perfil MCP coincidente; health confirma esquema / 54 triggers/metadatos versión 1 |
+| Plugin conectado | 44 herramientas; 31 lecturas: 22 válidas/nueve not_found esperados por IDs ficticios inexistentes, cero fallos y entidades vacías |
+| Ampliaciones/idempotencia | Reporte vacío consistente; texto no confiable sin aprobación/efectos; prepare conserva propuesta/huella/revisión al repetir clave |
+| Firma y compuerta reales |APPROVED con revisión/digest exactos; evidencia WebAuthn persistida ligada a owner/clave/origen/desafío, nonce consumido dentro de TTL. Commit devuelve writes_disabled antes/después de firma; cero tarea/workspace/ejecuciones y revisión de negocio 0 |
+| Autorización negativa | Servicio sin visitante recibe 401 en MCP/enrollment; página 200 y anti-framing aprobados. No se fabricó identidad |
 
-## Bloqueos alojados y pruebas personales
+El lock basal tenía33 entradas afectadas, incluidas dos críticas. Ese artefacto nunca se desplegó. DEPENDENCY_SECURITY documenta corrección de runtime/transitivas y migración real a Zod4, sin --force ni degradar Drizzle. Auditar fuente y dependencias verifica riesgos distintos; no garantiza seguridad futura.
 
-Se creó un Site privado nuevo con acceso solo del propietario y variables propias, sin credenciales de confianza. D1 está declarada, pero no se verificó su aprovisionamiento alojado; no se guardó versión ni inició deployment. El flujo oficial documenta migraciones solo de esquema; el bootstrap/invalidation de 0008/0010 necesita un procedimiento administrativo admitido fuera de ese flujo. El diagnóstico, gate y consulta preparada no enviada están en [SITES_MIGRATION_COMPATIBILITY.md](SITES_MIGRATION_COMPATIBILITY.md). No es un rechazo observado del backend ni una afirmación de imposibilidad permanente. No se retiran triggers ni se inventa SQL MCP/endpoints de administración para avanzar.
+La primera propuesta expiró sin firma; el propietario firmó la segunda dentro del TTL y confirmó su intervención personal. La evidencia persistida coincide con la clave fijada y el origen exacto, revisión/huella/desafío/owner; se observó APPROVED antes de caducidad y cero ejecución/negocio. Su expiración posterior es normal y no requiere repetir esta prueba. Siguen pendientes aceptación de ejecución futura, adjuntos/visualización con datos UAT y carga/cuotas máximas del host.
 
-Una vez resuelto ese paso, el propietario realizará [USER_ACCEPTANCE_TESTS.md](USER_ACCEPTANCE_TESTS.md), empezando por UAT-3-HUMAN: acceso owner-only, registro legítimo y fijación administrativa de su autenticador, revisión de diff/digest/TTL y firma física. APPROVED no debe crear negocio y commit debe seguir dando writes_disabled. La guía contiene requisitos, datos ficticios, pasos, persistencia, denegaciones, precauciones y estado. Ninguna aceptación está marcada aprobada por inferencia; no se pide repetir carreras/rollback/firmas que ya son automáticas.
+## Publicación, migraciones y recuperación
 
-Los casos financieros y de ejecución real siguen bloqueados hasta demostrar el canal y revisar una habilitación explícita posterior. La investigación no presupone una API de aprobación de ChatGPT; [HUMAN_APPROVAL_SETUP.md](HUMAN_APPROVAL_SETUP.md) documenta el canal alternativo verificado localmente. Las firmas sintéticas no prueban interacción humana ni certifican hardware.
+El Site es nuevo, owner-only, con D1/configuración propias. Código público 5359d43 y commit privado de versión 2 se registran por separado; IDs/URL/clave/ownerId nunca se publican en GitHub. Hashes de migraciones idénticos a versión 1. La clave pública legítima se fijó privadamente tras confirmación personal; entorno 2 redespliega la misma versión sin código/SQL nuevos. La instalación existente conserva fase2/31 lecturas/negocio cerrado/referencias válidas, sin cambios.
 
-## Actualización y riesgos restantes
+SITES_METADATA_BOOTSTRAP conserva SQL original 0000–0010 y añade 0011. Para Sites exporta DDL/triggers con hashes; el primer registro o prepare explícitos y autenticados inicializa metadatos atómicamente, invalida planes anteriores y conserva negocio/revisión/recibos. GET, lecturas y denegaciones no inicializan. No hay DDL en requests, SQL del modelo ni ledger falsificado. La automatización es freshInstallationOnly; previews con otra representación requieren inspección y autorización de su propietario.
 
-Seguir [UPGRADE_AND_ROLLBACK.md](UPGRADE_AND_ROLLBACK.md): incluir corrección de dependencias, commit aprobado, respaldo propio/restauración aislada, propuestas deshabilitadas y requests drenados, mecanismo de migración soportado y comprobación de versión/esquema. 0010 invalida planes antiguos sin tocar negocio. Rollback ordinario vuelve al código anterior con flags apagados y conserva tablas/evidencia; nunca restaura D1 automáticamente ni borra auditoría.
+El 503 inicial se reprodujo antes de corregir. Tres regresiones cubren arranque, denegaciones/esquema incompleto/versión futura y rollback; ambos Workers prueban registrar primero. Reintento de registro y firma humana posteriores terminaron correctamente; clave/evidencia permanecen privadas. Esta verificación no cambió código, SQL ni configuración del executor.
 
-La instalación independiente existente conserva fase2/31 lecturas/ejecución deshabilitada y cero incidencias referenciales en la comprobación de solo lectura. Sus datos/configuración no se usan para desarrollar y no se le aplicó la actualización. Sus propietarios deberán adoptar una corrección aprobada por su propio procedimiento, no por un despliegue automático.
+UPGRADE_AND_ROLLBACK exige autorización, respaldo/restauración aislada, ledger/hashes, flags apagados y requests drenados, versión exacta y mecanismo soportado. Rollback conserva datos/esquema/evidencia; no DROP, restauración ni downgrade automático. Un merge nunca despliega otro Site. Ante timeout de ejecución futura, consultar recibo/idempotencia antes de reintentar; reversión no financiera requiere nueva propuesta/firma y finanzas usan servicios de anulación específicos.
 
-Permanecen pendientes revisión humana, aprobación alojada, cuota/rendimiento, retención y las capacidades ausentes enumeradas en paridad. El historial público, PR antiguos, forks y cachés siguen potencialmente accesibles; el responsable suspendió su sustitución. Fuente actual sin secretos y npm sin alertas no equivalen a retirada histórica ni a garantía permanente de seguridad.
+## Aceptación y límites
+
+USER_ACCEPTANCE_TESTS contiene requisitos, datos, pasos, persistencia, errores y estado. Registro, clave propia, conexión, UAT-3-HUMAN y bloqueo de commit tras APPROVED ya aprobados: no repetirlos. La tarea/workspace propuestos no se crearon. No pedir PIN/contraseña/clave privada ni repetir pruebas automatizadas o llamadas reales ya verificadas. Toda incidencia corregida requiere regresión antes del cierre.
+
+El canal humano ya está demostrado. Fases 4/5 reales siguen bloqueadas hasta una habilitación posterior revisada; la prueba no abre negocio ni cambia globalmente platformHumanApprovalVerified. Persisten revisión/integración, aceptación de ejecución futura, cuota/rendimiento/retención y capacidades ausentes de paridad. Historial, PR antiguos, forks y cachés siguen potencialmente accesibles; su sustitución fue suspendida y no se declara retirada histórica.

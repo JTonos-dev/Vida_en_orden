@@ -25,6 +25,12 @@ export function stageSql(sql: string, stageId: string): string | null {
   if (/\bmcp_\w+/i.test(sql) || /;|--|\/\*/.test(sql)) throw new Error("Unsupported domain SQL");
   const tokens = tokenize(sql);
   const method = tokens[0]?.value.toUpperCase();
+  if(tokens.some(token=>token.value==="audit_log")){
+    // This partition holds a seed marker and new events, not history. Reject
+    // unknown history-dependent reads instead of silently truncating decisions.
+    const knownRead=sql==="SELECT id FROM audit_log WHERE owner_id=? AND entity_type='system' AND entity_id='concepts-v1' AND action='seeded' LIMIT 1"||sql==="SELECT * FROM audit_log WHERE owner_id=? ORDER BY occurred_at DESC LIMIT 100";
+    if(method!=="INSERT"&&!knownRead)throw new Error("Unsupported audit history read or mutation; staging audit is append-only context");
+  }
   if (method === "CREATE") {
     if (/^CREATE (?:TABLE IF NOT EXISTS finance_concepts|UNIQUE INDEX IF NOT EXISTS finance_concepts_owner_normalized_idx)\b/i.test(sql)) return null;
     throw new Error("Request-time schema change is forbidden");

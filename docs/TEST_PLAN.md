@@ -40,7 +40,11 @@ El script `scripts/qa-v2.mjs` modifica datos y restaura el estado previo al fina
 
 `verify:worker` usa el build real y HTTPS loopback: ejecuta las 31 lecturas, prepara y aprueba mediante criptografía sintética dentro del Worker, deniega CSRF, comprueba que la siguiente solicitud por conexión persistente funciona, verifica alta no confiable/anti-framing y ejecución MCP cerrada. Continúa con 27 verificaciones de API/UI en la misma D1 ficticia. Todo se elimina al acabar. No prueba el control físico del autenticador, navegación visual ni la identidad del host: esos casos están en USER_ACCEPTANCE_TESTS.md.
 
+`verify:sites` repite esa integración con la proyección DDL 0000–0012. Ambas integraciones inician el registro **antes de preparar una propuesta**, como la guía real: GET y POST denegado no inicializan; POST autenticado/CSRF válido inicializa metadatos sin negocio ni confianza automática. Es la regresión del 503 reportado por el propietario en el primer Site publicado. Los tests de bootstrap cubren además esquema incompleto, metadatos futuros y fallo atómico de inscripción. No pedir al propietario repetir estas variantes automatizadas.
+
 ## QA visual histórico de la aplicación transferida
+
+Seguimiento de auditoría del PR #12: mcp-review-regressions.test.ts añade 16 casos de revisión fallida/sustitución CAS/carreras/limpieza recuperable,5.000 eventos de auditoría con/sin marcador, frontera 2.000/2.001, append-only e índice ausente/upgrade 0011→0012. mcp-d1-runtime.test.ts inyecta un fallo tardío mediante trigger en D1/workerd y comprueba rollback, además de preparación con 5.000 auditorías. Solo datos ficticios/locales; no se pide repetir firmas humanas ni probar esta rama en instalaciones personales. Ver PR12_AUDIT_FOLLOWUP.
 
 La lista siguiente conserva evidencia de la aplicación original. No certifica la nueva pantalla de aprobación ni una revisión visual nueva en esta sesión.
 

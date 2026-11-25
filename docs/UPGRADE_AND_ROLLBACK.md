@@ -2,16 +2,20 @@
 
 Esta entrega es código en PR dependientes; no autoriza actualizar una instalación personal. Ejecutar primero en una instancia privada de desarrollo con datos ficticios. Cada instalación administra sus propios recursos y versiones; GitHub no despliega otros Sites.
 
+La entrega de bootstrap agrega 0011 (columna de metadatos) y una proyección para publicar en Sites sin cambiar los SQL originales. Seguir SITES_METADATA_BOOTSTRAP para una instalación nueva. No usar esa automatización para sobrescribir una instalación experimental que aplicó otra representación; inspeccionar hashes/ledger y obtener autorización de su propietario. La identidad y la revisión de negocio existentes no se reinician.
+
 No publicar el lockfile basal del cierre: la auditoría detectó dependencias críticas. Incluir la corrección dependiente documentada en DEPENDENCY_SECURITY.md y verificar audit:dependencies además de la suite funcional, antes de cualquier actualización.
 
 ## Seleccionar y comprobar la versión
 
-1. Revisar/integrar #4 → #5 → #6 → #7 → #8 → #9 → PR de cierre. Los PR tienen base main por permisos del oficial y sus diffs son acumulativos; el cuerpo de cada PR identifica el delta y dependencia. No fusionar fuera de orden ni usar force-push. El mantenedor debe exigir CI verde y revisión humana y repetir los checks después de resolver conflictos.
+1. Revisar/integrar #4 → #5 → #6 → #7 → #8 → #9 → #10 → #11 → #12. Los PR tienen base main por permisos del oficial y sus diffs son acumulativos; el cuerpo de cada PR identifica el delta y dependencia. No fusionar fuera de orden ni usar force-push. El mantenedor debe exigir CI verde y revisión humana y repetir los checks después de resolver conflictos.
 2. Usar un clon limpio del oficial integrado o del commit exacto del fork aprobado. No copiar `.git`, configuración, D1, credenciales ni archivos ignorados de una instalación anterior. La historia pública aún contiene exposición conocida: no tratar el clon como historia purgada.
-3. Node >=22.13, npm ci; test:finance, test:mcp, test:audit, audit:public, tsc --noEmit, lint, verify:schema, build, verify:independent y verify:worker. Los últimos dos requieren el build. No aplicar SQL generado inesperadamente: verify:schema debe indicar cero cambios.
+3. Node >=22.13, npm ci; audit:dependencies, test:finance, test:mcp, test:audit, audit:public, tsc --noEmit, lint, verify:schema, build, verify:independent, verify:worker y verify:sites. Los tres últimos requieren el build. No aplicar SQL generado inesperadamente: verify:schema debe indicar cero cambios.
 4. Conservar el manifiesto público con marcador. Crear un checkout privado de publicación desde ese commit; configurar únicamente su propio project_id. Ver NEW_INSTANCE_GUIDE y flujo oficial de Sites. La configuración privada no se devuelve al PR.
 
 ## Matriz de compatibilidad
+
+Corrección de auditoría del PR #12: 0012 añade solo audit_log_seed_context_idx; no cambia filas, identidad ni business_revision. Se ensaya upgrade 0011→0012 con historial ficticio y D1 local; no se desplegó. Código nuevo de propuestas/registro/health exige ese índice. Para un historial real, medir construcción/espacio en la copia restaurada autorizada y obtener conformidad antes de actualizar. No borrar auditoría para ajustar límites. Rollback de código con propuestas apagadas conserva el índice y el historial. Detalles: PR12_AUDIT_FOLLOWUP.
 
 | Código | Base mínima | Propuestas | Observación |
 |---|---|---|---|
@@ -19,6 +23,8 @@ No publicar el lockfile basal del cierre: la auditoría detectó dependencias cr
 | Motor #5–#7 | Hasta 0008 | Solo pruebas internas | No exponer transporte incompleto |
 | Canal #8 | Hasta 0009 | Desarrollo opt-in | Sin evidencia durable del endurecimiento |
 | Endurecimiento/cierre #9+ | Hasta 0010 | Desarrollo opt-in | Falla cerrado si falta instalación, tablas o cualquiera de los 54 triggers |
+| Bootstrap Sites #12 | Hasta 0011; proyección DDL para Sites | Desarrollo opt-in, negocio cerrado | Falla si falta esquema/triggers; primer POST de registro o preparación autenticados inicializa metadatos versión 1 |
+| Auditoría posterior #12 | Hasta 0012; mismo bootstrap/proyección | Negocio cerrado, sin despliegue autorizado | Índice obligatorio para propuestas/registro/health; historial excluido de snapshot salvo 0/1 marcador; otras 17 tablas≤2.000 filas fuente |
 
 El código nuevo con flags ausentes conserva las 31 lecturas. Una base sin infraestructura completa no habilita propuestas; no se crean tablas/triggers en un request para ocultar una migración omitida.
 
@@ -27,7 +33,7 @@ El código nuevo con flags ausentes conserva las 31 lecturas. Una base sin infra
 1. Inventariar código, versión Sites, origen, variables privadas y migraciones efectivamente aplicadas. No deducir el estado de D1 desde el SHA o un despliegue fallido.
 2. Exportar un respaldo propio por el procedimiento de MCP_BACKUP_RECOVERY; conservarlo fuera de Git y comprobar restauración en otra D1 aislada. Conservar código/versión y configuración anterior para rollback. No mostrar el respaldo al modelo ni cargarlo al repositorio.
 3. Deshabilitar propuestas, drenar requests y coordinar una ventana sin escrituras de UI. 0010 invalida propuestas PENDING/APPROVED antiguas, retira sus aprobaciones y limpia staging; después deben prepararse nuevas propuestas. No toca cuentas, saldos ni entidades de negocio.
-4. Verificar qué migraciones acepta/aplica el host. Sites documenta migraciones de esquema; 0008 contiene inicialización de instalación y triggers y 0010 mantenimiento de metadatos. La compatibilidad de ese flujo debe demostrarse en un Site privado nuevo antes de actualizar otro. Si el host rechaza SQL o su estado es incierto, detener esa actualización, conservar los IDs/diagnóstico privados y usar soporte o un procedimiento administrativo admitido. No omitir triggers, modificar SQL ya aplicado ni crear un endpoint SQL para avanzar.
+4. Seguir SITES_METADATA_BOOTSTRAP para separar esquema y bootstrap sin editar originales. Ese candidato ya se publicó en un Site privado nuevo; no demuestra compatibilidad con cualquier ledger existente. Comparar hashes y migraciones efectivamente aplicadas: la exportación automatizada freshInstallationOnly no sobrescribe una instalación experimental con otra representación de 0008–0010. Si el estado es incierto, detener esa actualización y usar soporte o el mecanismo administrativo admitido. No omitir triggers, modificar SQL aplicado ni crear un endpoint SQL para avanzar.
 5. Aplicar exclusivamente las migraciones pendientes en orden, por el mecanismo administrativo soportado del host. No ejecutar migrate:fresh/DROP/restauración ni repetir SQL a ciegas. Sites puede aplicar migraciones antes de fallar el upload del Worker.
 6. Publicar el artefacto exacto verificado y comprobar owner-only, 31 lecturas sin efectos, referencias y concordancia de UI. Los flags opt-in y el canal humano se configuran después según HUMAN_APPROVAL_SETUP. La constante de ejecución continúa false.
 7. Registrar versión, SHA, migraciones, resultado y rollback de **esa** instalación privadamente. Nunca publicar su identidad, correo, credenciales ni datos.

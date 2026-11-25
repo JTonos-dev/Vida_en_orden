@@ -23,7 +23,9 @@
     "verify:schema": "node scripts/verify-schema.mjs",
     "verify:worker": "node --experimental-strip-types scripts/verify-worker-integration.mjs",
     "audit:dependencies": "npm audit --audit-level=low --registry=https://registry.npmjs.org --fetch-timeout=20000 --fetch-retries=0",
-    "verify:hosting": "node scripts/hosting-migration-audit.mjs"
+    "verify:hosting": "node scripts/hosting-migration-audit.mjs",
+    "prepare:sites": "node --experimental-strip-types scripts/prepare-sites-source.mjs",
+    "verify:sites": "node --experimental-strip-types scripts/verify-worker-integration.mjs --sites"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

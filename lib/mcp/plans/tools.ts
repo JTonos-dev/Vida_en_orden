@@ -21,7 +21,7 @@ const actionsJson={type:"array",minItems:1,maxItems:20,items:{oneOf:[...actionRe
 function tool(name:string,description:string,properties:Record<string,unknown>,required:string[]=[],readOnly=false){return {name,description,inputSchema:{type:"object",properties,required,additionalProperties:false},annotations:{readOnlyHint:readOnly,destructiveHint:name==="commit_approved_change_plan",idempotentHint:readOnly||name==="commit_approved_change_plan",openWorldHint:false}};}
 export const PROPOSAL_TOOL_DEFINITIONS=[
  tool("prepare_change_plan","Prepara diff inmutable en staging, sin cambiar negocio. Mostrar resumen al humano; no ejecutar sin aprobación verificable.",{actions:actionsJson,idempotency_key:{type:"string",minLength:1,maxLength:128}},["actions"]),
- tool("revise_change_plan","Prepara nueva revisión e invalida la autorización anterior. No cambia negocio.",{proposal_id:idJson,expected_revision:revJson,actions:actionsJson},["proposal_id","expected_revision","actions"]),
+ tool("revise_change_plan","Valida el reemplazo y publica revisión/invalida autorización anterior atómicamente. Un fallo conserva la vigente; un cambio concurrente exige consultar estado. No cambia negocio.",{proposal_id:idJson,expected_revision:revJson,actions:actionsJson},["proposal_id","expected_revision","actions"]),
  tool("cancel_change_plan","Cancela una revisión propia pendiente sin cambiar entidades.",{proposal_id:idJson,expected_revision:revJson},["proposal_id","expected_revision"]),
  tool("get_pending_proposal","Consulta propuesta propia, diff, huella y caducidad.",{proposal_id:idJson,revision:revJson},["proposal_id"],true),
  tool("list_my_pending_proposals","Consulta las últimas 50 propuestas propias; los IDs anteriores se consultan individualmente.",{},[],true),

@@ -3,12 +3,17 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { unstable_splitSqlQuery } from "wrangler";
 
-export function inspectHostingMigration(source) {
+export function hostingStatements(source) {
   return unstable_splitSqlQuery(source).flatMap((statement, index) => {
     const sql = statement.replace(/^(?:\s|--[^\n]*(?:\n|$)|\/\*[\s\S]*?\*\/)+/, "").trim();
-    if (!sql || /^(?:CREATE\s+(?:UNIQUE\s+)?(?:TABLE|INDEX|TRIGGER)|ALTER\s+TABLE)\b/i.test(sql)) return [];
-    return [{ statement: index + 1, operation: sql.match(/^[A-Z]+/i)?.[0].toUpperCase() || "UNKNOWN" }];
+    if (!sql) return [];
+    const schemaOnly=/^(?:CREATE\s+(?:UNIQUE\s+)?(?:TABLE|INDEX|TRIGGER)|ALTER\s+TABLE)\b/i.test(sql)&&!/^CREATE\s+TABLE\b[\s\S]*\bAS\s+SELECT\b/i.test(sql);
+    return [{ statement: index + 1, operation: sql.match(/^[A-Z]+/i)?.[0].toUpperCase() || "UNKNOWN", schemaOnly, sql:statement }];
   });
+}
+
+export function inspectHostingMigration(source) {
+  return hostingStatements(source).filter(item=>!item.schemaOnly).map(({statement,operation})=>({statement,operation}));
 }
 
 export function inspectHostingMigrations(directory) {

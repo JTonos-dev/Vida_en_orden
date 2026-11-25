@@ -1,41 +1,44 @@
 # Estado actual reproducible
 
-Corte: 24 de noviembre de 2026. Este documento describe la rama propuesta de fases 3–7; no una versión desplegada. El oficial y el fork actual siguen siendo las únicas fuentes de desarrollo. La exposición histórica pública **no está resuelta**; su sustitución está suspendida por el responsable y no bloquea estas entregas.
+Corte: 24 de noviembre de 2026. Main oficial sigue 317cfd8 (PR #3, fase 2). Las fases 3–7 están implementadas en ramas/PR dependientes #4→#12, con CI verde incluido el código corregido 5359d43 y revisión humana pendiente. DEVELOPMENT_PROGRESS identifica la evidencia exacta; comprobar también el HEAD documental posterior antes de integrar. Código, commit público, fuente privada Sites, versión, deployment y aceptación son estados distintos. La exposición histórica no está resuelta y su sustitución permanece suspendida.
 
-## Código integrado e instalación existente
+## Código propuesto
 
-`main` oficial integra PR #3 (`317cfd8`), con 31 herramientas MCP de lectura. PR #4 y las entregas siguientes están pendientes de revisión/integración. No se ha fusionado, desplegado ni migrado ninguna instalación personal durante este desarrollo. Una comprobación de solo lectura de la instancia independiente confirmó fase 2, 31 herramientas, businessWritesEnabled=false y cero incidencias referenciales.
+Seguimiento de auditoría del PR #12 sobre 10a0f83: nueva corrección en la misma rama, **sin desplegar ni fusionar**. Revisión prepara sin revocar la vigente y publica sucesora/head/invalidación/autorización/nonces/auditoría en un lote CAS; errores conservan la anterior y carreras no sobrescriben al ganador. Historial audit_log ya no consume el snapshot: se copia solo un marcador indexado por owner y eventos nuevos append-only. Migración aditiva 0012, sin editar SQL anteriores. Hay162 pruebas locales aprobadas; conformidad del revisor pendiente. Ver [seguimiento técnico](PR12_AUDIT_FOLLOWUP.md).
 
-La UI conserva `/api/action`; MCP nunca llama a ese endpoint. Los datos de tareas/áreas/proyectos mantienen el scope compartido original y finanzas/eventos el scope privado autenticado. Cada Site tiene D1, propietario, secretos y configuración propios.
+La mitigación no elimina el límite conjunto de 2.000 filas fuente de las otras 17 tablas, incluidos archivados/movimientos históricos. No se recortan ni borran datos para aceptar propuestas. Se necesita preparación por conjuntos de lectura para mayor escala; no se declara capacidad productiva completa. El Site descrito abajo conserva 5359d43/SQL hasta 0011: la firma humana previa no prueba este candidato nuevo alojado.
 
-## Rama propuesta
+React/Vinext sobre Workers/D1 DB, con servicios de dominio únicos en lib/domain y facades para la UI. MCP nunca llama a /api/action. Tareas/áreas/proyectos mantienen el scope compartido original; finanzas/eventos el propietario autenticado. No se incluyen datos, secretos o configuración de una instalación real.
 
-- React/Vinext, Worker Cloudflare, D1 `DB` y Drizzle. Servicios de dominio compartidos mediante contexto de request; no hay segundo motor financiero.
-- Motor de propuestas: staging particionado, acciones cerradas, diff por acción y final, impacto financiero, SHA-256, expiración, propietario autenticado, revisión, idempotencia y guardas atómicas de concurrencia. Ejecución/recibo/auditoría y reversión no financiera probados en aislamiento.
-- Aprobación web: origen HTTPS exacto, owner-only, CSRF y WebAuthn con presencia/verificación de usuario. La inscripción entrega candidatos, nunca confianza automática. Credenciales fijadas administrativamente; el modelo no puede aprobar ni inscribir claves de confianza.
-- 19 acciones no financieras y 24 financieras reutilizan los servicios existentes. Catálogo detallado y excepciones en [MCP_PARITY_MATRIX.md](MCP_PARITY_MATRIX.md).
-- Endurecimiento: JSON acotado, presupuestos de consulta, idempotencia de preparación, leases/limpieza de staging vencido, evidencia durable, revocación, verificación posterior, adjuntos texto/CSV/JSON no confiables e informe interno de integridad.
-- Migraciones SQL 0000–0010, 48 tablas y 54 triggers de revisión. 0008/0009 son aditivas; 0010 invalida metadatos de propuestas antiguas y limpia staging, sin cambiar negocio. No aplicarlas a producción sin el procedimiento de [UPGRADE_AND_ROLLBACK.md](UPGRADE_AND_ROLLBACK.md).
+Motor inmutable de propuestas con staging, diff por acción/impacto, identidad/huella, TTL, replay/idempotencia, concurrencia, WebAuthn, evidencia, batch atómico, auditoría y recibos. 19 acciones no financieras y 24 financieras reutilizan servicios existentes. Se incluyen validación/límites, adjuntos texto/CSV/JSON, informe interno, leases, recuperación y endurecimiento. Ver MCP_PARITY_MATRIX para acciones y excepciones.
 
-## Superficie MCP y compuerta
+SQL originales 0000–0010 intactos; 0011 añade metadata_version. 48 tablas y 54 triggers en el contrato. Para Sites se genera una proyección DDL con hashes; los metadatos se inicializan una vez desde registro o preparación explícitos y autenticados, sin negocio/DDL durante requests. GET, lecturas y denegaciones no inicializan. Nuevas propuestas ligan versión de metadatos a su huella; versiones antiguas/futuras se deniegan sin destruir recibos. Ver SITES_METADATA_BOOTSTRAP.
 
-| Configuración privada | Herramientas | Efectos permitidos |
+| Configuración privada | Herramientas | Efectos |
 |---|---:|---|
-| Sin flags | 31 | Lectura; sin inicialización ni mantenimiento |
-| Solo MCP_EXTENDED_READS_ENABLED | 33 | Lectura; adjuntos/informe adicionales |
-| Solo MCP_PROPOSALS_ENABLED | 42 | Lecturas y metadatos/staging de propuestas |
-| Ambos flags | 44 | Ambas superficies anteriores |
+| Sin flags |31 |Lectura; sin bootstrap/mantenimiento |
+| Solo ampliaciones |33 |Lectura; informe requiere metadatos inicializados explícitamente |
+| Solo propuestas |42 |Lecturas y metadatos/staging |
+| Ambos |44 |Las dos superficies anteriores |
 
-Las 31 herramientas anteriores conservan nombre, contrato y readOnlyHint=true/destructiveHint=false. Las herramientas que modifican metadatos tienen anotaciones acordes. `businessWritesEnabled=false` está fijado en código en fábrica y transporte; incluso una propuesta APPROVED devuelve `writes_disabled`. No existe herramienta approve/enroll/SQL, ni `confirmed: true` que sustituya la autorización.
+Las 31 conservan nombre, contrato, readOnlyHint=true y destructiveHint=false. Las herramientas que mutan metadatos tienen anotaciones acordes. businessWritesEnabled=false en fábrica y transporte: ni APPROVED permite negocio. No existe approve/enroll/SQL en MCP; argumentos, confirmed o un documento no sustituyen la firma humana.
 
-## Evidencia y límites
+## Publicación y pruebas observadas
 
-Las pruebas versionadas incluyen SQLite con todas las migraciones, D1 local real mediante workerd, rollback forzado de recibo, carreras/idempotencia, aislamiento, WebAuthn sintético, contrato de las 31 lecturas, equivalencia ORM/SQL y upgrade. La verificación del Worker compilado usa HTTPS loopback, base temporal, firmas sintéticas y 27 comprobaciones de la interfaz. Nunca utiliza datos, claves ni bases de otra instalación.
+El código corregido 5359d43 se publicó desde un commit privado trazable en **el mismo Site nuevo de desarrollo**, owner-only, versión Sites 2/entorno 2, MCP provisionado y 48 tablas alojadas observadas. Los hashes de migraciones coinciden con la versión 1. El propietario creó personalmente su credencial; el servidor verificó el registro y se fijó únicamente su clave pública en una variable privada. Se redesplegó la misma versión con entorno 2, sin código/SQL nuevos. Identidad/URL/deployment permanecen privados; no se cambió la instalación personal ni el Site original.
 
-Resultados finales, PR y continuidad: [DEVELOPMENT_PROGRESS.md](DEVELOPMENT_PROGRESS.md) e [IMPLEMENTATION_REPORT.md](IMPLEMENTATION_REPORT.md). Aceptación personal progresiva: [USER_ACCEPTANCE_TESTS.md](USER_ACCEPTANCE_TESTS.md). No convertir pruebas sintéticas en certificación de interacción humana, autenticador físico o cuotas del host.
+El candidato a05433d aprobó 143 pruebas, TypeScript, lint sin errores/cuatro advertencias previas, schema sin cambios, build, auditoría fuente 261 archivos/cero hallazgos, npm cero alertas y D1 independiente. Worker completo/proyectado: 31 lecturas, bootstrap, WebAuthn sintético, CSRF, inscripción no confiable, anti-framing y compuerta cerrada; 27 QA API/UI cada uno. CI y clon GitHub aprobados. Servicio alojado sin identidad de visitante denegado 401 en MCP/enrollment; página anti-framing aprobada. Estos resultados no certifican una persona, hardware ni aceptación ChatGPT.
 
-Pendientes externos: revisión del mantenedor, integración ordenada, instalación alojada de desarrollo, aprobación humana real y aceptación funcional. Binarios/OCR, conexión bancaria, importación/restauración MCP y operaciones inexistentes en la aplicación no se declaran implementadas. La retención de propuestas/evidencia y la carga máxima alojada requieren política/validación operativa; no se borra evidencia por mantenimiento ordinario.
+El primer registro humano reportó un 503 «Falta migrar la base MCP», reproducido antes de la primera propuesta. Se corrigió el bootstrap y se añadieron tres regresiones; **146 pruebas (14 financieras,128 MCP,4 auditoría) aprobadas**. Suite completa, CI y clon verificados. El reintento humano terminó correctamente: nonce de registro consumido para el propietario, metadata_version=1 y revisión de negocio 0.
 
-El cierre encontró dependencias vulnerables en la base anterior: la corrección dependiente actual obtiene cero alertas npm y supera las pruebas del runtime actualizado; ver DEPENDENCY_SECURITY.md. No se actualizó ninguna instalación existente. El Site nuevo de desarrollo sigue privado y sin publicar; aprovisionamiento D1 alojado y aprobación humana no están verificados. verify:hosting está bloqueado por 21 instrucciones de metadatos fuera del flujo de migración de esquema documentado, no por un rechazo observado del backend. Ver SITES_MIGRATION_COMPATIBILITY.md para el diagnóstico y consulta preparada; no se ignora ese gate para publicar.
+El plugin de desarrollo está conectado:44 herramientas, perfil coincidente con el registro y schemaReady/metadataReady verdaderos (54 triggers). Las 31 lecturas se invocaron en plataforma: 22 válidas/nueve not_found esperados, cero fallos/entidades. Informe consistente, texto no confiable sin aprobación/efectos e idempotencia verificados. El propietario firmó una propuesta ficticia: APPROVED para la misma revisión/huella, evidencia WebAuthn persistida ligada al propietario/clave/origen/desafío y nonce consumido dentro del TTL. Commit devolvió writes_disabled; cero tarea/workspace/ejecuciones y revisión de negocio 0. Esta prueba positiva no habilita ejecución. platformHumanApprovalVerified sigue conservador en false: una prueba de una instalación no cambia la política global. La expiración posterior del plan no borra esta evidencia histórica.
 
-Las reglas efectivas consultadas exigen PR/check verify y bloquean force-push/eliminación de main, pero admiten cero aprobaciones y no exigen check actualizado con base. La cuenta ejecutora solo lee el oficial y publica en su fork. Se mantiene revisión humana del mantenedor por procedimiento; no se eluden protecciones.
+La instalación independiente existente se comprobó sin cambios: fase 2, 31 lecturas, ejecución deshabilitada y cero incidencias referenciales. No se usaron sus datos/configuración para desarrollar.
+
+## Límites vigentes
+
+Registro y firma del propietario ya verificados; revisión/merge, habilitación separada y aceptación de ejecución futura siguen pendientes. Binarios/OCR, bancos, importación/restauración MCP y acciones inexistentes en la UI no se inventan. Cuotas/carga alojadas y retención de propuestas/evidencia requieren validación/política operativa. Copias históricas, diffs, forks y cachés siguen siendo riesgo abierto.
+
+Las protecciones efectivas consultadas exigen PR/verify y bloquean force/delete, pero admiten cero aprobaciones y no exigen check actualizado con base. La cuenta ejecutora solo lee el oficial y publica en su fork. Se exige revisión humana por procedimiento; no se eluden controles ni se fusiona por tener CI verde.
+
+Continuidad/commits: DEVELOPMENT_PROGRESS. Informe: IMPLEMENTATION_REPORT. Aceptación: USER_ACCEPTANCE_TESTS. Actualización/rollback: UPGRADE_AND_ROLLBACK. Todo distingue verificación local, publicación y aceptación; fase 7 no se declara completada.

@@ -4,7 +4,7 @@
 
 Antes de publicar una instalación:
 
-La rama de fases 3–7 requiere resolver primero el gate `npm run verify:hosting` descrito en SITES_MIGRATION_COMPATIBILITY.md. Actualmente bloquea 21 instrucciones de metadatos fuera del flujo de esquema documentado. Un build/CI verde o una D1 local migrada no autoriza ignorarlo. Incluir además la corrección de dependencias y ejecutar audit:dependencies; no publicar el artefacto basal afectado.
+Para la rama de fases 3–7, generar la proyección desde el commit público limpio siguiendo SITES_METADATA_BOOTSTRAP.md. Ejecutar `npm run verify:hosting` en ese checkout privado: debe detectar cero instrucciones fuera de esquema. Los originales conservan 21 instrucciones de metadatos conocidas; no editarlos ni ignorar el gate. El PR #12 publicó satisfactoriamente el candidato proyectado en un Site privado nuevo, sin certificar todavía aceptación humana/ChatGPT. Incluir la corrección de dependencias y ejecutar audit:dependencies; no publicar el artefacto basal afectado.
 
 1. Ejecuta la suite local completa.
 2. Verifica que el manifiesto use el `project_id` propio y el binding D1 propio.

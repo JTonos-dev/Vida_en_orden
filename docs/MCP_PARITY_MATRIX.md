@@ -46,7 +46,7 @@ No hay CRUD directo, `restore` ni `execute_sql`. Las operaciones de dominio desc
 
 ## Desarrollo aislado de fase 3
 
-`lib/mcp/plans/engine.ts` implementa preparación, revisión, cancelación, aprobación, ejecución atómica y consulta de recibos. El transporte opcional y los 43 adaptadores están en ramas/PR dependientes; no están integrados ni desplegados por abrir un PR. La verificación WebAuthn usa claves administrativas fijadas, sin inscripción de confianza desde el modelo. La instalación personal conserva 31 lecturas.
+`lib/mcp/plans/engine.ts` implementa preparación, revisión, cancelación, aprobación, ejecución atómica y consulta de recibos. El transporte opcional y los 43 adaptadores están en ramas/PR dependientes, aún sin integrar. Se publicó un Site privado nuevo de desarrollo; el registro humano inicial reveló una incidencia de bootstrap seguida en DEVELOPMENT_PROGRESS. La verificación WebAuthn usa claves administrativas fijadas, sin inscripción de confianza desde el modelo. La ejecución real permanece cerrada y la instalación personal conserva 31 lecturas.
 
 ## Catálogo no financiero en desarrollo (fase 4)
 
@@ -71,7 +71,7 @@ Sin soporte en la aplicación actual: eliminar/archivar áreas; eliminar proyect
 | Cuentas | finance.account.create/update/archive (solo saldo cero) |
 | Categorías | finance.category.create/update/delete (sin referencias) |
 | Movimientos | finance.transaction.create (income/expense/transfer/adjustment), update_amount, void |
-| Presupuesto | finance.budget.set/update/addition.create/delete |
+| Presupuesto | finance.budget.set, finance.budget.update, finance.budget.addition.create, finance.budget.delete |
 | Obligaciones/ingresos previstos | finance.obligation.create/update/pay; frecuencia once/weekly/monthly/yearly, reserva y ocurrencias calculadas por el servicio |
 | Metas | finance.goal.create/update/contribute, finance.goal.entry.update/revert |
 | Configuración | finance.settings.update (zona, colchón y comisiones) |
@@ -93,4 +93,4 @@ Diez herramientas nuevas solo al configurar explícitamente propuestas en la ins
 - Los updates V2 omiten sin borrar campos existentes; las búsquedas literales mantienen 200 caracteres sin patrones LIKE largos.
 - Catálogo: 31 sin flags; 33 solo ampliaciones; 42 solo propuestas; 44 con ambos. No se anuncian binarios, OCR, SQL, alta de confianza ni escrituras de negocio habilitadas.
 
-Siguen pendientes aceptación humana alojada, cuota/desempeño real y funcionalidades del plan maestro que la aplicación aún no soporta, enumeradas arriba. Implementación aislada no equivale a paridad funcional aceptada en producción.
+Registro y firma humana alojados ya verificados: APPROVED para revisión/huella exactas, evidencia durable ligada a owner/clave/origen/desafío y nonce consumido dentro de vigencia. Commit denegado y cero negocio. Siguen pendientes integración/habilitación revisadas, aceptación de ejecución futura, cuota/desempeño real y capacidades que la aplicación no soporta, enumeradas arriba. Esta prueba no declara paridad funcional aceptada en producción.

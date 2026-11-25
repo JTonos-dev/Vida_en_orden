@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const homeWorkspaces = sqliteTable("home_workspaces", {
   userId: text("user_id").primaryKey(),
@@ -199,6 +199,6 @@ export const auditLog = sqliteTable("audit_log", {
   id: text("id").primaryKey(), ownerId: text("owner_id").notNull(), entityType: text("entity_type").notNull(),
   entityId: text("entity_id").notNull(), action: text("action").notNull(), metadata: text("metadata").notNull().default("{}"),
   occurredAt: text("occurred_at").notNull(),
-});
+},table=>[index("audit_log_seed_context_idx").on(table.ownerId,table.entityType,table.entityId,table.action,table.id)]);
 
 export * from "./mcp-schema.ts";

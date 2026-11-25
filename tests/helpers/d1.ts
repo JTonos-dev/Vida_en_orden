@@ -1,10 +1,10 @@
 import { DatabaseSync, type SQLInputValue } from "node:sqlite";
 import { readFileSync, readdirSync } from "node:fs";
 
-export function testDatabase(through = Number.POSITIVE_INFINITY) {
+export function testDatabase(through = Number.POSITIVE_INFINITY, transform?: (file:string,sql:string)=>string) {
   const sqlite = new DatabaseSync(":memory:");
   const migrations = readdirSync(new URL("../../drizzle/", import.meta.url)).filter((file) => /^\d{4}_.+\.sql$/.test(file) && Number(file.slice(0,4))<=through).sort();
-  for (const file of migrations) sqlite.exec(readFileSync(new URL(`../../drizzle/${file}`, import.meta.url), "utf8"));
+  for (const file of migrations) {const sql=readFileSync(new URL(`../../drizzle/${file}`, import.meta.url), "utf8");sqlite.exec(transform?transform(file,sql):sql);}
   const sync = Symbol("synchronous-test-execution");
   let fail: ((sql: string) => boolean) | undefined;
   const prepare = (sql: string) => {

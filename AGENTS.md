@@ -64,6 +64,7 @@ npm run verify:schema
 npm run build
 npm run verify:independent
 npm run verify:worker
+npm run verify:sites
 ```
 
 Añade pruebas proporcionales para:
@@ -102,6 +103,8 @@ No declares aprobada una comprobación que no pudiste ejecutar. El script `scrip
 - Las consultas MCP deben permanecer tipadas, acotadas, paginadas y de solo lectura.
 - Las 31 lecturas conservan `readOnlyHint=true` y `destructiveHint=false`. Las herramientas opt-in de propuestas declaran sus efectos de metadatos con anotaciones correctas; no equivalen a escritura de negocio. Mantén `businessWritesEnabled=false` en fábrica y transporte hasta demostrar aprobación humana real en plataforma y revisión autorizada.
 - Reutiliza los servicios y cálculos de dominio existentes; no crees un segundo motor financiero.
+- Una revisión prepara el reemplazo sin revocar la vigente y publica head/invalidación/autorización/desafíos/auditoría en un solo lote CAS. Si falla, conserva la anterior; ante carrera consulta estado. Una revisión en curso no equivale a cancelar.
+- El presupuesto de preparación de 2.000 filas excluye el historial audit_log, pero no recorta ninguna de las otras 17 tablas. Su staging usa solo un marcador de contexto y eventos nuevos append-only; lecturas históricas nuevas requieren un conjunto explícito y revisión. Ver docs/PR12_AUDIT_FOLLOWUP.md; no borrar historia para eludir límites.
 - No expongas secretos, SQL dinámico, datos de otros propietarios ni referencias cruzadas fuera del alcance autorizado.
 
 ## Publicación y Sites
@@ -113,7 +116,7 @@ Distingue siempre entre código implementado, probado, publicado en una rama, fu
 - Un merge en `main` no debe desplegar automáticamente la instalación personal de otro colaborador.
 - Las actualizaciones de producción requieren autorización explícita, respaldo, validación y rollback.
 - Si Sites no permite automatizar una parte del flujo, documenta el paso manual exacto; no lo simules.
-- Antes de publicar en Sites ejecuta `npm run verify:hosting`. Si informa instrucciones fuera de esquema, sigue `docs/SITES_MIGRATION_COMPATIBILITY.md`: no publicar ignorando el flujo documentado ni retirar metadatos/triggers para forzarlo. CI local verde no certifica compatibilidad del host.
+- Para Sites genera la proyección con `prepare:sites` desde un commit público limpio y sigue `docs/SITES_METADATA_BOOTSTRAP.md`. Conserva los SQL originales; no modifiques migraciones aplicadas ni ledgers. Ejecuta `verify:hosting` en el checkout privado proyectado antes de publicar: debe quedar sin instrucciones fuera de esquema. No retirar triggers ni ignorar ese gate. CI local verde no certifica compatibilidad del host. El bootstrap solo ocurre en preparación o registro de autenticador explícitos y autenticados; GET, lecturas y denegaciones no inicializan. La integración debe probar registro antes de la primera propuesta, como la guía real.
 
 ## Colaboración por fases
 

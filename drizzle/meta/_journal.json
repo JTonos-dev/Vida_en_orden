@@ -78,6 +78,20 @@
       "when": 1795536010000,
       "tag": "0010_mcp_hardening",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1795556904463,
+      "tag": "0011_mcp_metadata_bootstrap",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1795567125034,
+      "tag": "0012_mcp_audit_context_index",
+      "breakpoints": true
     }
   ]
 }

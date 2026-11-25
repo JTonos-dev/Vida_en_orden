@@ -1,4 +1,4 @@
-// Additive MCP infrastructure. Keep aligned with migrations 0008–0010 and tables.ts.
+// Additive MCP infrastructure. Keep aligned with migrations 0008–0011 and tables.ts.
 import { sqliteTable, text, integer, primaryKey, index, uniqueIndex, check } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
@@ -41,7 +41,8 @@ export const mcp_executions = sqliteTable("mcp_executions", {
 export const mcp_installation = sqliteTable("mcp_installation", {
   id: integer("id").notNull().primaryKey(),
   installation_id: text("installation_id").notNull(),
-  business_revision: integer("business_revision").notNull().default(sql.raw("0"))
+  business_revision: integer("business_revision").notNull().default(sql.raw("0")),
+  metadata_version: integer("metadata_version").notNull().default(sql.raw("0"))
 }, () => [check("mcp_installation_singleton",sql.raw("id=1"))]);
 
 export const mcp_plan_audit = sqliteTable("mcp_plan_audit", {

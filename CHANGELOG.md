@@ -1,5 +1,38 @@
 # Historial de cambios
 
+## Auditoría PR #12: revisión atómica y crecimiento de auditoría · 2026-11-24
+
+- revise prepara sin revocar la vigente; publica nueva revisión, invalidación, autorización/desafíos, auditoría y head en un batch CAS. Fallos de preparación/publicación conservan la anterior; carreras no sobrescriben commit/cancel/approve/otra revisión. Evidencia histórica preservada; limpieza fallida conserva lease sin ocultar éxito/error.
+- audit_log histórico deja de contarse/copiarse al snapshot. Solo un marcador de contexto por owner, con índice cubriente nuevo 0012; eventos nuevos siguen firmados/append-only. No se borra historial ni se recorta estado financiero. Las otras 17 tablas mantienen límite fuente 2.000; escalabilidad completa sigue pendiente.
+- 16 regresiones nuevas y D1/workerd ampliado; 162 pruebas locales aprobadas. ORM/snapshot/journal actualizados sin editar SQL 0000–0011. Health aclara el alcance del presupuesto; lecturas MCP originales y ejecución deshabilitada se conservan.
+- Corrección propuesta en la misma rama/PR, sin despliegue ni merge. Conformidad de auditoría pendiente. Ver PR12_AUDIT_FOLLOWUP para migración, rollback, pruebas y límites; no se declara paridad lista para producción.
+
+## Firma humana real verificada · 2026-11-24
+
+- El propietario firmó personalmente una propuesta ficticia vigente mediante su autenticador. MCP mostró APPROVED para la misma revisión/huella; D1 conserva aprobación/evidencia WebAuthn ligadas a owner, clave fijada, origen y desafío. Nonce consumido y firma dentro del TTL.
+- Commit de la propuesta aprobada devolvió writes_disabled. Verificación posterior: cero tarea/workspace/ejecuciones, revisión de negocio 0 y referencias vacías. La primera propuesta había expirado sin firma; no se extendió ni reutilizó su TTL.
+- UAT de aprobación y compuerta actualizados como aprobados. Solo documentación/trazabilidad; no se modifica código, SQL, política global ni habilita negocio. Evidencia/identificadores permanecen privados. Revisión/integración, habilitación posterior y aceptación de ejecución futura siguen pendientes; fase 7 no se declara completa.
+
+## Registro humano y conexión del MCP de desarrollo · 2026-11-24
+
+- El propietario completó el registro del autenticador tras la corrección 5359d43. Se comprobó nonce consumido/propietario y metadata_version=1. Solo su clave pública se fijó en una variable secreta del Site de desarrollo; redespliegue satisfactorio de la misma versión 2 con entorno 2, sin código/SQL nuevos.
+- Plugin autenticado conectado:44 herramientas; perfil coincide con el registro, salud confirma esquema/metadatos y 54 triggers. Las 31 lecturas retornan22 respuestas válidas y 9 not_found esperados, sin fallos ni entidades creadas. Reporte vacío consistente, texto no confiable sin aprobación/efectos y preparación idempotente verificados.
+- La primera propuesta ficticia caducó sin firma; requiere un enlace vigente y firma personal. Registrar una credencial no aprueba propuestas. Negocio MCP permanece deshabilitado; no se cambian instalaciones personales ni se publica la credencial/ownerId. Ver DEVELOPMENT_PROGRESS y USER_ACCEPTANCE_TESTS.
+
+## Registro inicial del autenticador · 2026-11-24
+
+- El candidato de esquema del PR #12 se publicó en un Site privado nuevo: deployment satisfactorio, MCP provisionado y 48 tablas observadas. No se modificó una instalación personal.
+- El propietario reportó «Falta migrar la base MCP» al registrar su autenticador antes de preparar una propuesta. Se reprodujo el 503 sobre la proyección nueva y se añadió una regresión HTTP antes de corregirlo.
+- El POST de registro autenticado/CSRF válido usa ahora la misma comprobación de esquema y bootstrap atómico que prepare. GET, solicitudes denegadas y lecturas no inicializan. Esquema incompleto, versión futura y fallo de batch se deniegan sin efectos. El candidato no fija confianza ni habilita negocio.
+- Ambas integraciones Worker prueban el orden real de instalación: registrar primero, preparar después. Código 5359d43: 146 aprobadas, TypeScript/lint/schema/build, auditorías sin hallazgos, D1 independiente y ambos Workers con 27 QA cada uno; CI y clon GitHub aprobados. Publicado en versión 2 del mismo Site privado, sin cambios de SQL. Reintento humano pendiente; no se deduce aceptación del deployment.
+
+## Compatibilidad Sites: proyección y bootstrap · 2026-11-24
+
+- Se conserva el SQL original 0000–0010 y se añade 0011, una columna de versión de metadatos. La exportación de un commit limpio genera un candidato Sites de solo esquema con hashes y sin Git/identidad ajenos; 0000–0007 permanecen idénticos.
+- La primera preparación autenticada inicializa metadatos en batch atómico, conserva negocio/revisión/recibos y registra una única transición. Lecturas/salud no inicializan; payloads anteriores y metadatos futuros fallan cerrados.
+- Las guardas de aprobación/commit verifican la versión. No se habilita negocio ni existe bootstrap SQL elegible por el modelo.
+- 143 pruebas, schema/build/D1 y dos integraciones Worker (cadena completa y proyección Sites) aprobados en a05433d; 27 comprobaciones API/UI en cada modo. Ese candidato se publicó después; la aceptación humana continúa pendiente y reveló la regresión de registro descrita arriba.
+
 ## Corrección de dependencias y gate de publicación · 2026-11-24
 
 - Se resuelven 33 entradas de auditoría (dos críticas) del lockfile basal: React/RSC, Next, Vinext/Vite, Cloudflare y transitivas compatibles. Auditoría actual: cero vulnerabilidades, sin force ni degradación de Drizzle. Ver DEPENDENCY_SECURITY.md.

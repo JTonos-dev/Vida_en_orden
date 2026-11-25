@@ -27,11 +27,11 @@ Cada instalación debe usar su propio binding D1 y sus propios secretos. Los dat
 ## Estado de desarrollo
 
 - Fases 0, 1, 1.1 y 2: código y documentación transferidos.
-- Fase 3: motor, transporte y verificación WebAuthn implementados/probados en aislamiento; aceptación humana y host pendientes.
+- Fase 3: motor/transporte publicados, registro/clave propia, plugin/44 herramientas/31 lecturas/health/idempotencia verificados. Firma personal real: APPROVED para misma revisión/huella, evidencia WebAuthn persistida/nonce consumido dentro de TTL; commit writes_disabled y cero negocio. Primer enlace expiró sin firma; segundo aprobado. Integración/habilitación revisadas pendientes. Ver DEVELOPMENT_PROGRESS.
 - Fases 4/5: 19/24 adaptadores probados, sin ejecución MCP real habilitada.
 - Fase 6: adjuntos de texto/CSV/JSON, informes internos y endurecimiento implementados; binarios/OCR y carga alojada sin verificar.
 - Fase 7: integración, migraciones y documentación en PR dependientes; ver DEVELOPMENT_PROGRESS.md para evidencia exacta y bloqueos externos.
 
 ## Verificación local
 
-Ejecuta los comandos de AGENTS.md, incluidos auditoría, verify:schema y, después del build, verify:independent/verify:worker. La conexión de ChatGPT no puede validarse solo desde este repositorio: requiere publicar una instalación propia y usar su plugin. La aprobación con firmas sintéticas no sustituye la interacción de una persona.
+Ejecuta los comandos de AGENTS.md, incluidos auditoría, verify:schema y, después del build, verify:independent/verify:worker/verify:sites. La proyección Sites conserva SQL originales 0000–0010 y añade 0011; el bootstrap atómico solo ocurre en registro o preparación explícitos y autenticados. La conexión de ChatGPT no puede validarse solo desde este repositorio: requiere usar el plugin publicado con identidad real. La aprobación con firmas sintéticas no sustituye la interacción de una persona.
