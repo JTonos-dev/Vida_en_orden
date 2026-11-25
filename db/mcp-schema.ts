@@ -1,4 +1,4 @@
-// Additive MCP infrastructure. Keep aligned with migrations 0008–0009 and tables.ts.
+// Additive MCP infrastructure. Keep aligned with migrations 0008–0010 and tables.ts.
 import { sqliteTable, text, integer, primaryKey, index, uniqueIndex, check } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
@@ -50,6 +50,7 @@ export const mcp_plan_audit = sqliteTable("mcp_plan_audit", {
   proposal_id: text("proposal_id").notNull(),
   revision: integer("revision").notNull(),
   event: text("event").notNull(),
+  metrics: text("metrics").notNull().default(sql.raw("'{}'")),
   created_at: integer("created_at").notNull()
 }, (table) => [index("mcp_plan_audit_owner_date").on(table.owner_id,table.created_at)]);
 
@@ -360,3 +361,12 @@ export const mcp_registration_challenges = sqliteTable("mcp_registration_challen
   expires_at: integer("expires_at").notNull(),
   used: integer("used").notNull().default(sql.raw("0"))
 }, (table) => [check("mcp_registration_used",sql.raw("used IN (0,1)")),index("mcp_registration_owner_expiry").on(table.owner_id,table.expires_at)]);
+export const mcp_prepare_requests = sqliteTable("mcp_prepare_requests", {
+ owner_id:text("owner_id").notNull(),key_hash:text("key_hash").notNull(),input_hash:text("input_hash").notNull(),proposal_id:text("proposal_id").notNull()
+},table=>[primaryKey({columns:[table.owner_id,table.key_hash]})]);
+export const mcp_stage_leases=sqliteTable("mcp_stage_leases",{
+ stage_id:text("stage_id").notNull().primaryKey(),owner_id:text("owner_id").notNull(),expires_at:integer("expires_at").notNull()
+},table=>[index("mcp_stage_owner_expiry").on(table.owner_id,table.expires_at)]);
+export const mcp_approval_evidence=sqliteTable("mcp_approval_evidence",{
+ proposal_id:text("proposal_id").notNull(),revision:integer("revision").notNull(),owner_id:text("owner_id").notNull(),digest:text("digest").notNull(),challenge:text("challenge").notNull(),credential_id:text("credential_id").notNull(),evidence:text("evidence").notNull(),created_at:integer("created_at").notNull()
+},table=>[primaryKey({columns:[table.proposal_id,table.revision]})]);

@@ -72,3 +72,7 @@ La instalación independiente de validación también ejecutó las 31 herramient
 ## Propuestas opcionales y canal humano en desarrollo
 
 La nueva rama incorpora opt-in MCP_PROPOSALS_ENABLED de diez herramientas de metadatos (41 con las lecturas), página de revisión, API owner-only/origen/CSRF y verificación WebAuthn. El alta solo devuelve candidatos; la confianza se configura por administración fuera del modelo. Requiere 0009 además de 0008. La compuerta real permanece cerrada en dos capas y falta prueba humana alojada. Ver HUMAN_APPROVAL_SETUP.md.
+
+## Endurecimiento en rama dependiente
+
+0010 agrega evidencia durable, idempotencia de preparación, leases y métricas sin datos de contenido; invalida planes anteriores al upgrade y limpia sus copias de staging, sin tocar negocio. Parsers/límites de stream, parches que conservan campos omitidos, efectos por acción e impacto financiero firmado. Con ambos flags hay 44 herramientas; por defecto siguen 31 lecturas. Ver MCP_HARDENING.md para límites, capacidades no verificadas y migración.

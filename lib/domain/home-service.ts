@@ -1,3 +1,4 @@
+import { isCalendarDate } from "./validation.ts";
 import { domainDatabase, domainNow } from "./context.ts";
 import { HOUSEHOLD_SCOPE } from "../data-scopes.ts";
 
@@ -17,7 +18,7 @@ const efforts = new Set(["baja", "media", "alta"]);
 const now = domainNow;
 const uid = () => crypto.randomUUID();
 const n = (v: unknown) => v === null || v === undefined || v === "" ? null : Number.isFinite(Number(v)) && Number(v) >= 0 ? Number(v) : null;
-const date = (v: unknown) => { const value=String(v ?? "").trim(); if(!value) return ""; if(!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(Date.parse(`${value}T12:00:00Z`))) throw new Error("Una fecha no es válida"); return value; };
+const date = (v: unknown) => { const value=String(v ?? "").trim(); if(!value) return ""; if(!isCalendarDate(value)) throw new Error("Una fecha no es válida"); return value; };
 const arr = (v: unknown) => Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [];
 const json = (v: unknown) => { try { return JSON.parse(String(v ?? "[]")); } catch { return []; } };
 const db = domainDatabase;

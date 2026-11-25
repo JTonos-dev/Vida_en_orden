@@ -64,3 +64,15 @@ Fase: 3B. Estado: **bloqueada hasta desplegar instancia de desarrollo con 0008/0
 - Esperado: get_approval_status indica APPROVED para esa huella; Site y search_tasks no muestran una tarea nueva. Pedir commit devuelve writes_disabled. La base solo contiene metadatos de aprobación.
 - Denegación: cancelar el control del autenticador debe dejar la propuesta sin aprobar; sesión equivocada se deniega. No compartir credenciales/identificadores privados al reportar; no copiar claves del modelo. Las variantes criptográficas, CSRF, replay y versión están cubiertas automáticamente.
 - Reportar: versión de desarrollo, navegador, tipo de autenticador (sin identificadores), estado/fecha y resultado aprobado/fallido. La aceptación se registrará sin fingir que ya ocurrió.
+
+## Aceptación ampliada (fase 6)
+
+Requisitos comunes: instancia privada de desarrollo con 0010 y flags indicados; solo datos ficticios. No exige habilitar negocio. Se prueban aquí integración/visualización reales; los límites, denegaciones, carreras y parser tienen regresiones automatizadas.
+
+| Caso | Datos y pasos exactos | Resultado / persistencia / errores | Estado |
+|---|---|---|---|
+| UAT-6-DOCUMENT | Pedir inspect_attachment_context con texto `UAT Synthetic receipt`, o JSON vendor=UAT, occurred_on=hoy, currency=DOP, total_minor=100, line_items=[{description:UAT,amount_minor:90}]. | Devuelve dato no confiable, alerta de discrepancia y aprobación falsa; no crea movimiento ni propone arreglos automáticamente. No usar recibos reales. | Bloqueada hasta plugin de desarrollo |
+| UAT-6-REPORT | Pedir get_financial_integrity_report para mes actual después de datos ficticios UAT del Site. | Comparar liquidez/compromisos con UI; indica ledger interno, no banco externo. Si cambia la base durante lectura, repetir; no declarar conciliación externa. | Bloqueada hasta plugin de desarrollo |
+| UAT-6-IMPACT | Preparar gasto ficticio de 1000 centavos en cuenta UAT con saldo 100; abrir resumen sin aprobar. | Ver efectos antes/después por acción y saldo −900, alerta de negativo, reservas/compromisos y huella. Cancelar propuesta; el libro no cambia. | Bloqueada hasta instancia de desarrollo |
+| UAT-6-RECOVERY | Después de la ejecución local aislada ya automatizada, consultar get_execution_result solo cuando exista recibo UAT en una entrega habilitada. | Muestra integridad actual y evidencia archivada; cambios posteriores no borran el historial COMMITTED. No repetir movimientos por timeout. | Bloqueada por ejecución real deshabilitada |
+| UAT-6-HEALTH | Pedir get_change_plan_health en instancia de desarrollo. | Muestra límites y conteos propios sin títulos/documentos/credenciales. Las 31 lecturas siguen sin escribir ni hacer mantenimiento. | Bloqueada hasta plugin de desarrollo |
