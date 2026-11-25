@@ -1,6 +1,6 @@
 # Pruebas funcionales del propietario
 
-Estado: Site privado nuevo de desarrollo publicado, versión 2/entorno 2. El propietario completó el registro tras corregir5359d43; clave pública propia configurada privadamente y plugin autenticado verificado. Firma de propuesta pendiente. Ver DEVELOPMENT_PROGRESS. Usar solo datos ficticios; no ejecutar escrituras en la instalación personal ni habilitar una compuerta para saltarse un bloqueo.
+Estado: Site privado nuevo, versión 2/entorno 2. Registro personal, clave pública propia, plugin y **firma humana de propuesta verificados**. APPROVED observado con misma huella/revisión, evidencia persistida/nonce consumido dentro del TTL y commit denegado, sin negocio. Ver DEVELOPMENT_PROGRESS. No repetir esta firma por la expiración posterior del plan. Usar solo datos ficticios; no ejecutar escrituras en la instalación personal ni abrir la compuerta para adelantarse.
 
 Los casos cubiertos por tests automatizados se documentarán como evidencia técnica; el propietario solo debe comprobar interacción real de plataforma y aceptación funcional que esos tests no pueden demostrar.
 
@@ -8,8 +8,8 @@ Los casos cubiertos por tests automatizados se documentarán como evidencia téc
 |---|---|---|---|---|---|
 | UAT-AUTH-01: propietario conectado | 3 | Aprobada por llamadas reales | Plugin de desarrollo y política propia; capacidades/perfil/31 lecturas/health ejecutados automáticamente, sin pedir repetición manual. | Identidad coincide con registro humano; 44 herramientas y negocio deshabilitado. | Denegaciones automáticas y servicio sin visitante 401; no compartir secretos/IDs privados. |
 | UAT-ENROLL-01: registro personal | 3 | Aprobada | Propietario creó credencial en /approvals/enroll y confirmó el candidato. Registro consumido comprobado; administración fija su clave pública en secreto y redespliega misma versión. | Metadata versión 1, clave propia configurada en entorno 2, sin negocio. No publicar valores. | Primer intento falló503; corregido con regresión antes del reintento aprobado. El registro no aprueba propuestas. |
-| UAT-APPROVAL-01: aprobación humana real | 3 | Pendiente de firma | Seguir UAT-3-HUMAN; propuesta ficticia preparada por plugin, enlace entregado. Revisar diff, revisión/caducidad y verificar personalmente. | Evidencia vinculada al digest/revisión, sin crear negocio. Consultar estado persistido. | Cancelación/fallo/vencimiento impiden aprobación; ninguna aceptación se infiere del simulador. |
-| UAT-SAFETY-01: compuerta cerrada | 3 | Aprobada sin firma; repetir después de APPROVED | commit invocado automáticamente para la propuesta ficticia vencida. | writes_disabled; búsqueda/lectura confirman cero tarea/workspace y referencias vacías. | Repetir tras firma válida para comprobar el mismo bloqueo; no cambiar la compuerta. |
+| UAT-APPROVAL-01: aprobación humana real | 3 | Aprobada por el propietario y verificación persistida | Propietario firmó mediante autenticador la segunda propuesta ficticia entregada. | APPROVED con digest/revisión exactos; aprobación/evidencia WebAuthn ligadas a owner/clave/origen/desafío y nonce consumido dentro de vigencia. | Primera propuesta expiró sin firma. Cancelación/versión/replay/crypto cubiertos automáticamente; no inferir aprobación desde texto. |
+| UAT-SAFETY-01: compuerta cerrada | 3 | Aprobada antes y después de firma válida | commit invocado para propuesta vencida y para segunda propuesta en APPROVED. | Ambos writes_disabled; cero tarea/workspace/ejecuciones, revisión de negocio 0 y referencias vacías. | No cambiar compuerta. Una firma válida no habilita ejecución por sí sola. |
 
 Los casos siguientes detallan datos, pasos y verificación persistida. Una prueba permanece pendiente o bloqueada hasta que el propietario reporte su resultado; no se marcará aprobada por inferencia.
 
@@ -62,13 +62,13 @@ Precaución especial: ante timeout no repetir un movimiento suponiendo fallo; pe
 
 La instancia privada usa proyección de esquema y 0011. Registro personal, clave pública propia configurada y conexión del plugin ya verificados; no repetirlos. URLs/configuración/propuesta se entregan privadamente. En otra sesión que no exponga las herramientas, seleccionar la app en Plugins → Personal → Created by you; no instalar otra app ni crear otra instancia. Instalado no equivale por sí solo a conexión/aceptación verificadas.
 
-Fase: 3B. Estado: **pendiente de firma personal de propuesta vigente en versión 2/entorno 2**. El primer enlace expiró sin firma; preparar otro al entregarlo, sin prolongar/reutilizar TTL. La instancia usa proyección 0000–0011 y configuración propia. Registro/conexión ya aprobados; no depende de habilitar negocio. La firma requiere una persona y no se sustituye por pruebas sintéticas.
+Fase: 3B. Estado: **aprobada en plataforma por firma personal y evidencia persistida**, versión 2/entorno 2. El primer enlace expiró; el segundo se firmó dentro de vigencia, sin prolongar/reutilizar TTL. MCP devolvió APPROVED con la misma revisión/huella. D1 confirma owner/clave/origen/desafío y nonce consumido; commit devolvió writes_disabled, sin tarea/workspace/ejecución. La instancia usa proyección 0000–0011 propia. La caducidad posterior no invalida esta prueba histórica; no pedir otra firma para repetirla. Los pasos siguientes son referencia para otras instalaciones, no acciones pendientes de este propietario.
 
 - Requisitos/datos: seguir HUMAN_APPROVAL_SETUP.md; propietario con autenticador y credencial personalmente fijada. Única propuesta: crear `UAT Synthetic approval` sin datos reales.
 - Pasos exactos: registrar candidato en `/approvals/enroll`, fijarlo administrativamente, preparar cambio desde ChatGPT, pedir enlace request_approval, abrirlo autenticado, comprobar diff/versión/huella y aprobar con el control del sistema.
 - Esperado: get_approval_status indica APPROVED para esa huella; Site y search_tasks no muestran una tarea nueva. Pedir commit devuelve writes_disabled. La base solo contiene metadatos de aprobación.
 - Denegación: cancelar el control del autenticador debe dejar la propuesta sin aprobar; sesión equivocada se deniega. No compartir credenciales/identificadores privados al reportar; no copiar claves del modelo. Las variantes criptográficas, CSRF, replay y versión están cubiertas automáticamente.
-- Reportar: versión de desarrollo, navegador, tipo de autenticador (sin identificadores), estado/fecha y resultado aprobado/fallido. La aceptación se registrará sin fingir que ya ocurrió.
+- Resultado observado: propietario confirmó el paso personal; estado/huella/revisión, aprobación/evidencia y bloqueo de ejecución verificados. Identificadores/fechas exactas quedan en D1/provenance privados. No publica claves, ownerId ni prueba criptográfica completa. Para futuras incidencias reportar versión, pasos y error sin secretos.
 
 ## Aceptación ampliada (fase 6)
 

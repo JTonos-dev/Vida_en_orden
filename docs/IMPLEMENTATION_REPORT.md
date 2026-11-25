@@ -1,16 +1,16 @@
 # Informe de desarrollo de fases 3–7
 
-24 de noviembre de 2026. Código implementado y probado, Site privado nuevo publicado, registro personal y conexión autenticada del plugin verificados. **Faltan firma de una propuesta vigente, aceptación de ejecución futura y revisión del mantenedor.** No hubo merges, force-push, cambios de protecciones ni modificaciones de instalaciones personales. No se creó otro repositorio público ni se sustituyó el historial.
+24 de noviembre de 2026. Código implementado/probado, Site privado publicado, registro/firma personal y conexión auténtica del plugin verificados. APPROVED con evidencia durable y ejecución denegada, sin negocio. **Faltan revisión/integración, habilitación separada y aceptación de ejecución futura.** No hubo merges, force-push, cambios de protecciones ni modificaciones de instalaciones personales. No se creó otro repositorio público ni se sustituyó historia.
 
 ## Inventario y estado por fase
 
 | Fase | Implementación | Estado restante |
 |---|---|---|
-| 3 | Propuestas/revisiones inmutables, diff/impacto, propietario/huella, TTL, replay/idempotencia, concurrencia, WebAuthn, batch atómico, auditoría/recibo/verificación y bootstrap autenticado | Registro personal y plugin autenticado verificados; firma de propuesta pendiente, negocio cerrado |
+| 3 | Propuestas/revisiones inmutables, diff/impacto, propietario/huella, TTL, replay/idempotencia, concurrencia, WebAuthn, batch atómico, auditoría/recibo/verificación y bootstrap autenticado | Registro/plugin/firma humana verificados; APPROVED con evidencia y ejecución denegada. Revisión/integración pendientes |
 | 4 | 19 acciones de tareas/subtareas, contexto/orden/estados/fechas, áreas/proyectos, calendario/recurrencia y bitácora; reversión por recibo | Pruebas aisladas aprobadas; ejecución MCP real bloqueada hasta habilitación revisada |
 | 5 | 24 acciones financieras de cuentas, movimientos/comisiones, catálogos existentes, presupuesto, obligaciones/recurrencia/reservas, metas/aportes, preferencias y vínculos | Integridad contable probada con datos ficticios; misma compuerta pendiente, sin movimientos financieros reales |
 | 6 | Texto/CSV/recibo JSON no confiable, informes internos, validación/límites, evidencia/revocación, salud/leases y recuperación | Texto, reporte vacío y salud probados también en plataforma; binarios/OCR/bancos no disponibles, carga/cuotas/retención pendientes |
-| 7 | Worker/D1, migraciones/ORM, CI/clones, auditorías, exportación trazable, publicación privada y documentación/UAT | 31 lecturas reales verificadas; no completada: faltan firma, aceptación de ejecución futura y revisión/integración |
+| 7 | Worker/D1, migraciones/ORM, CI/clones, auditorías, exportación trazable, publicación privada y documentación/UAT |31 lecturas y firma reales verificadas; no completada: faltan aceptación de ejecución futura, carga/cuotas y revisión/integración |
 
 MCP_PARITY_MATRIX enumera las 43 acciones y las excepciones: split/reconciliación, CRUD de conceptos, archivo de obligaciones/metas, reasignación genérica de reservas, importación/restauración MCP y otras capacidades que la aplicación no soporta. No se cubren con SQL/CRUD genérico.
 
@@ -39,12 +39,12 @@ Cierre 33a6a53/docs12f6bde; dependencias a067ef7; compatibilidad Sites a05433d; 
 | Registro/identidad reales | Propietario confirmó creación personal, nonce consumido y perfil MCP coincidente; health confirma esquema / 54 triggers/metadatos versión 1 |
 | Plugin conectado | 44 herramientas; 31 lecturas: 22 válidas/nueve not_found esperados por IDs ficticios inexistentes, cero fallos y entidades vacías |
 | Ampliaciones/idempotencia | Reporte vacío consistente; texto no confiable sin aprobación/efectos; prepare conserva propuesta/huella/revisión al repetir clave |
-| Compuerta real | Commit de propuesta ficticia vencida devuelve writes_disabled; cero tarea/workspace persistidos. Repetir después de firma válida |
+| Firma y compuerta reales |APPROVED con revisión/digest exactos; evidencia WebAuthn persistida ligada a owner/clave/origen/desafío, nonce consumido dentro de TTL. Commit devuelve writes_disabled antes/después de firma; cero tarea/workspace/ejecuciones y revisión de negocio 0 |
 | Autorización negativa | Servicio sin visitante recibe 401 en MCP/enrollment; página 200 y anti-framing aprobados. No se fabricó identidad |
 
 El lock basal tenía33 entradas afectadas, incluidas dos críticas. Ese artefacto nunca se desplegó. DEPENDENCY_SECURITY documenta corrección de runtime/transitivas y migración real a Zod4, sin --force ni degradar Drizzle. Auditar fuente y dependencias verifica riesgos distintos; no garantiza seguridad futura.
 
-La primera propuesta de aprobación expiró sin firma. Las pruebas pendientes son firma personal de una propuesta vigente, aceptación de ejecución futura, adjuntos/visualización con datos UAT y carga/cuotas máximas del host. Registrar una credencial, criptografía sintética, CI y publicación no sustituyen la firma de una propuesta concreta.
+La primera propuesta expiró sin firma; el propietario firmó la segunda dentro del TTL y confirmó su intervención personal. La evidencia persistida coincide con la clave fijada y el origen exacto, revisión/huella/desafío/owner; se observó APPROVED antes de caducidad y cero ejecución/negocio. Su expiración posterior es normal y no requiere repetir esta prueba. Siguen pendientes aceptación de ejecución futura, adjuntos/visualización con datos UAT y carga/cuotas máximas del host.
 
 ## Publicación, migraciones y recuperación
 
@@ -52,12 +52,12 @@ El Site es nuevo, owner-only, con D1/configuración propias. Código público 53
 
 SITES_METADATA_BOOTSTRAP conserva SQL original 0000–0010 y añade 0011. Para Sites exporta DDL/triggers con hashes; el primer registro o prepare explícitos y autenticados inicializa metadatos atómicamente, invalida planes anteriores y conserva negocio/revisión/recibos. GET, lecturas y denegaciones no inicializan. No hay DDL en requests, SQL del modelo ni ledger falsificado. La automatización es freshInstallationOnly; previews con otra representación requieren inspección y autorización de su propietario.
 
-El 503 inicial de registro se reprodujo antes de corregir. Tres regresiones cubren arranque, denegaciones/esquema incompleto/versión futura y rollback; ambas integraciones prueban registrar primero. El reintento humano ya terminó correctamente y quedó configurado. Firma de propuesta aún pendiente.
+El 503 inicial se reprodujo antes de corregir. Tres regresiones cubren arranque, denegaciones/esquema incompleto/versión futura y rollback; ambos Workers prueban registrar primero. Reintento de registro y firma humana posteriores terminaron correctamente; clave/evidencia permanecen privadas. Esta verificación no cambió código, SQL ni configuración del executor.
 
 UPGRADE_AND_ROLLBACK exige autorización, respaldo/restauración aislada, ledger/hashes, flags apagados y requests drenados, versión exacta y mecanismo soportado. Rollback conserva datos/esquema/evidencia; no DROP, restauración ni downgrade automático. Un merge nunca despliega otro Site. Ante timeout de ejecución futura, consultar recibo/idempotencia antes de reintentar; reversión no financiera requiere nueva propuesta/firma y finanzas usan servicios de anulación específicos.
 
 ## Aceptación y límites
 
-USER_ACCEPTANCE_TESTS contiene requisitos, datos, pasos, persistencia, errores, precauciones y estado. Registro personal, clave propia y conexión ya aprobados: no repetirlos. Falta UAT-3-HUMAN con enlace vigente: revisar diff/digest/TTL de tarea ficticia y workspace inicial, firmar personalmente, verificar APPROVED y commit denegado sin negocio persistido. No pedir PIN/contraseña/clave privada ni repetir pruebas automatizadas o llamadas reales ya verificadas. Toda incidencia corregida requiere regresión antes del cierre.
+USER_ACCEPTANCE_TESTS contiene requisitos, datos, pasos, persistencia, errores y estado. Registro, clave propia, conexión, UAT-3-HUMAN y bloqueo de commit tras APPROVED ya aprobados: no repetirlos. La tarea/workspace propuestos no se crearon. No pedir PIN/contraseña/clave privada ni repetir pruebas automatizadas o llamadas reales ya verificadas. Toda incidencia corregida requiere regresión antes del cierre.
 
-Fases 4/5 reales siguen bloqueadas hasta demostrar el canal y revisar una habilitación posterior. Persisten revisión del mantenedor, firma/aceptación, cuota/rendimiento/retención y capacidades ausentes de paridad. Historial público, PR antiguos, forks y cachés siguen potencialmente accesibles; su sustitución fue suspendida y no se declara retirada histórica.
+El canal humano ya está demostrado. Fases 4/5 reales siguen bloqueadas hasta una habilitación posterior revisada; la prueba no abre negocio ni cambia globalmente platformHumanApprovalVerified. Persisten revisión/integración, aceptación de ejecución futura, cuota/rendimiento/retención y capacidades ausentes de paridad. Historial, PR antiguos, forks y cachés siguen potencialmente accesibles; su sustitución fue suspendida y no se declara retirada histórica.

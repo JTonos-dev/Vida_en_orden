@@ -93,4 +93,4 @@ Diez herramientas nuevas solo al configurar explícitamente propuestas en la ins
 - Los updates V2 omiten sin borrar campos existentes; las búsquedas literales mantienen 200 caracteres sin patrones LIKE largos.
 - Catálogo: 31 sin flags; 33 solo ampliaciones; 42 solo propuestas; 44 con ambos. No se anuncian binarios, OCR, SQL, alta de confianza ni escrituras de negocio habilitadas.
 
-Siguen pendientes aceptación humana alojada, cuota/desempeño real y funcionalidades del plan maestro que la aplicación aún no soporta, enumeradas arriba. Implementación aislada no equivale a paridad funcional aceptada en producción.
+Registro y firma humana alojados ya verificados: APPROVED para revisión/huella exactas, evidencia durable ligada a owner/clave/origen/desafío y nonce consumido dentro de vigencia. Commit denegado y cero negocio. Siguen pendientes integración/habilitación revisadas, aceptación de ejecución futura, cuota/desempeño real y capacidades que la aplicación no soporta, enumeradas arriba. Esta prueba no declara paridad funcional aceptada en producción.

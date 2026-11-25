@@ -1,5 +1,11 @@
 # Historial de cambios
 
+## Firma humana real verificada · 2026-11-24
+
+- El propietario firmó personalmente una propuesta ficticia vigente mediante su autenticador. MCP mostró APPROVED para la misma revisión/huella; D1 conserva aprobación/evidencia WebAuthn ligadas a owner, clave fijada, origen y desafío. Nonce consumido y firma dentro del TTL.
+- Commit de la propuesta aprobada devolvió writes_disabled. Verificación posterior: cero tarea/workspace/ejecuciones, revisión de negocio 0 y referencias vacías. La primera propuesta había expirado sin firma; no se extendió ni reutilizó su TTL.
+- UAT de aprobación y compuerta actualizados como aprobados. Solo documentación/trazabilidad; no se modifica código, SQL, política global ni habilita negocio. Evidencia/identificadores permanecen privados. Revisión/integración, habilitación posterior y aceptación de ejecución futura siguen pendientes; fase 7 no se declara completa.
+
 ## Registro humano y conexión del MCP de desarrollo · 2026-11-24
 
 - El propietario completó el registro del autenticador tras la corrección 5359d43. Se comprobó nonce consumido/propietario y metadata_version=1. Solo su clave pública se fijó en una variable secreta del Site de desarrollo; redespliegue satisfactorio de la misma versión 2 con entorno 2, sin código/SQL nuevos.
