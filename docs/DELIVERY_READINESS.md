@@ -1,6 +1,8 @@
 # Entregas para aceptación y actualización
 
-Base integrada: ca336b7846d08fa9853cef72f086d153babbc8e4, CI45664520146 aprobado. Corte25nov2026. No se modifica ni migra una instalación personal; no se activa negocio ni se despliegan candidatos sin aprobación. Las entregas pendientes se revisan por PR y orden de dependencia, sin auto-merge.
+Base integrada actual: 0162720e8a40db12fe1b97543b262b867b0438bb, #17 fusionado y CI45679888063 aprobado. Corte 25 noviembre 2026. Cadena pendiente #18 → #19; #18 requiere nueva conformidad tras corregir la autorización directa del motor. No se modifica ni migra una instalación personal, ni se activa negocio o despliega un candidato.
+
+Corrección de auditoría: toda ejecución nueva requiere callback y resultado completo/vigente, release/huella válidos y deadline acotado; cualquier fallo deniega writes_disabled. SQL ya no admite deadline nulo y la auditoría de autorización es obligatoria/atómica. Recuperar un recibo confirmado no vuelve a ejecutar ni necesita un nuevo permiso. Fixtures usan la política criptográfica real. Validación local aprobada: 199 pruebas, sin omitidas, incluidas 43 operaciones/55 ejecuciones por motor SQLite/D1, y todos los controles de AGENTS; ver DEVELOPMENT_PROGRESS. Siguiente paso mínimo: [QA_HOSTED_EXECUTION_RUNBOOK](QA_HOSTED_EXECUTION_RUNBOOK.md), dos propuestas ficticias en la QA existente, después de revisión e intervención administrativa/humana específicas.
 
 ## A — Diagnóstico tipado de referencias
 

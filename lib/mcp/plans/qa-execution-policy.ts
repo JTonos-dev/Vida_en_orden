@@ -21,7 +21,12 @@ const grantSchema = z.object({
 }).strict();
 export type QaExecutionGrant = z.infer<typeof grantSchema>;
 export type QaBuildContext = { projectId: string; origin: string; releaseId: string | null };
-export type QaExecutionAuthorization = {expiresAt:number;permitDigest:string;releaseId:string};
+export const qaExecutionAuthorizationSchema = z.object({
+  expiresAt: z.number().int().positive().safe(),
+  permitDigest: z.string().regex(/^[a-f0-9]{64}$/),
+  releaseId: z.string().regex(/^[a-f0-9]{40}$/),
+}).strict();
+export type QaExecutionAuthorization = z.infer<typeof qaExecutionAuthorizationSchema>;
 export async function executionCatalogDigest(registry: ActionRegistry) {
   return digest([...registry.values()].map(entry => ({kind:entry.kind,phase:entry.phase,risk:entry.risk,input:entry.inputSchema??null})).sort((a,b)=>a.kind<b.kind?-1:a.kind>b.kind?1:0));
 }

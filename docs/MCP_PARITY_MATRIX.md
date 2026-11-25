@@ -10,6 +10,7 @@ Actualización de candidatos posterior a ca336b7: PR #17 corrige referencias con
 
 | Módulo | Herramientas | Estado | Evidencia principal |
 |---|---|---|---|
+| Autorización de ejecución | commit directo y transporte MCP | Corrección de revisión #18: autorizador obligatorio/estricto, SQL sin bypass nulo, recibos recuperables sin repetir negocio; distribución cerrada | tests/mcp-engine-authorization.test.ts, QA_HOSTED_EXECUTION_RUNBOOK |
 | Descubrimiento e identidad | `get_capabilities`, `get_my_profile` | Implementado | `lib/mcp/server.ts`, `tests/mcp-auth.test.ts`, `tests/mcp-server.test.ts` |
 | Tareas | `search_tasks`, `get_task`, `list_task_relations` | Implementado | `lib/mcp/read-service.ts`, `tests/mcp-phase2.test.ts` |
 | Áreas | `list_areas`, `get_area` | Implementado | `lib/mcp/read-service.ts` |

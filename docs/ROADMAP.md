@@ -24,6 +24,8 @@ La fase 3 depende de una aprobación humana demostrable en la plataforma. Las fa
 
 ## Ejecución vigente
 
+Revisión posterior: #17 integrado en main0162720 con CI satisfactorio. #18 corrige la autorización opcional dentro del motor y se somete de nuevo a pruebas/revisión; #19 incorporará exactamente ese commit y conserva su ensayo de recuperación. La cadena pendiente es #18 → #19. No hay activación o publicación. Tras conformidad e integración, seguir QA_HOSTED_EXECUTION_RUNBOOK para solo dos propuestas ficticias con firmas humanas propias; no repetir manualmente las 43 regresiones.
+
 25 noviembre: diagnóstico tipado entregado en PR #17 (CI aprobado), seguido por gate QA implementado sin activar y cobertura local de 43 operaciones/55 ejecuciones por motor SQLite/D1. Total 182 pruebas, sin omitidas. Ver DELIVERY_READINESS y OPERATION_ACCEPTANCE_MATRIX. Fases 3–5 conservan pendientes de aceptación humana/ejecución alojada; fase 6 conserva cuotas/escala; fase 7 no completa. Un build privado armado exige revisión independiente y autorización administrativa nueva; main permanece cerrado.
 
 Después de integrar #16 en ca336b7 se prepara diagnóstico tipado de referencias, habilitación QA condicionada sin activación y ensayo de upgrade/recuperación ficticios. Ver DELIVERY_READINESS; no se declara fase7 terminada ni actualización personal apta sin gates administrativos/humanos.

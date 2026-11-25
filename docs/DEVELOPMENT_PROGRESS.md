@@ -4,6 +4,16 @@ Corte: 24 de noviembre de 2026. Mandato: desarrollar todas las fases técnicamen
 
 ## Situación para continuar
 
+### Corrección de la revisión bloqueante #18 · 25 noviembre 2026
+
+- Consultadas directamente las revisiones: #17 fusionado en main0162720, CI45679888063 aprobado; #18 CHANGES_REQUESTED sobre b72081b por autorizador opcional en commit; #19 revisión preliminar satisfactoria, pendiente de esa corrección. Orden vigente: #18 → #19. No crear PR/Site nuevos.
+- Main sincronizado por fast-forward y fusionado normalmente a feature/qa-execution-authorization; sin force-push. Implementado cierre dentro de commit para toda ejecución nueva: callback obligatorio, resultado estricto de tres campos, deadline entero/vigente/acotado, release/huella hex; cualquier fallo se normaliza a writes_disabled. SQL sin cláusula nullable y auditoría de autorización obligatoria/atómica. Recibos existentes se recuperan sin volver a ejecutar ni requerir un permiso nuevo.
+- Nuevas regresiones: ausencia, excepción, undefined/null/boolean/vacío, campos omitidos, release/huella inválidos, caducidad y deadline no finito/fraccional/excesivo, campos extra. Comparan todas las tablas antes/después de denegar llamadas directas y transporte compartido. Positivo: permiso firmado más dos aprobaciones independientes para tarea y cuenta/gasto, saldo 8750, idempotencia y recibos tras cierre. Prueba SQL con reloj de aplicación atrasado ahora exige commit_conflict, no cualquier error.
+- Fixtures antiguos que ejecutan negocio reciben permisos sintéticos mediante authorizeQaExecution, con clave administrativa separada y reloj vigente; no se elimina la guarda SQL ni se agrega bypass de tests. Las 43 operaciones conservan firmas/delta exacto/lectura/auditoría en SQLite y D1.
+- Validación local #18 aprobada: npm ci (709 paquetes), 199 pruebas (14 financieras + 177 MCP + 4 auditoría + 4 recuperación), sin omitidas; 43 operaciones/55 ejecuciones en SQLite y D1; dependencias sin alertas, auditoría de 286 archivos sin hallazgos, TypeScript/lint sin errores (4 advertencias previas), schema sin cambios, build, D1 independiente y ambos Workers aprobados. Regresiones enfocadas finales: 37 aprobadas. Logs ignorados outputs/review18-*.
+- Publicar la corrección local validada e incorporarla por merge normal a #19; exigir ancestor y cero diff de lib/tests respecto a ese commit, preservar el ensayo nativo y comprobar upgrade. Esperar CI completo de ambos HEAD antes de solicitar nueva conformidad; ningún merge remoto automático.
+- Procedimiento mínimo después de merges: QA_HOSTED_EXECUTION_RUNBOOK. Dos propuestas alojadas (tarea y cuenta/gasto), no repetir las 43 manualmente. Administración autoriza/revisa el artefacto y opera su configuración; propietario realiza solo registro si falta, permiso y aprobaciones WebAuthn. El agente automatiza todo el resto. Respaldo/ledger del destino personal siguen separados en issue #13 y SITES_ADMIN_SUPPORT_REQUEST; no bloquean artificialmente un smoke test mínimo de QA puramente ficticia.
+
 ### Control QA y cobertura completa aislada · 25 noviembre 2026
 
 - Base main ca336b7; PR #17 (0bcab1c) abierto, [CI aprobado](https://github.com/JorgeTonos28/Vida_en_orden/actions/runs/45667349422). No fusionado ni desplegado. Candidato dependiente: feature/qa-execution-authorization, con revisión independiente pendiente.
