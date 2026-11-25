@@ -1,6 +1,7 @@
 import { financialImpact } from "./financial-impact.ts";
 import { initializeRuntimeMetadata, runtimeMetadata, requireRuntimeSchema, requireRuntimeMetadata, MCP_METADATA_VERSION } from "./metadata.ts";
 import { webAuthnVerifier } from "./approval.ts";
+import { DomainReferenceError } from "../../domain/errors.ts";
 import { queryBudget } from "./budget.ts";
 import { parseBoundedJson } from "./limits.ts";
 import { z } from "zod";
@@ -165,7 +166,12 @@ export class ProposalEngine {
         const target = BUSINESS_TABLES.find((table) => table.name === definition.targetTable)!;
         const oldIds = new Set(previous[target.name].map(row=>String(row[target.primaryKey])));
         touched.clear();
-        const value = await runWithDomainDatabase(stage, () => definition.execute(this.options.actor, validated.data), () => now);
+        let value: unknown;
+        try { value = await runWithDomainDatabase(stage, () => definition.execute(this.options.actor, validated.data), () => now); }
+        catch (error) {
+          if (error instanceof DomainReferenceError) throw new PlanError("reference_not_found", "Una referencia no existe o no está disponible en el alcance autorizado.", 404);
+          throw error; // Infrastructure and unknown failures must not be misclassified.
+        }
         const tables = BUSINESS_TABLES.filter(table=>touched.has(table.name));
         // Engine-owned snapshots read their exact partition; the domain wrapper
         // deliberately refuses arbitrary reads of its partial audit context.

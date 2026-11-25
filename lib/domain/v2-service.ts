@@ -1,5 +1,6 @@
 import { isCalendarDate } from "./validation.ts";
 import { domainDatabase, domainNow } from "./context.ts";
+import { DomainReferenceError } from "./errors.ts";
 import { HOUSEHOLD_SCOPE } from "../data-scopes.ts";
 import {
   calculateAccountBalance,
@@ -90,19 +91,19 @@ async function audit(ownerId: string, entityType: string, entityId: string, acti
 
 async function owned(table: string, id: string, ownerId: string) {
   const row = await db().prepare(`SELECT id FROM ${table} WHERE id=? AND owner_id=?`).bind(id, ownerId).first();
-  if (!row) throw new Error("Registro no encontrado o sin acceso");
+  if (!row) throw new DomainReferenceError("Registro no encontrado o sin acceso");
 }
 
 async function shared(table: "home_areas" | "home_projects", id: unknown) {
   if (!id) return;
   const row=await db().prepare(`SELECT id FROM ${table} WHERE id=? AND scope_id=?`).bind(String(id),HOUSEHOLD_SCOPE).first();
-  if(!row) throw new Error("El área o proyecto seleccionado no existe");
+  if(!row) throw new DomainReferenceError("El área o proyecto seleccionado no existe");
 }
 
 async function sharedTask(id: unknown) {
   if (!id) return;
   const row=await db().prepare("SELECT id FROM home_tasks WHERE id=? AND user_id=?").bind(String(id),HOUSEHOLD_SCOPE).first();
-  if(!row) throw new Error("La tarea seleccionada no existe");
+  if(!row) throw new DomainReferenceError("La tarea seleccionada no existe");
 }
 
 function normalizeConcept(value: unknown) {
@@ -457,7 +458,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
   if (action === "project.update") {
     const id = text(body.id, "El proyecto", true);
     const row = await database.prepare("SELECT id FROM home_projects WHERE id=? AND scope_id=?").bind(id, HOUSEHOLD_SCOPE).first();
-    if (!row) throw new Error("Proyecto no encontrado");
+    if (!row) throw new DomainReferenceError("Proyecto no encontrado");
     await shared("home_areas",body.areaId);
     const startDate = date(body.startDate, "El inicio");
     const targetDate = date(body.targetDate, "La fecha objetivo");
@@ -515,7 +516,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
   if (action === "finance.account.update") {
     const id = text(body.id, "La cuenta", true);
     const account = await database.prepare("SELECT id FROM finance_accounts WHERE id=? AND owner_id=?").bind(id, ownerId).first();
-    if (!account) throw new Error("Cuenta no encontrada");
+    if (!account) throw new DomainReferenceError("Cuenta no encontrada");
     const type = ["bank", "cash", "savings", "credit"].includes(String(body.type)) ? String(body.type) : "bank";
     await database.prepare("UPDATE finance_accounts SET name=?,type=?,bank_name=?,updated_at=? WHERE id=? AND owner_id=?")
       .bind(text(body.name, "El nombre", true), type, text(body.bankName, "El banco"), stamp, id, ownerId).run();
@@ -525,7 +526,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
   if (action === "finance.account.archive") {
     const id = text(body.id, "La cuenta", true);
     const account = await database.prepare("SELECT * FROM finance_accounts WHERE id=? AND owner_id=?").bind(id, ownerId).first<Row>();
-    if (!account) throw new Error("Cuenta no encontrada");
+    if (!account) throw new DomainReferenceError("Cuenta no encontrada");
     const transactionRows = await database.prepare("SELECT * FROM finance_transactions WHERE owner_id=? AND (account_id=? OR destination_account_id=?)").bind(ownerId, id, id).all<Row>();
     const balance = calculateAccountBalance(id, Number(account.opening_balance_minor), String(account.opening_balance_date), today(), transactionRows.results.map((row) => ({
       type: String(row.type), accountId: String(row.account_id), destinationAccountId: row.destination_account_id ? String(row.destination_account_id) : null,
@@ -553,7 +554,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
   if (action === "finance.category.update") {
     const id = text(body.id, "La categoría", true);
     const existing = await database.prepare("SELECT id,name,kind FROM finance_categories WHERE id=? AND owner_id=?").bind(id, ownerId).first<Row>();
-    if (!existing) throw new Error("Categoría no encontrada");
+    if (!existing) throw new DomainReferenceError("Categoría no encontrada");
     const name = text(body.name, "El nombre", true);
     const kind = String(body.kind) === "income" ? "income" : "expense";
     const color = text(body.color, "El color") || "#2463eb";
@@ -579,7 +580,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
   if (action === "finance.category.delete") {
     const id = text(body.id, "La categoría", true);
     const existing = await database.prepare("SELECT id,name,kind FROM finance_categories WHERE id=? AND owner_id=?").bind(id, ownerId).first<Row>();
-    if (!existing) throw new Error("Categoría no encontrada");
+    if (!existing) throw new DomainReferenceError("Categoría no encontrada");
     if (String(existing.name) === "Comisiones bancarias" && String(existing.kind) === "expense") {
       throw new Error("La categoría de comisiones bancarias es necesaria para calcular transferencias y no se puede eliminar");
     }
@@ -600,14 +601,14 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
     if (!["income", "expense", "transfer", "adjustment"].includes(type)) throw new Error("Tipo de movimiento inválido");
     const accountId = text(body.accountId, "La cuenta", true);
     const account = await database.prepare("SELECT id,bank_name,opening_balance_date,archived FROM finance_accounts WHERE id=? AND owner_id=?").bind(accountId, ownerId).first<Row>();
-    if (!account || Number(account.archived) === 1) throw new Error("La cuenta no existe o está archivada");
+    if (!account || Number(account.archived) === 1) throw new DomainReferenceError("La cuenta no existe o está archivada");
     const occurredOn = date(body.occurredOn, "La fecha", true);
     if (occurredOn < String(account.opening_balance_date)) throw new Error("La fecha del movimiento no puede ser anterior al saldo inicial de la cuenta");
     const destination = type === "transfer" ? text(body.destinationAccountId, "La cuenta destino", true) : "";
     let destinationAccount: Row | null = null;
     if (destination) {
       destinationAccount = await database.prepare("SELECT id,bank_name,opening_balance_date,archived FROM finance_accounts WHERE id=? AND owner_id=?").bind(destination, ownerId).first<Row>();
-      if (!destinationAccount || Number(destinationAccount.archived) === 1) throw new Error("La cuenta destino no existe o está archivada");
+      if (!destinationAccount || Number(destinationAccount.archived) === 1) throw new DomainReferenceError("La cuenta destino no existe o está archivada");
       if (destination === accountId) throw new Error("La cuenta destino debe ser diferente");
       if (occurredOn < String(destinationAccount.opening_balance_date)) throw new Error("La transferencia no puede ser anterior al saldo inicial de la cuenta destino");
     }
@@ -645,7 +646,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
     if (type === "expense" && body.goalId) {
       goalId = text(body.goalId, "La meta", true);
       goal = await database.prepare("SELECT * FROM finance_goals WHERE id=? AND owner_id=?").bind(goalId, ownerId).first<Row>();
-      if (!goal) throw new Error("La meta seleccionada no existe");
+      if (!goal) throw new DomainReferenceError("La meta seleccionada no existe");
       if (String(goal.status) === "completed") throw new Error("La meta seleccionada ya fue completada");
       if (goal.category_id) categoryId = String(goal.category_id);
       goalConsumed = Math.min(Number(goal.reserved_minor || 0), amountMinor);
@@ -668,12 +669,12 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
   if (action === "finance.transaction.update_amount") {
     const id = text(body.id, "El movimiento", true);
     const transaction = await database.prepare("SELECT * FROM finance_transactions WHERE id=? AND owner_id=?").bind(id, ownerId).first<Row>();
-    if (!transaction) throw new Error("Movimiento no encontrado");
+    if (!transaction) throw new DomainReferenceError("Movimiento no encontrado");
     if (String(transaction.status) !== "confirmed") throw new Error("Solo se pueden editar movimientos confirmados");
     const amountMinor = minor(body.amountMinor, "El importe", false);
     const accountId = body.accountId ? text(body.accountId, "La cuenta de origen", true) : String(transaction.account_id);
     const sourceAccount = await database.prepare("SELECT id,bank_name,opening_balance_date,archived FROM finance_accounts WHERE id=? AND owner_id=?").bind(accountId, ownerId).first<Row>();
-    if (!sourceAccount || Number(sourceAccount.archived) === 1) throw new Error("La cuenta de origen no existe o está archivada");
+    if (!sourceAccount || Number(sourceAccount.archived) === 1) throw new DomainReferenceError("La cuenta de origen no existe o está archivada");
     if (String(transaction.occurred_on) < String(sourceAccount.opening_balance_date)) throw new Error("La fecha del movimiento no puede ser anterior al saldo inicial de la cuenta seleccionada");
     const oldAmount = Number(transaction.amount_minor || 0);
     const type = String(transaction.type);
@@ -714,7 +715,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
     } else if (type === "transfer") {
       paymentMethod = "transfer";
       const destinationAccount = await database.prepare("SELECT id,bank_name FROM finance_accounts WHERE id=? AND owner_id=?").bind(transaction.destination_account_id, ownerId).first<Row>();
-      if (!destinationAccount) throw new Error("La cuenta destino no existe");
+      if (!destinationAccount) throw new DomainReferenceError("La cuenta destino no existe");
       if (accountId === String(transaction.destination_account_id)) throw new Error("La cuenta de origen debe ser diferente de la cuenta destino");
       const sourceBank = text(sourceAccount.bank_name, "El banco de origen", true);
       const targetBank = text(destinationAccount.bank_name, "El banco de destino", true);
@@ -737,7 +738,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
     const statements: D1PreparedStatement[] = [];
     if (transaction.goal_id && Number(transaction.goal_reservation_consumed_minor || 0) > 0) {
       const goal = await database.prepare("SELECT * FROM finance_goals WHERE id=? AND owner_id=?").bind(transaction.goal_id, ownerId).first<Row>();
-      if (!goal) throw new Error("La meta vinculada no existe");
+      if (!goal) throw new DomainReferenceError("La meta vinculada no existe");
       if (goal.category_id && categoryId !== String(goal.category_id)) throw new Error("La categoría de un gasto consumido de una meta está determinada por la meta");
       const previousConsumed = Number(transaction.goal_reservation_consumed_minor || 0);
       const availableBefore = Number(goal.reserved_minor || 0) + previousConsumed;
@@ -750,7 +751,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
     } else if (transaction.obligation_occurrence_id) {
       const occurrence = await database.prepare("SELECT * FROM finance_obligation_occurrences WHERE id=? AND owner_id=?").bind(transaction.obligation_occurrence_id, ownerId).first<Row>();
       const obligation = occurrence ? await database.prepare("SELECT * FROM finance_obligations WHERE id=? AND owner_id=?").bind(occurrence.obligation_id, ownerId).first<Row>() : null;
-      if (!occurrence || !obligation) throw new Error("La obligación vinculada no existe");
+      if (!occurrence || !obligation) throw new DomainReferenceError("La obligación vinculada no existe");
       const paid = Math.max(0, Number(occurrence.paid_minor || 0) - oldAmount + amountMinor);
       if (paid > Number(occurrence.expected_minor || 0)) throw new Error("El nuevo importe supera el saldo esperado de la obligación");
       const oldConsumed = Number(transaction.reservation_consumed_minor || 0);
@@ -773,14 +774,14 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
   if (action === "finance.transaction.void") {
     const id = text(body.id, "El movimiento", true);
     const transaction = await database.prepare("SELECT * FROM finance_transactions WHERE id=? AND owner_id=?").bind(id, ownerId).first<Row>();
-    if (!transaction) throw new Error("Movimiento no encontrado");
+    if (!transaction) throw new DomainReferenceError("Movimiento no encontrado");
     if (String(transaction.status) === "voided") throw new Error("El movimiento ya está anulado");
     const statements: D1PreparedStatement[] = [];
     if (transaction.obligation_occurrence_id) {
       const occurrence = await database.prepare("SELECT * FROM finance_obligation_occurrences WHERE id=? AND owner_id=?").bind(transaction.obligation_occurrence_id, ownerId).first<Row>();
-      if (!occurrence) throw new Error("El pago está vinculado a un vencimiento inexistente");
+      if (!occurrence) throw new DomainReferenceError("El pago está vinculado a un vencimiento inexistente");
       const obligation = await database.prepare("SELECT * FROM finance_obligations WHERE id=? AND owner_id=?").bind(occurrence.obligation_id, ownerId).first<Row>();
-      if (!obligation) throw new Error("El pago está vinculado a una obligación inexistente");
+      if (!obligation) throw new DomainReferenceError("El pago está vinculado a una obligación inexistente");
       const reversedPaid = Math.max(0, Number(occurrence.paid_minor) - Number(transaction.amount_minor));
       const nextStatus = reversedPaid === 0 ? "pending" : reversedPaid < Number(occurrence.expected_minor) ? "partial" : "paid";
       const latestPayment = await database.prepare("SELECT id FROM finance_transactions WHERE owner_id=? AND obligation_occurrence_id=? AND id!=? AND status='confirmed' ORDER BY created_at DESC LIMIT 1")
@@ -807,7 +808,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
     }
     if (transaction.goal_id && Number(transaction.goal_reservation_consumed_minor || 0) > 0) {
       const goal = await database.prepare("SELECT * FROM finance_goals WHERE id=? AND owner_id=?").bind(transaction.goal_id, ownerId).first<Row>();
-      if (!goal) throw new Error("El gasto está vinculado a una meta inexistente");
+      if (!goal) throw new DomainReferenceError("El gasto está vinculado a una meta inexistente");
       const restored = Number(goal.reserved_minor || 0) + Number(transaction.goal_reservation_consumed_minor || 0);
       const used = Math.max(0, Number(goal.used_minor || 0) - Number(transaction.goal_reservation_consumed_minor || 0));
       const status = restored + used >= Number(goal.target_minor) ? "funded" : "active";
@@ -837,7 +838,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
   if (action === "finance.budget.update") {
     const id = text(body.id, "El presupuesto", true);
     const existing = await database.prepare("SELECT id FROM finance_budgets WHERE id=? AND owner_id=?").bind(id, ownerId).first<Row>();
-    if (!existing) throw new Error("Asignación presupuestaria no encontrada");
+    if (!existing) throw new DomainReferenceError("Asignación presupuestaria no encontrada");
     const month = text(body.month, "El mes", true);
     if (!/^\d{4}-\d{2}$/.test(month)) throw new Error("Mes inválido");
     const categoryId = text(body.categoryId, "La categoría", true);
@@ -870,7 +871,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
   if (action === "finance.budget.delete") {
     const id = text(body.id, "El presupuesto", true);
     const existing = await database.prepare("SELECT id FROM finance_budgets WHERE id=? AND owner_id=?").bind(id, ownerId).first<Row>();
-    if (!existing) throw new Error("Asignación presupuestaria no encontrada");
+    if (!existing) throw new DomainReferenceError("Asignación presupuestaria no encontrada");
     await database.prepare("DELETE FROM finance_budgets WHERE id=? AND owner_id=?").bind(id, ownerId).run();
     await audit(ownerId, "budget", id, "deleted");
     return;
@@ -910,7 +911,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
   if (action === "finance.obligation.update") {
     const id = text(body.id, "La obligación", true);
     const existing = await database.prepare("SELECT * FROM finance_obligations WHERE id=? AND owner_id=?").bind(id, ownerId).first<Row>();
-    if (!existing) throw new Error("Obligación no encontrada");
+    if (!existing) throw new DomainReferenceError("Obligación no encontrada");
     const amount = minor(body.expectedAmountMinor, "El importe", false);
     const concept = Object.prototype.hasOwnProperty.call(body, "concept") ? text(body.concept, "El concepto") : text(existing.concept || existing.title, "El concepto", true);
     const due = date(body.nextDueDate, "El vencimiento", true);
@@ -957,12 +958,12 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
   if (action === "finance.obligation.pay") {
     const occurrenceId = text(body.occurrenceId, "La ocurrencia", true);
     const occurrence = await database.prepare("SELECT * FROM finance_obligation_occurrences WHERE id=? AND owner_id=?").bind(occurrenceId, ownerId).first<Row>();
-    if (!occurrence) throw new Error("Vencimiento no encontrado");
+    if (!occurrence) throw new DomainReferenceError("Vencimiento no encontrado");
     const obligation = await database.prepare("SELECT * FROM finance_obligations WHERE id=? AND owner_id=?").bind(occurrence.obligation_id, ownerId).first<Row>();
-    if (!obligation) throw new Error("Obligación no encontrada");
+    if (!obligation) throw new DomainReferenceError("Obligación no encontrada");
     const accountId = text(body.accountId || obligation.account_id, "La cuenta", true);
     const account = await database.prepare("SELECT id,bank_name,opening_balance_date,archived FROM finance_accounts WHERE id=? AND owner_id=?").bind(accountId, ownerId).first<Row>();
-    if (!account || Number(account.archived) === 1) throw new Error("La cuenta no existe o está archivada");
+    if (!account || Number(account.archived) === 1) throw new DomainReferenceError("La cuenta no existe o está archivada");
     const occurredOn = date(body.occurredOn || today(), "La fecha", true);
     if (occurredOn > today()) throw new Error("Un pago o cobro de obligación no puede registrarse en el futuro");
     if (occurredOn < String(account.opening_balance_date)) throw new Error("La fecha no puede ser anterior al saldo inicial de la cuenta");
@@ -1031,7 +1032,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
   if (action === "finance.goal.update") {
     const id = text(body.id, "La meta", true);
     const goal = await database.prepare("SELECT * FROM finance_goals WHERE id=? AND owner_id=?").bind(id, ownerId).first<Row>();
-    if (!goal) throw new Error("Meta no encontrada");
+    if (!goal) throw new DomainReferenceError("Meta no encontrada");
     if (body.accountId) await owned("finance_accounts", String(body.accountId), ownerId);
     await sharedTask(body.linkedTaskId); await shared("home_projects", body.linkedProjectId);
     const target = minor(body.targetMinor, "La meta", false);
@@ -1049,7 +1050,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
   if (action === "finance.goal.contribute") {
     const goalId = text(body.goalId, "La meta", true);
     const goal = await database.prepare("SELECT * FROM finance_goals WHERE id=? AND owner_id=?").bind(goalId, ownerId).first<Row>();
-    if (!goal) throw new Error("Meta no encontrada");
+    if (!goal) throw new DomainReferenceError("Meta no encontrada");
     const amount = minor(body.amountMinor, "El aporte", false);
     const remaining = Number(goal.target_minor) - Number(goal.reserved_minor) - Number(goal.used_minor || 0);
     if (remaining <= 0) throw new Error("La meta ya está financiada");
@@ -1071,9 +1072,9 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
   if (action === "finance.goal.entry.update") {
     const entryId = text(body.id, "El aporte", true);
     const entry = await database.prepare("SELECT * FROM finance_goal_entries WHERE id=? AND owner_id=?").bind(entryId, ownerId).first<Row>();
-    if (!entry || entry.voided_at) throw new Error("Aporte no encontrado o ya revertido");
+    if (!entry || entry.voided_at) throw new DomainReferenceError("Aporte no encontrado o ya revertido");
     const goal = await database.prepare("SELECT * FROM finance_goals WHERE id=? AND owner_id=?").bind(entry.goal_id, ownerId).first<Row>();
-    if (!goal) throw new Error("Meta no encontrada");
+    if (!goal) throw new DomainReferenceError("Meta no encontrada");
     const amount = minor(body.amountMinor, "El aporte", false);
     const delta = amount - Number(entry.amount_minor);
     const reserved = Number(goal.reserved_minor || 0);
@@ -1091,9 +1092,9 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
   if (action === "finance.goal.entry.revert") {
     const entryId = text(body.id, "El aporte", true);
     const entry = await database.prepare("SELECT * FROM finance_goal_entries WHERE id=? AND owner_id=?").bind(entryId, ownerId).first<Row>();
-    if (!entry || entry.voided_at) throw new Error("Aporte no encontrado o ya revertido");
+    if (!entry || entry.voided_at) throw new DomainReferenceError("Aporte no encontrado o ya revertido");
     const goal = await database.prepare("SELECT * FROM finance_goals WHERE id=? AND owner_id=?").bind(entry.goal_id, ownerId).first<Row>();
-    if (!goal) throw new Error("Meta no encontrada");
+    if (!goal) throw new DomainReferenceError("Meta no encontrada");
     const amount = Number(entry.amount_minor), reserved = Number(goal.reserved_minor || 0);
     if (amount > reserved) throw new Error("Este aporte ya fue utilizado total o parcialmente y no puede revertirse completo");
     const next = reserved - amount, used = Number(goal.used_minor || 0), target = Number(goal.target_minor);
@@ -1133,12 +1134,12 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
     const categoryIds = ids(finance.categories, "Las categorías");
     const obligationIds = ids(finance.obligations, "Las obligaciones");
     const goalIds = ids(finance.goals, "Las metas");
-    for (const p of rows(source.projects)) if (p.areaId && !areaIds.has(String(p.areaId))) throw new Error("Un proyecto apunta a un área inexistente");
-    for (const e of rows(source.events)) if (e.projectId && !projectIds.has(String(e.projectId))) throw new Error("Un evento apunta a un proyecto inexistente");
+    for (const p of rows(source.projects)) if (p.areaId && !areaIds.has(String(p.areaId))) throw new DomainReferenceError("Un proyecto apunta a un área inexistente");
+    for (const e of rows(source.events)) if (e.projectId && !projectIds.has(String(e.projectId))) throw new DomainReferenceError("Un evento apunta a un proyecto inexistente");
     for (const t of rows(finance.transactions)) {
-      if (!accountIds.has(String(t.accountId || ""))) throw new Error("Un movimiento apunta a una cuenta inexistente");
-      if (t.destinationAccountId && !accountIds.has(String(t.destinationAccountId))) throw new Error("Una transferencia apunta a una cuenta destino inexistente");
-      if (t.categoryId && !categoryIds.has(String(t.categoryId))) throw new Error("Un movimiento apunta a una categoría inexistente");
+      if (!accountIds.has(String(t.accountId || ""))) throw new DomainReferenceError("Un movimiento apunta a una cuenta inexistente");
+      if (t.destinationAccountId && !accountIds.has(String(t.destinationAccountId))) throw new DomainReferenceError("Una transferencia apunta a una cuenta destino inexistente");
+      if (t.categoryId && !categoryIds.has(String(t.categoryId))) throw new DomainReferenceError("Un movimiento apunta a una categoría inexistente");
     }
     const statements = [
       database.prepare("DELETE FROM finance_goal_entries WHERE owner_id=?").bind(ownerId),
@@ -1169,9 +1170,9 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
       if (Number(manual) > 0) statements.push(database.prepare("INSERT INTO finance_budgets (id,owner_id,month,category_id,assigned_minor,concept,allocation_type,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?)").bind(String(b.id), ownerId, text(b.month, "El mes", true), String(b.categoryId), minor(manual, "La asignación"), text(b.concept, "El concepto") || "Asignación base", text(b.allocationType, "El tipo") === "additional" ? "additional" : "base", stamp, stamp));
     }
     for (const o of rows(finance.obligations)) statements.push(database.prepare("INSERT INTO finance_obligations (id,owner_id,title,concept,kind,expected_amount_minor,reserved_minor,account_id,category_id,frequency,covered_by_budget,reserve_month,next_due_date,active,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(String(o.id), ownerId, text(o.title, "La obligación", true), text(o.concept || o.title, "El concepto", true), text(o.kind, "El tipo") || "expense", minor(o.expectedAmountMinor, "El importe"), minor(o.reservedMinor, "La reserva"), o.accountId || null, o.categoryId || null, text(o.frequency, "La frecuencia") || "monthly", o.coveredByBudget === undefined ? 1 : (boolean(o.coveredByBudget) ? 1 : 0), text(o.reserveMonth, "El mes de reserva"), date(o.nextDueDate, "El vencimiento", true), boolean(o.active) ? 1 : 0, stamp, stamp));
-    for (const o of rows(finance.occurrences)) { if (!obligationIds.has(String(o.obligationId))) throw new Error("Un vencimiento apunta a una obligación inexistente"); statements.push(database.prepare("INSERT INTO finance_obligation_occurrences (id,owner_id,obligation_id,due_date,expected_minor,paid_minor,status,transaction_id,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)").bind(String(o.id), ownerId, String(o.obligationId), date(o.dueDate, "El vencimiento", true), minor(o.expectedMinor, "El importe"), minor(o.paidMinor, "El pago"), text(o.status, "El estado") || "pending", o.transactionId || null, stamp, stamp)); }
+    for (const o of rows(finance.occurrences)) { if (!obligationIds.has(String(o.obligationId))) throw new DomainReferenceError("Un vencimiento apunta a una obligación inexistente"); statements.push(database.prepare("INSERT INTO finance_obligation_occurrences (id,owner_id,obligation_id,due_date,expected_minor,paid_minor,status,transaction_id,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)").bind(String(o.id), ownerId, String(o.obligationId), date(o.dueDate, "El vencimiento", true), minor(o.expectedMinor, "El importe"), minor(o.paidMinor, "El pago"), text(o.status, "El estado") || "pending", o.transactionId || null, stamp, stamp)); }
     for (const g of rows(finance.goals)) statements.push(database.prepare("INSERT INTO finance_goals (id,owner_id,title,target_minor,reserved_minor,used_minor,target_date,priority,account_id,category_id,covered_by_budget,linked_task_id,linked_project_id,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(String(g.id), ownerId, text(g.title, "La meta", true), minor(g.targetMinor, "El objetivo"), minor(g.reservedMinor, "La reserva"), minor(g.usedMinor || 0, "Lo utilizado"), date(g.targetDate, "La fecha objetivo"), text(g.priority, "La prioridad") || "media", g.accountId || null, g.categoryId || null, 1, g.linkedTaskId || null, g.linkedProjectId || null, text(g.status, "El estado") || "active", stamp, stamp));
-    for (const g of rows(finance.goalEntries)) { if (!goalIds.has(String(g.goalId))) throw new Error("Un aporte apunta a una meta inexistente"); statements.push(database.prepare("INSERT INTO finance_goal_entries (id,owner_id,goal_id,amount_minor,occurred_on,concept,note,voided_at,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)").bind(String(g.id), ownerId, String(g.goalId), minor(g.amountMinor, "El aporte"), date(g.occurredOn, "La fecha", true), text(g.concept, "El concepto"), text(g.note, "La nota"), g.voidedAt || null, stamp, stamp)); }
+    for (const g of rows(finance.goalEntries)) { if (!goalIds.has(String(g.goalId))) throw new DomainReferenceError("Un aporte apunta a una meta inexistente"); statements.push(database.prepare("INSERT INTO finance_goal_entries (id,owner_id,goal_id,amount_minor,occurred_on,concept,note,voided_at,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)").bind(String(g.id), ownerId, String(g.goalId), minor(g.amountMinor, "El aporte"), date(g.occurredOn, "La fecha", true), text(g.concept, "El concepto"), text(g.note, "La nota"), g.voidedAt || null, stamp, stamp)); }
     const settings = finance.settings as Record<string, unknown> | undefined;
     const restoredProfiles = transferProfiles(settings?.transferBankFees);
     statements.push(database.prepare("INSERT INTO finance_settings (owner_id,currency,timezone,safety_buffer_minor,transfer_same_bank_rate_bps,transfer_ach_rate_bps,transfer_lbtr_surcharge_minor,transfer_bank_fees_json,updated_at) VALUES (?,?,?,?,?,?,?,?,?)").bind(ownerId, "DOP", text(settings?.timezone, "La zona") || "America/Santo_Domingo", minor(settings?.safetyBufferMinor || 0, "El colchón"), rateBps(settings?.transferSameBankRateBps || 0, "El porcentaje del mismo banco"), rateBps(settings?.transferAchRateBps || 0, "El porcentaje ACH"), minor(settings?.transferLbtrSurchargeMinor || 0, "El cargo adicional LBTR"), JSON.stringify(restoredProfiles), stamp));
@@ -1183,7 +1184,7 @@ export async function v2Action(ownerId: string, body: Record<string, unknown>) {
   if (action === "task.context") {
     const id = text(body.id, "La tarea", true);
     const task = await database.prepare("SELECT id FROM home_tasks WHERE id=? AND user_id=?").bind(id, HOUSEHOLD_SCOPE).first();
-    if (!task) throw new Error("Tarea no encontrada");
+    if (!task) throw new DomainReferenceError("Tarea no encontrada");
     const startTime = time(body.scheduledStartTime, "La hora de inicio");
     const endTime = time(body.scheduledEndTime, "La hora final");
     if (startTime && endTime && endTime <= startTime) throw new Error("La hora final debe ser posterior a la hora de inicio");

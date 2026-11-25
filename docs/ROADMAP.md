@@ -24,6 +24,8 @@ La fase 3 depende de una aprobación humana demostrable en la plataforma. Las fa
 
 ## Ejecución vigente
 
+Después de integrar #16 en ca336b7 se prepara diagnóstico tipado de referencias, habilitación QA condicionada sin activación y ensayo de upgrade/recuperación ficticios. Ver DELIVERY_READINESS; no se declara fase7 terminada ni actualización personal apta sin gates administrativos/humanos.
+
 Prioridad issue #15: nueva QA privada publicada desde d193562 bajo autorización específica, D1 vacía propia hasta 0012 y44 herramientas invocadas. Idempotencia/revisión/cancelación/cierre de ejecución aprobados en plataforma; ninguna fila de negocio persistida. No se modifica ni migra la instalación anterior de issue #13. Fuente y límites: ISSUE15_QA_ACCEPTANCE_REPORT; continuidad y pendientes: DEVELOPMENT_PROGRESS. La aceptación alojada permite preparar una entrega posterior de habilitación condicionada; no recomienda activar negocio sin canal humano propio, revisión, recuperación y autorización separados.
 
 La corrección de auditoría del PR #12 fue aprobada e integrada en main767f71f; CI posterior45526085881 verde. Lote CAS único y auditoría indexada/append-only; 0012 añade solo índice. La issue #13 ensaya la recuperación propia y 0012 sin publicar ni habilitar negocio. Las otras 17 tablas siguen limitadas a 2.000 filas fuente: escalabilidad por conjuntos de lectura y cuotas del host pendientes. Ver ISSUE13_ACCEPTANCE_REPORT y PR12_AUDIT_FOLLOWUP.

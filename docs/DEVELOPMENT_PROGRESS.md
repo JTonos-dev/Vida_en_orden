@@ -4,6 +4,8 @@ Corte: 24 de noviembre de 2026. Mandato: desarrollar todas las fases técnicamen
 
 ## Situación para continuar
 
+**Mandato posterior a ca336b7 (25nov2026):** continuar diagnóstico tipado, mecanismo QA condicionado sin activar, cobertura43operaciones y ensayo de actualización fase2 con respaldo/restauración ficticios. No desplegar sin autorización ni modificar instalaciones personales. CI main45664520146 verde, #16 aprobado e integrado. Primera rama fix/mcp-typed-reference-errors: DomainReferenceError→reference_not_found/404,169 pruebas y regresiones de autorización conservada. DELIVERY_READINESS registra alcance, rollback y bloqueos; PR/CI se enlazan al publicar. Visor Windows oficial devuelve Access is denied al capturar; no se elude. La QA publicada sigue versión1 de d193562, no estos candidatos.
+
 **Issue #15, estado vigente al 25 nov 2026:** main oficial d193562 integra #4–#12/#14, CI45531409462 aprobado. Rama `chore/issue15-fresh-qa`, base directa de main, sin PR pendientes como dependencia. Propietario autorizó explícitamente una única QA nueva privada y configuración de propuestas/staging/lecturas ampliadas sin negocio. Creada/publicada versión 1/entorno 1; no se consultó ni modificó ninguna instalación existente ni se copiaron datos/credenciales/identidades anteriores. [Informe QA](ISSUE15_QA_ACCEPTANCE_REPORT.md).
 
 Entrega: [PR #16](https://github.com/JorgeTonos28/Vida_en_orden/pull/16), implementación/ensayos/documentación `66202e8` más trazabilidad documental posterior. [Checks del HEAD](https://github.com/JorgeTonos28/Vida_en_orden/pull/16/checks); revisar commit exacto. La QA aloja d193562, no requiere publicar de nuevo por integrar tests/docs. Revisión/merge del PR pendientes del mantenedor; sin auto-merge ni activación.

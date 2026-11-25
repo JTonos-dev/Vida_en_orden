@@ -1,5 +1,7 @@
 # Estado actual reproducible
 
+Entrega posterior a ca336b7 en preparación: errores de referencias tipados reference_not_found, preservando atomicidad y autorización;169 pruebas locales. Sin despliegue ni negocio. Seguimiento actual y puertas de actualización: DELIVERY_READINESS y DEVELOPMENT_PROGRESS. La evidencia histórica de QA que sigue no se atribuye al candidato sin publicar.
+
 Corte: 25 de noviembre de 2026. Main oficial `d193562` integra #4–#12 y #14, con CI posterior aprobado. La issue #15 cuenta con una QA completamente nueva autorizada, privada, versión 1/entorno 1, esquema hasta 0012:44 herramientas/31 lecturas y propuestas ficticias comprobadas sin negocio. Suite local166 aprobadas y Workers ampliados. Faltan recarga/reconexión visual, cuotas/carga y canal humano propio antes de recomendar activación futura. La issue #13 sigue abierta para respaldo nativo/ledger y upgrade de la instalación anterior, sin modificar. Ver ISSUE15_QA_ACCEPTANCE_REPORT, ISSUE13_ACCEPTANCE_REPORT y DEVELOPMENT_PROGRESS. Código, fuente privada Sites, versión, deployment y aceptación son estados distintos. La exposición histórica no está resuelta; su sustitución permanece suspendida.
 
 ## Código integrado y aceptación pendiente

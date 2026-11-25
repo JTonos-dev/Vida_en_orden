@@ -1,5 +1,11 @@
 # Historial de cambios
 
+## Diagnóstico tipado de referencias · 2026-11-25
+
+- Los servicios de dominio identifican referencias ausentes/no disponibles mediante DomainReferenceError, conservando mensajes UI. Propuestas devuelven reference_not_found/404 uniforme sin revelar existencia ajena. No se reclasifican errores de infraestructura por texto.
+- Tres regresiones nuevas: revisión tras aprobación criptográfica conservando head/huella/evidencia/autorización, referencias entre módulos y errores desconocidos.169 pruebas locales; Worker exige el error tipado y conserva APPROVED.
+- Sin SQL nuevo, cambios contables, habilitación ni despliegue. Seguimiento de entregas y bloqueos: docs/DELIVERY_READINESS.md.
+
 ## Issue #15: QA nueva privada hasta 0012 · 2026-11-25
 
 - Validado main d193562/CI y clon nuevo:166 pruebas/suite completa aprobadas. Proyección freshInstallationOnly auditada,13 SQL/48 tablas/54 triggers/índice0012, sin copiar datos ni configuración de otras instalaciones.
