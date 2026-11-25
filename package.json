@@ -19,6 +19,7 @@
     "db:generate": "drizzle-kit generate",
     "audit:public": "node scripts/public-source-audit.mjs",
     "test:audit": "node --experimental-strip-types --test tests/public-source-audit.test.ts",
+    "test:recovery": "node --experimental-strip-types --test tests/recovery-rehearsal.test.mjs",
     "prepare:clean": "node scripts/prepare-clean-distribution.mjs",
     "verify:schema": "node scripts/verify-schema.mjs",
     "verify:worker": "node --experimental-strip-types scripts/verify-worker-integration.mjs",

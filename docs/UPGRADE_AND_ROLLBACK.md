@@ -1,6 +1,6 @@
 # Actualización y reversión de fases 3–7
 
-Esta entrega es código en PR dependientes; no autoriza actualizar una instalación personal. Ejecutar primero en una instancia privada de desarrollo con datos ficticios. Cada instalación administra sus propios recursos y versiones; GitHub no despliega otros Sites.
+Los PR #4–#12 están integrados en main767f71f; eso no autoriza actualizar una instalación personal ni publicar en desarrollo. La issue #13 aprobó restauración lógica y0012 locales, pero aún faltan respaldo nativo/ledger, copia separada y autorización administrativa específica. Ver ISSUE13_ACCEPTANCE_REPORT. Cada instalación administra sus propios recursos y versiones; GitHub no despliega otros Sites.
 
 La entrega de bootstrap agrega 0011 (columna de metadatos) y una proyección para publicar en Sites sin cambiar los SQL originales. Seguir SITES_METADATA_BOOTSTRAP para una instalación nueva. No usar esa automatización para sobrescribir una instalación experimental que aplicó otra representación; inspeccionar hashes/ledger y obtener autorización de su propietario. La identidad y la revisión de negocio existentes no se reinician.
 
@@ -8,18 +8,18 @@ No publicar el lockfile basal del cierre: la auditoría detectó dependencias cr
 
 ## Seleccionar y comprobar la versión
 
-1. Revisar/integrar #4 → #5 → #6 → #7 → #8 → #9 → #10 → #11 → #12. Los PR tienen base main por permisos del oficial y sus diffs son acumulativos; el cuerpo de cada PR identifica el delta y dependencia. No fusionar fuera de orden ni usar force-push. El mantenedor debe exigir CI verde y revisión humana y repetir los checks después de resolver conflictos.
+1. Confirmar main integrado y CI del commit seleccionado. #4–#12 ya están integrados; no recrear su cadena ni volver a fusionarla. Cualquier cambio posterior requiere nuevo PR, revisión y CI verde; sin force-push.
 2. Usar un clon limpio del oficial integrado o del commit exacto del fork aprobado. No copiar `.git`, configuración, D1, credenciales ni archivos ignorados de una instalación anterior. La historia pública aún contiene exposición conocida: no tratar el clon como historia purgada.
-3. Node >=22.13, npm ci; audit:dependencies, test:finance, test:mcp, test:audit, audit:public, tsc --noEmit, lint, verify:schema, build, verify:independent, verify:worker y verify:sites. Los tres últimos requieren el build. No aplicar SQL generado inesperadamente: verify:schema debe indicar cero cambios.
+3. Node >=22.13, npm ci; audit:dependencies, test:finance, test:mcp, test:audit, test:recovery, audit:public, tsc --noEmit, lint, verify:schema, build, verify:independent, verify:worker y verify:sites. Los tres últimos requieren el build. No aplicar SQL generado inesperadamente: verify:schema debe indicar cero cambios.
 4. Conservar el manifiesto público con marcador. Crear un checkout privado de publicación desde ese commit; configurar únicamente su propio project_id. Ver NEW_INSTANCE_GUIDE y flujo oficial de Sites. La configuración privada no se devuelve al PR.
 
 ## Matriz de compatibilidad
 
-Corrección de auditoría del PR #12: 0012 añade solo audit_log_seed_context_idx; no cambia filas, identidad ni business_revision. Se ensaya upgrade 0011→0012 con historial ficticio y D1 local; no se desplegó. Código nuevo de propuestas/registro/health exige ese índice. Para un historial real, medir construcción/espacio en la copia restaurada autorizada y obtener conformidad antes de actualizar. No borrar auditoría para ajustar límites. Rollback de código con propuestas apagadas conserva el índice y el historial. Detalles: PR12_AUDIT_FOLLOWUP.
+Corrección de auditoría integrada: 0012 añade solo audit_log_seed_context_idx. Upgrade ficticio en D1/workerd y copia lógica de desarrollo restaurada en SQLite aprobados, sin cambio de filas, identidad, revisión ni evidencia; no se desplegó. Código nuevo de propuestas/registro/health exige ese índice. La copia nativa restaurada y ledger/DDL efectivo siguen pendientes; no confundir el ensayo lógico con validación del host. No borrar auditoría para ajustar límites. Rollback de código con propuestas apagadas conserva índice/historial. Detalles: ISSUE13_ACCEPTANCE_REPORT y PR12_AUDIT_FOLLOWUP.
 
 | Código | Base mínima | Propuestas | Observación |
 |---|---|---|---|
-| Main fase 2 | 0000–0007 | No | 31 lecturas, sin nueva infraestructura |
+| Legado hasta PR #3 (fase 2) | 0000–0007 | No | 31 lecturas, sin nueva infraestructura |
 | Motor #5–#7 | Hasta 0008 | Solo pruebas internas | No exponer transporte incompleto |
 | Canal #8 | Hasta 0009 | Desarrollo opt-in | Sin evidencia durable del endurecimiento |
 | Endurecimiento/cierre #9+ | Hasta 0010 | Desarrollo opt-in | Falla cerrado si falta instalación, tablas o cualquiera de los 54 triggers |

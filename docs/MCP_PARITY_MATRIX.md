@@ -1,6 +1,8 @@
-# Matriz de paridad MCP — rama de fases 3–7
+# Matriz de paridad MCP — fases 3–7 integradas
 
 Esta matriz describe el código del repositorio, no datos ni permisos de una instalación concreta. `Implementado` significa que existe código y prueba correspondiente. Cada instalación debe repetir la validación de conexión con sus propios datos.
+
+Main767f71f integra #4–#12. Issue #13 revalidó las31lecturas alojadas y ensayó restauración lógica/0012 local, sin negocio ni despliegue.166 pruebas aprobadas; ver ISSUE13_ACCEPTANCE_REPORT. Respaldo nativo/ledger, actualización administrativa y aceptación funcional de escrituras siguen pendientes. La restauración offline de prueba no agrega una herramienta de importación/restauración MCP.
 
 | Módulo | Herramientas | Estado | Evidencia principal |
 |---|---|---|---|
@@ -93,4 +95,4 @@ Diez herramientas nuevas solo al configurar explícitamente propuestas en la ins
 - Los updates V2 omiten sin borrar campos existentes; las búsquedas literales mantienen 200 caracteres sin patrones LIKE largos.
 - Catálogo: 31 sin flags; 33 solo ampliaciones; 42 solo propuestas; 44 con ambos. No se anuncian binarios, OCR, SQL, alta de confianza ni escrituras de negocio habilitadas.
 
-Registro y firma humana alojados ya verificados: APPROVED para revisión/huella exactas, evidencia durable ligada a owner/clave/origen/desafío y nonce consumido dentro de vigencia. Commit denegado y cero negocio. Siguen pendientes integración/habilitación revisadas, aceptación de ejecución futura, cuota/desempeño real y capacidades que la aplicación no soporta, enumeradas arriba. Esta prueba no declara paridad funcional aceptada en producción.
+Registro y firma humana alojados ya verificados: APPROVED para revisión/huella exactas, evidencia durable ligada a owner/clave/origen/desafío y nonce consumido dentro de vigencia. Commit denegado y cero negocio. Código integrado; siguen pendientes actualización/habilitación revisadas, aceptación de ejecución futura, cuota/desempeño real y capacidades que la aplicación no soporta, enumeradas arriba. Esta prueba no declara paridad funcional aceptada en producción.

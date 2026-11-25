@@ -1,10 +1,10 @@
 # Estado actual reproducible
 
-Corte: 24 de noviembre de 2026. Main oficial sigue 317cfd8 (PR #3, fase 2). Las fases 3–7 están implementadas en ramas/PR dependientes #4→#12, con CI verde incluido el código corregido 5359d43 y revisión humana pendiente. DEVELOPMENT_PROGRESS identifica la evidencia exacta; comprobar también el HEAD documental posterior antes de integrar. Código, commit público, fuente privada Sites, versión, deployment y aceptación son estados distintos. La exposición histórica no está resuelta y su sustitución permanece suspendida.
+Corte: 24 de noviembre de 2026. Main oficial `767f71f` contiene los PR #4–#12 integrados, con revisión humana del PR #12 sobre d2f48c9 y CI posterior verde. La issue #13 registra la aceptación operativa: copia lógica propia cifrada/restaurada y ensayo 0012 locales aprobados, 166 pruebas; respaldo nativo/ledger y actualización alojada pendientes. Ver ISSUE13_ACCEPTANCE_REPORT y DEVELOPMENT_PROGRESS. Código, commit público, fuente privada Sites, versión, deployment y aceptación son estados distintos. La exposición histórica no está resuelta y su sustitución permanece suspendida.
 
-## Código propuesto
+## Código integrado y aceptación pendiente
 
-Seguimiento de auditoría del PR #12 sobre 10a0f83: nueva corrección en la misma rama, **sin desplegar ni fusionar**. Revisión prepara sin revocar la vigente y publica sucesora/head/invalidación/autorización/nonces/auditoría en un lote CAS; errores conservan la anterior y carreras no sobrescriben al ganador. Historial audit_log ya no consume el snapshot: se copia solo un marcador indexado por owner y eventos nuevos append-only. Migración aditiva 0012, sin editar SQL anteriores. Hay162 pruebas locales aprobadas; conformidad del revisor pendiente. Ver [seguimiento técnico](PR12_AUDIT_FOLLOWUP.md).
+Corrección de auditoría del PR #12 revisada e integrada, **sin actualizar el Site**. Revisión prepara sin revocar la vigente y publica sucesora/head/invalidación/autorización/nonces/auditoría en un lote CAS; errores conservan la anterior y carreras no sobrescriben al ganador. Historial audit_log ya no consume el snapshot: se copia solo un marcador indexado por owner y eventos nuevos append-only. Migración aditiva 0012, sin editar SQL anteriores. Ver [seguimiento técnico](PR12_AUDIT_FOLLOWUP.md) para las 162 pruebas originales y [ensayo operativo](ISSUE13_ACCEPTANCE_REPORT.md) para las cuatro regresiones nuevas de recuperación.
 
 La mitigación no elimina el límite conjunto de 2.000 filas fuente de las otras 17 tablas, incluidos archivados/movimientos históricos. No se recortan ni borran datos para aceptar propuestas. Se necesita preparación por conjuntos de lectura para mayor escala; no se declara capacidad productiva completa. El Site descrito abajo conserva 5359d43/SQL hasta 0011: la firma humana previa no prueba este candidato nuevo alojado.
 
@@ -37,7 +37,7 @@ La instalación independiente existente se comprobó sin cambios: fase 2, 31 lec
 
 ## Límites vigentes
 
-Registro y firma del propietario ya verificados; revisión/merge, habilitación separada y aceptación de ejecución futura siguen pendientes. Binarios/OCR, bancos, importación/restauración MCP y acciones inexistentes en la UI no se inventan. Cuotas/carga alojadas y retención de propuestas/evidencia requieren validación/política operativa. Copias históricas, diffs, forks y cachés siguen siendo riesgo abierto.
+Registro y firma del propietario ya verificados; código revisado e integrado. Respaldo nativo/ledger, autorización de actualización, habilitación separada y aceptación de ejecución futura siguen pendientes. Dos capturas iguales/restauración lógica en memoria conservan 48 tablas,18 filas,54 triggers e identidad/evidencia; 0012 no cambia datos. No equivalen a snapshot nativo ni a migración alojada. Binarios/OCR, bancos, importación/restauración MCP y acciones inexistentes en la UI no se inventan. Cuotas/carga alojadas y retención de propuestas/evidencia requieren validación/política operativa. Copias históricas, diffs, forks y cachés siguen siendo riesgo abierto.
 
 Las protecciones efectivas consultadas exigen PR/verify y bloquean force/delete, pero admiten cero aprobaciones y no exigen check actualizado con base. La cuenta ejecutora solo lee el oficial y publica en su fork. Se exige revisión humana por procedimiento; no se eluden controles ni se fusiona por tener CI verde.
 
