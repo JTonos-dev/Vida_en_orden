@@ -1,5 +1,13 @@
 # Historial de cambios
 
+## Fase 3: fundamento aislado · 2026-11-24
+
+- Motor de propuestas inmutables con diff, SHA-256, caducidad, aislamiento, guardas de concurrencia, aprobación criptográfica y recibos idempotentes.
+- Servicios existentes extraídos a contexto por request; preparación sobre staging particionado y commit atómico D1, sin duplicar cálculos financieros.
+- Migración aditiva 0008 y registro Drizzle completado para 0006–0008. No se modifica ninguna instalación.
+- Se inicia seguimiento continuo y guía de aceptación. El historial expuesto permanece como riesgo conocido; se suspende su sustitución.
+- WebAuthn se comprueba con firmas sintéticas reales; falta prueba humana en plataforma. El catálogo público conserva sus 31 lecturas y la compuerta de negocio sigue cerrada.
+
 ## Auditoría histórica y preparación de fase 3 · 2026-11-24
 
 - PR #3 integrado con revisión y CI satisfactorios; se distingue la fuente actual del historial todavía expuesto.

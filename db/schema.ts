@@ -200,3 +200,5 @@ export const auditLog = sqliteTable("audit_log", {
   entityId: text("entity_id").notNull(), action: text("action").notNull(), metadata: text("metadata").notNull().default("{}"),
   occurredAt: text("occurred_at").notNull(),
 });
+
+export * from "./mcp-schema";

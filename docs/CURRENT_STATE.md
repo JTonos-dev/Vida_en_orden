@@ -7,7 +7,7 @@
 
 - React/Vinext sobre Cloudflare Workers.
 - D1 mediante el binding `DB` y Drizzle ORM.
-- Migraciones `drizzle/0000` a `drizzle/0007`.
+- Migraciones `drizzle/0000` a `drizzle/0008` en la rama de desarrollo; main conserva la versión integrada.
 - Interfaz persistente para tareas, subtareas, bitácora, calendario, áreas, proyectos, cuentas, movimientos, presupuestos, obligaciones, metas y configuración financiera.
 - `/api/state` sirve lecturas de la interfaz.
 - `/api/action` conserva las escrituras normales de la interfaz; no forma parte del router MCP.
@@ -52,11 +52,11 @@ La instalación independiente de validación también ejecutó las 31 herramient
 
 - PR #3 aprobado y fusionado, con CI satisfactorio del PR y del merge. La fuente posterior elimina el bootstrap particular; el historial, los diffs y las copias de la red anterior no están purgados.
 - La auditoría encontró también valores particulares dentro del verificador. Esta propuesta los sustituye por reglas genéricas y pruebas de regresión. El candidato local y el ensayo de filtrado no se han publicado como historia nueva. Ver `HISTORY_SANITIZATION_PLAN.md`.
-- La fase 3 tiene un plan técnico para revisión en `PHASE3_TECHNICAL_PLAN.md`; sigue sin implementación ni herramientas habilitadas. Su inicio depende del cierre del saneamiento y de aprobar el plan.
+- El mandato vigente autoriza desarrollar las fases 3–7 sin continuar el reemplazo histórico. La fase 3 dispone de motor aislado, staging, huella, WebAuthn con claves fijadas, caducidad, guardas de concurrencia y recibos idempotentes. Todavía no está expuesto por MCP ni verificado con interacción humana real. Ver `DEVELOPMENT_PROGRESS.md`.
 
 - La configuración de audiencia y los secretos de Sites no son portables por Git y deben recrearse manualmente en cada instalación.
 - El Site no ofrece una importación automática de una instalación de otra cuenta.
 - Las herramientas nuevas deben validarse individualmente después de conectar el plugin de una nueva instalación; el catálogo por sí solo no prueba una integración end-to-end.
-- La fase de escrituras MCP no está implementada. Los contratos futuros en `lib/mcp/future-contracts.ts` no habilitan herramientas.
+- Las escrituras reales MCP permanecen deshabilitadas; los componentes aislados no habilitan ejecución por sí mismos.
 - El esquema SQL no usa claves foráneas para todas las relaciones; el código valida referencias y `validate_references` informa inconsistencias sin repararlas.
 - La consulta actual de rulesets muestra PR obligatorio, bloqueo de borrado/force-push y check `verify` requerido. Permite cero aprobaciones y no exige que el check esté actualizado con la base. La cuenta ejecutora tiene lectura sobre el oficial, sin administración ni push. Ver `docs/COLLABORATION.md`.
