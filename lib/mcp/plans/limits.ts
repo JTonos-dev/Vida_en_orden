@@ -26,3 +26,10 @@ export async function readBoundedJson(request:Request,maxBytes=64*1024):Promise<
  let raw:string;try{raw=new TextDecoder("utf-8",{fatal:true}).decode(bytes);}catch{throw new PlanError("invalid_json","La solicitud requiere UTF-8 válido.",400);}
  return parseBoundedJson(raw,maxBytes);
 }
+/** Drain a small denied body before responding; bound both bytes and waiting time. */
+export async function finishDeniedRequest(request:Request){
+ if(!request.body||request.bodyUsed)return;
+ const reader=request.body.getReader();let bytes=0,timer:ReturnType<typeof setTimeout>|undefined;
+ const deadline=new Promise<{kind:"timeout"}>(resolve=>{timer=setTimeout(()=>resolve({kind:"timeout"}),1000);});
+ try{while(true){const part=await Promise.race([reader.read().then(result=>({kind:"chunk" as const,result})),deadline]);if(part.kind==="timeout"){await reader.cancel();break;}if(part.result.done)break;bytes+=part.result.value.byteLength;if(bytes>64*1024){await reader.cancel();break;}}}catch{/* A disconnected/oversized client cannot change the denial. */}finally{if(timer)clearTimeout(timer);reader.releaseLock();}
+}

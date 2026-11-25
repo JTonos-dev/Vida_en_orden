@@ -1,78 +1,39 @@
 # Estado actual reproducible
 
-**Corte del código transferido:** 24 de noviembre de 2026  
-**Estado de este repositorio:** fuente de fase 2 operativa; historial público con exposición pendiente de retirada. La punta de `main` de GitHub es la referencia exacta del código integrado; una rama o candidato local no es una sustitución remota aplicada.
+Corte: 24 de noviembre de 2026. Este documento describe la rama propuesta de fases 3–7; no una versión desplegada. El oficial y el fork actual siguen siendo las únicas fuentes de desarrollo. La exposición histórica pública **no está resuelta**; su sustitución está suspendida por el responsable y no bloquea estas entregas.
 
-## Aplicación
+## Código integrado e instalación existente
 
-- React/Vinext sobre Cloudflare Workers.
-- D1 mediante el binding `DB` y Drizzle ORM.
-- Migraciones `drizzle/0000` a `drizzle/0008` en la rama de desarrollo; main conserva la versión integrada.
-- Interfaz persistente para tareas, subtareas, bitácora, calendario, áreas, proyectos, cuentas, movimientos, presupuestos, obligaciones, metas y configuración financiera.
-- `/api/state` sirve lecturas de la interfaz.
-- `/api/action` conserva las escrituras normales de la interfaz; no forma parte del router MCP.
-- No se incluye ninguna base de datos, respaldo, log o fixture de la instalación original.
+`main` oficial integra PR #3 (`317cfd8`), con 31 herramientas MCP de lectura. PR #4 y las entregas siguientes están pendientes de revisión/integración. No se ha fusionado, desplegado ni migrado ninguna instalación personal durante este desarrollo. Una comprobación de solo lectura de la instancia independiente confirmó fase 2, 31 herramientas, businessWritesEnabled=false y cero incidencias referenciales.
 
-La revisión de una instalación nueva encontró fixtures incrustados en el bootstrap de tareas y una clasificación automática ligada a la instalación de origen. La copia propuesta elimina ambos del runtime: una primera escritura crea únicamente la tarea solicitada y no genera proyectos heredados. El historial público previo no se reescribe. Ver `INDEPENDENT_INSTALLATION_VALIDATION.md`.
+La UI conserva `/api/action`; MCP nunca llama a ese endpoint. Los datos de tareas/áreas/proyectos mantienen el scope compartido original y finanzas/eventos el scope privado autenticado. Cada Site tiene D1, propietario, secretos y configuración propios.
 
-## MCP verificado en el origen
+## Rama propuesta
 
-El estado transferido implementa el servidor MCP en `POST /mcp` con protocolo `2026-07-28`:
+- React/Vinext, Worker Cloudflare, D1 `DB` y Drizzle. Servicios de dominio compartidos mediante contexto de request; no hay segundo motor financiero.
+- Motor de propuestas: staging particionado, acciones cerradas, diff por acción y final, impacto financiero, SHA-256, expiración, propietario autenticado, revisión, idempotencia y guardas atómicas de concurrencia. Ejecución/recibo/auditoría y reversión no financiera probados en aislamiento.
+- Aprobación web: origen HTTPS exacto, owner-only, CSRF y WebAuthn con presencia/verificación de usuario. La inscripción entrega candidatos, nunca confianza automática. Credenciales fijadas administrativamente; el modelo no puede aprobar ni inscribir claves de confianza.
+- 19 acciones no financieras y 24 financieras reutilizan los servicios existentes. Catálogo detallado y excepciones en [MCP_PARITY_MATRIX.md](MCP_PARITY_MATRIX.md).
+- Endurecimiento: JSON acotado, presupuestos de consulta, idempotencia de preparación, leases/limpieza de staging vencido, evidencia durable, revocación, verificación posterior, adjuntos texto/CSV/JSON no confiables e informe interno de integridad.
+- Migraciones SQL 0000–0010, 48 tablas y 54 triggers de revisión. 0008/0009 son aditivas; 0010 invalida metadatos de propuestas antiguas y limpia staging, sin cambiar negocio. No aplicarlas a producción sin el procedimiento de [UPGRADE_AND_ROLLBACK.md](UPGRADE_AND_ROLLBACK.md).
 
-- 31 herramientas declaradas por `get_capabilities`.
-- Todas las herramientas tienen anotaciones de solo lectura.
-- `MCP_BUSINESS_WRITES_ENABLED` permanece fijado en `false`.
-- La autorización se basa en la identidad autenticada por Sites y en `MCP_OWNER_EMAIL`/`MCP_OWNER_USER_ID` configurados por instalación.
-- Los alcances compartidos y privados están separados en `lib/data-scopes.ts` y en `lib/mcp/read-service.ts`.
-- Las consultas son tipadas, acotadas, paginadas y no aceptan SQL del llamador.
-- El servidor MCP no llama a `/api/action`, no ejecuta migraciones y no inicializa datos durante una lectura.
+## Superficie MCP y compuerta
 
-## Herramientas actuales
+| Configuración privada | Herramientas | Efectos permitidos |
+|---|---:|---|
+| Sin flags | 31 | Lectura; sin inicialización ni mantenimiento |
+| Solo MCP_EXTENDED_READS_ENABLED | 33 | Lectura; adjuntos/informe adicionales |
+| Solo MCP_PROPOSALS_ENABLED | 42 | Lecturas y metadatos/staging de propuestas |
+| Ambos flags | 44 | Ambas superficies anteriores |
 
-`get_capabilities`, `get_my_profile`, `search_tasks`, `get_task`, `list_task_relations`, `list_areas`, `get_area`, `list_projects`, `get_project`, `list_calendar_events`, `get_calendar_event`, `get_agenda`, `list_accounts`, `get_account`, `list_categories`, `list_concepts`, `search_transactions`, `get_transaction`, `get_budget`, `list_budget_allocations`, `list_obligations`, `get_obligation`, `list_obligation_occurrences`, `list_goals`, `get_goal`, `list_goal_entries`, `get_finance_report`, `list_audit_log`, `get_configuration`, `validate_references` y `search_all`.
+Las 31 herramientas anteriores conservan nombre, contrato y readOnlyHint=true/destructiveHint=false. Las herramientas que modifican metadatos tienen anotaciones acordes. `businessWritesEnabled=false` está fijado en código en fábrica y transporte; incluso una propuesta APPROVED devuelve `writes_disabled`. No existe herramienta approve/enroll/SQL, ni `confirmed: true` que sustituya la autorización.
 
-## Pruebas recuperadas
+## Evidencia y límites
 
-La fuente de origen pasó antes de la transferencia:
+Las pruebas versionadas incluyen SQLite con todas las migraciones, D1 local real mediante workerd, rollback forzado de recibo, carreras/idempotencia, aislamiento, WebAuthn sintético, contrato de las 31 lecturas, equivalencia ORM/SQL y upgrade. La verificación del Worker compilado usa HTTPS loopback, base temporal, firmas sintéticas y 27 comprobaciones de la interfaz. Nunca utiliza datos, claves ni bases de otra instalación.
 
-- `npm run test:mcp`.
-- `npm run test:finance`.
-- `npx tsc --noEmit`.
-- `npm run lint` sin errores de salida; existen advertencias no bloqueantes preexistentes de componentes.
-- `npm run build`.
-- `npm run verify:independent` aplica las ocho migraciones en una D1 local temporal y comprueba una consulta de humo sin usar la instalación original.
+Resultados finales, PR y continuidad: [DEVELOPMENT_PROGRESS.md](DEVELOPMENT_PROGRESS.md) e [IMPLEMENTATION_REPORT.md](IMPLEMENTATION_REPORT.md). Aceptación personal progresiva: [USER_ACCEPTANCE_TESTS.md](USER_ACCEPTANCE_TESTS.md). No convertir pruebas sintéticas en certificación de interacción humana, autenticador físico o cuotas del host.
 
-La validación local cubre catálogo, identidad, lecturas, paginación e integridad referencial. Una validación de producción pertenece a cada instalación y no se registra aquí con datos, saldos, correos, URLs o hashes de respaldos.
+Pendientes externos: revisión del mantenedor, integración ordenada, instalación alojada de desarrollo, aprobación humana real y aceptación funcional. Binarios/OCR, conexión bancaria, importación/restauración MCP y operaciones inexistentes en la aplicación no se declaran implementadas. La retención de propuestas/evidencia y la carga máxima alojada requieren política/validación operativa; no se borra evidencia por mantenimiento ordinario.
 
-`tests/mcp-installation.test.ts`, incluido en `test:mcp`, ejecuta las 31 herramientas contra SQLite real con las ocho migraciones, tanto vacío como con fixtures sintéticos. Comprueba ausencia de cambios, dos bases separadas con IDs coincidentes, paginación y denegaciones 401/403/503. Esta prueba no sustituye la conexión al plugin ni la ejecución sobre D1 alojada.
-
-La instalación independiente de validación también ejecutó las 31 herramientas mediante su propio plugin contra una D1 nueva: 22 lecturas válidas y nueve `not_found` esperados en detalles de una base vacía. Las 18 tablas permanecieron vacías y la validación referencial informó cero incidencias. Los detalles positivos y la paginación con registros están cubiertos localmente con datos ficticios. La publicación de esa instancia no fusiona esta propuesta ni habilita otra fase.
-
-## Límites conocidos
-
-- PR #3 aprobado y fusionado, con CI satisfactorio del PR y del merge. La fuente posterior elimina el bootstrap particular; el historial, los diffs y las copias de la red anterior no están purgados.
-- La auditoría encontró también valores particulares dentro del verificador. Esta propuesta los sustituye por reglas genéricas y pruebas de regresión. El candidato local y el ensayo de filtrado no se han publicado como historia nueva. Ver `HISTORY_SANITIZATION_PLAN.md`.
-- El mandato vigente autoriza desarrollar las fases 3–7 sin continuar el reemplazo histórico. La fase 3 dispone de motor aislado, staging, huella, WebAuthn con claves fijadas, caducidad, guardas de concurrencia y recibos idempotentes. Todavía no está expuesto por MCP ni verificado con interacción humana real. Ver `DEVELOPMENT_PROGRESS.md`.
-
-- La configuración de audiencia y los secretos de Sites no son portables por Git y deben recrearse manualmente en cada instalación.
-- El Site no ofrece una importación automática de una instalación de otra cuenta.
-- Las herramientas nuevas deben validarse individualmente después de conectar el plugin de una nueva instalación; el catálogo por sí solo no prueba una integración end-to-end.
-- Las escrituras reales MCP permanecen deshabilitadas; los componentes aislados no habilitan ejecución por sí mismos.
-- El esquema SQL no usa claves foráneas para todas las relaciones; el código valida referencias y `validate_references` informa inconsistencias sin repararlas.
-- La consulta actual de rulesets muestra PR obligatorio, bloqueo de borrado/force-push y check `verify` requerido. Permite cero aprobaciones y no exige que el check esté actualizado con la base. La cuenta ejecutora tiene lectura sobre el oficial, sin administración ni push. Ver `docs/COLLABORATION.md`.
-
-## Entrega no financiera en rama dependiente
-
-19 adaptadores cerrados reutilizan los servicios. Incluyen tareas/subtareas, bitácora, organización y eventos; reversión específica derivada de recibos con nueva aprobación. No hay herramientas públicas nuevas ni escrituras reales habilitadas. Ver paridad y seguimiento.
-
-## Entrega financiera aislada
-
-24 adaptadores R2 implementados; pruebas específicas de contabilidad, reservas, reversión, concurrencia y rollback. El reporte financiero neto incluye ahora comisiones de transferencias propias. No se cambia la política de ejecución MCP ni se toca una base personal. Ver seguimiento para verificaciones y PR.
-
-## Propuestas opcionales y canal humano en desarrollo
-
-La nueva rama incorpora opt-in MCP_PROPOSALS_ENABLED de diez herramientas de metadatos (41 con las lecturas), página de revisión, API owner-only/origen/CSRF y verificación WebAuthn. El alta solo devuelve candidatos; la confianza se configura por administración fuera del modelo. Requiere 0009 además de 0008. La compuerta real permanece cerrada en dos capas y falta prueba humana alojada. Ver HUMAN_APPROVAL_SETUP.md.
-
-## Endurecimiento en rama dependiente
-
-0010 agrega evidencia durable, idempotencia de preparación, leases y métricas sin datos de contenido; invalida planes anteriores al upgrade y limpia sus copias de staging, sin tocar negocio. Parsers/límites de stream, parches que conservan campos omitidos, efectos por acción e impacto financiero firmado. Con ambos flags hay 44 herramientas; por defecto siguen 31 lecturas. Ver MCP_HARDENING.md para límites, capacidades no verificadas y migración.
+Las reglas efectivas consultadas exigen PR/check verify y bloquean force-push/eliminación de main, pero admiten cero aprobaciones y no exigen check actualizado con base. La cuenta ejecutora solo lee el oficial y publica en su fork. Se mantiene revisión humana del mantenedor por procedimiento; no se eluden protecciones.

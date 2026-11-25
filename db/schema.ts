@@ -201,4 +201,4 @@ export const auditLog = sqliteTable("audit_log", {
   occurredAt: text("occurred_at").notNull(),
 });
 
-export * from "./mcp-schema";
+export * from "./mcp-schema.ts";

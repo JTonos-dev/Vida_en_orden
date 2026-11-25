@@ -1,5 +1,7 @@
 # Estado técnico MCP para una instalación nueva
 
+Actualizado para la rama de fases 3–7. El estado integrado/deployado se distingue en CURRENT_STATE.md; este documento no registra una instalación personal.
+
 Este documento es una guía pública del código transferido. No contiene un inventario de usuarios, permisos, datos, URLs ni versiones privadas de una instalación concreta.
 
 ## Componentes
@@ -14,7 +16,7 @@ Este documento es una guía pública del código transferido. No contiene un inv
 
 ## Contrato vigente
 
-La superficie MCP actual es de solo lectura. El catálogo se obtiene desde `get_capabilities`; las herramientas no reciben una identidad, tabla, SQL o scope arbitrario como argumento. Las colecciones usan límites y cursores opacos. Los detalles y reportes reutilizan reglas del dominio y no crean registros.
+La superficie predeterminada conserva 31 herramientas de solo lectura. Los opt-in privados añaden once herramientas de propuestas y dos lecturas ampliadas (hasta 44); solo escriben metadatos/staging, con ejecución de negocio cerrada en código. El catálogo se obtiene desde `get_capabilities`; las herramientas no reciben una identidad, tabla, SQL o scope arbitrario como argumento. Las colecciones usan límites y cursores opacos. Los detalles y reportes reutilizan reglas del dominio y no crean registros.
 
 Las escrituras de la interfaz están separadas en `/api/action`. Esa ruta no es una herramienta MCP y el servidor MCP no la importa ni la llama.
 
@@ -25,9 +27,11 @@ Cada instalación debe usar su propio binding D1 y sus propios secretos. Los dat
 ## Estado de desarrollo
 
 - Fases 0, 1, 1.1 y 2: código y documentación transferidos.
-- Fase 3: no iniciada; los tipos futuros no habilitan escrituras.
-- Fases 4 a 7: pendientes o parcialmente documentadas según `docs/ROADMAP.md`.
+- Fase 3: motor, transporte y verificación WebAuthn implementados/probados en aislamiento; aceptación humana y host pendientes.
+- Fases 4/5: 19/24 adaptadores probados, sin ejecución MCP real habilitada.
+- Fase 6: adjuntos de texto/CSV/JSON, informes internos y endurecimiento implementados; binarios/OCR y carga alojada sin verificar.
+- Fase 7: integración, migraciones y documentación en PR dependientes; ver DEVELOPMENT_PROGRESS.md para evidencia exacta y bloqueos externos.
 
 ## Verificación local
 
-Ejecuta `npm ci`, `npm run test:finance`, `npm run test:mcp`, `npx tsc --noEmit`, `npm run lint` y `npm run build`. La conexión de ChatGPT no puede validarse solo desde este repositorio: requiere publicar una instalación propia y usar su plugin.
+Ejecuta los comandos de AGENTS.md, incluidos auditoría, verify:schema y, después del build, verify:independent/verify:worker. La conexión de ChatGPT no puede validarse solo desde este repositorio: requiere publicar una instalación propia y usar su plugin. La aprobación con firmas sintéticas no sustituye la interacción de una persona.

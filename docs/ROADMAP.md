@@ -14,11 +14,11 @@ El endurecimiento de GitHub, la guía de portabilidad y la prueba de instalació
 | 4 | Escrituras no financieras: tareas, áreas, proyectos, planificación y bitácora | 19 adaptadores y reversión implementados en aislamiento; transporte y aceptación pendientes. | Atomicidad, rollback y paridad con servicios existentes. |
 | 5 | Escrituras financieras y relaciones cruzadas | 24 adaptadores R2 y pruebas contables implementados en aislamiento; aceptación/ejecución real pendientes. | Pruebas contables, no doble conteo, concurrencia, reversión y reconciliación. |
 | 6 | Adjuntos interpretados, informes ampliados y endurecimiento operativo | Texto/CSV/JSON, informe interno, límites, evidencia y recuperación implementados; binarios/OCR y validación de host pendientes. | Seguridad ante prompt injection, observabilidad, carga y manejo de datos incompletos. |
-| 7 | Cierre documental, publicación, conexión y pruebas end-to-end | Cierre técnico en preparación; instalación de fase 2 ya validada. Falta instalar/verificar la nueva rama y aceptación humana. | Otro agente debe instalar, conectar su propio Site/plugin y repetir las pruebas sin la conversación original. |
+| 7 | Cierre documental, publicación, conexión y pruebas end-to-end | Integración Worker/D1, migraciones/ORM, CI y guías implementadas; instalación desde GitHub/host y aceptación humana en verificación. | Otro agente debe instalar, conectar su propio Site/plugin y repetir las pruebas sin la conversación original. No se declara aceptación final. |
 
 ## Dependencias
 
-El saneamiento del historial está preparado y ensayado localmente, pero la retirada remota y de cachés requiere aprobación específica y actuación del propietario/Support. No se declara cerrado por haber saneado HEAD ni por crear una copia local limpia. Ver `HISTORY_SANITIZATION_PLAN.md`.
+El saneamiento del historial fue preparado y ensayado localmente; el responsable suspendió su sustitución. La exposición remota/de cachés sigue abierta. No se declara cerrada por haber saneado HEAD ni por crear una copia local limpia. Ver `HISTORY_SANITIZATION_PLAN.md`; conservar ese riesgo sin reiniciar el reemplazo.
 
 La fase 3 depende de una aprobación humana demostrable en la plataforma. Las fases 4 y 5 dependen de la fase 3 y de servicios de dominio transaccionales. La fase 6 depende de límites de archivos y permisos verificables del host. La fase 7 no convierte ninguna fase pendiente en terminada.
 

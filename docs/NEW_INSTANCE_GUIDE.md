@@ -34,13 +34,17 @@ Requisitos: Git, Node.js `>=22.13.0` y una instalación limpia de dependencias.
 npm ci
 npm run test:finance
 npm run test:mcp
+npm run test:audit
+npm run audit:public
 npx tsc --noEmit
 npm run lint
+npm run verify:schema
 npm run build
 npm run verify:independent
+npm run verify:worker
 ```
 
-`verify:independent` crea una D1 local temporal con Wrangler, aplica `drizzle/0000` hasta `drizzle/0007`, ejecuta una consulta de humo y elimina el directorio temporal. No ejecuta `--remote`, no necesita un token y no importa datos.
+`verify:independent` crea una D1 local temporal con Wrangler, aplica todas las migraciones SQL contiguas desde `drizzle/0000`, ejecuta una consulta de humo y elimina el directorio temporal. En la rama de fases 3–7 llega hasta `0010` (48 tablas); `main` conserva la versión integrada. No ejecuta `--remote`, no necesita un token y no importa datos. `verify:schema` comprueba que Drizzle no genere cambios en una copia temporal; `verify:worker` ejecuta el Worker compilado con D1 y credenciales exclusivamente sintéticas en HTTPS loopback, incluyendo las 31 lecturas y 27 comprobaciones de la interfaz. No certifica aprobación humana en ChatGPT.
 
 `test:mcp` también invoca individualmente las 31 herramientas con el esquema SQL real y datos ficticios, prueba una base vacía y compara dos bases independientes. Las lecturas no deben insertar valores predeterminados. La primera escritura de la interfaz tampoco debe cargar tareas ni proyectos de la instalación original; `scripts/qa-v2.mjs` comprueba esta condición únicamente contra una vista local aislada.
 

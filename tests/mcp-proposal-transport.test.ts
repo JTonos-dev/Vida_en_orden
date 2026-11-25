@@ -103,3 +103,10 @@ test("MCP rechaza JSON ambiguo y exige expected_revision al revisar/cancelar",as
   const missing=await content<{error:string}>(await handleMcpRequest(rpc("cancel_change_plan",{proposal_id:p.proposalId}),dependencies));assert.equal(missing.error,"invalid_input");
  }finally{f.close();}
 });
+
+test("denegación temprana termina el body sin abrir el motor ni conservar datos",async()=>{
+ const f=fixture();try{
+  const p=await f.engine.prepare(actions);const request=new Request(origin+"/api/mcp/proposals/"+p.proposalId,{method:"POST",headers:{...identity,"content-type":"application/json",origin},body:JSON.stringify({action:"challenge",digest:p.digest,revision:1})});
+  const response=await handleApprovalRequest(request,p.proposalId,{ownerPolicy,origin,credentials:[f.key.pin],createEngine(){throw Error("Engine must not open");}});assert.equal(response.status,403);assert.equal(request.bodyUsed,true);
+ }finally{f.close();}
+});

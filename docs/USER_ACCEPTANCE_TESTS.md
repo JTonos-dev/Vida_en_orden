@@ -57,7 +57,7 @@ Precaución especial: ante timeout no repetir un movimiento suponiendo fallo; pe
 
 ## UAT-3-HUMAN — canal real de aprobación (prioridad máxima)
 
-Fase: 3B. Estado: **bloqueada hasta desplegar instancia de desarrollo con 0008/0009 y configuración propia**. No depende de habilitar escrituras. Esta prueba sí requiere una persona y no puede sustituirse por los tests de firmas sintéticas.
+Fase: 3B. Estado: **bloqueada hasta desplegar instancia de desarrollo con 0000–0010 y configuración propia**. No depende de habilitar escrituras. Esta prueba sí requiere una persona y no puede sustituirse por los tests de firmas sintéticas.
 
 - Requisitos/datos: seguir HUMAN_APPROVAL_SETUP.md; propietario con autenticador y credencial personalmente fijada. Única propuesta: crear `UAT Synthetic approval` sin datos reales.
 - Pasos exactos: registrar candidato en `/approvals/enroll`, fijarlo administrativamente, preparar cambio desde ChatGPT, pedir enlace request_approval, abrirlo autenticado, comprobar diff/versión/huella y aprobar con el control del sistema.
